@@ -1,0 +1,284 @@
+/* Custom styles for AWS Blue/Green deployment presentation */
+
+:root {
+  --aws-orange: #FF9900;
+  --aws-dark-blue: #232F3E;
+  --aws-light-blue: #1A9BDB;
+  --aws-green: #3FB34F;
+  --green-stage: #3FB34F;
+  --blue-stage: #1A9BDB;
+  --text-light: #F8F8F2;
+  --text-muted: #AAAAAA;
+}
+
+.reveal {
+  font-family: 'Amazon Ember', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Title slide */
+.reveal .title-slide h1 {
+  font-size: 1.6em;
+  color: var(--aws-orange);
+  text-shadow: none;
+  line-height: 1.2;
+}
+
+.reveal .title-slide h2 {
+  font-size: 1em;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin-top: 0.5em;
+}
+
+.reveal .title-slide .event-badge {
+  display: inline-block;
+  background: var(--aws-orange);
+  color: var(--aws-dark-blue);
+  font-size: 0.55em;
+  font-weight: bold;
+  padding: 0.3em 1em;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.8em;
+}
+
+/* Section headers */
+.reveal .section-header {
+  background: linear-gradient(135deg, var(--aws-dark-blue), #1a2a3a);
+  border-left: 6px solid var(--aws-orange);
+  padding: 0.5em 1em;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 0.5em;
+}
+
+/* Color utility classes */
+.reveal .orange { color: var(--aws-orange); }
+.reveal .green  { color: var(--green-stage); }
+.reveal .blue   { color: var(--blue-stage); }
+.reveal .muted  { color: var(--text-muted); }
+
+/* Stage badge pills */
+.stage-pill {
+  display: inline-block;
+  padding: 0.2em 0.8em;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+.stage-pill.blue-pill  { background: var(--blue-stage);  color: #fff; }
+.stage-pill.green-pill { background: var(--green-stage); color: #fff; }
+
+/* Architecture diagram containers */
+.arch-diagram {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5em auto;
+}
+
+/* AWS-style resource boxes */
+.aws-box {
+  border-radius: 8px;
+  padding: 0.5em 0.8em;
+  font-size: 0.65em;
+  font-weight: bold;
+  text-align: center;
+  min-width: 110px;
+  color: #fff;
+}
+.aws-box.apigw   { background: #8A2BE2; border: 2px solid #9B4EFF; }
+.aws-box.lambda  { background: #E8700A; border: 2px solid #FF9900; }
+.aws-box.user    { background: #555;    border: 2px solid #888; }
+.aws-box.alias   { background: #1A9BDB; border: 2px solid #3BB8F5; }
+.aws-box.green-box { background: #267A30; border: 2px solid #3FB34F; }
+
+/* Connector arrows */
+.arrow-right {
+  font-size: 1.4em;
+  color: var(--aws-orange);
+  margin: 0 0.3em;
+  align-self: center;
+}
+
+/* Two-column layout */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+  text-align: left;
+}
+
+/* Three-column layout */
+.three-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.8em;
+  text-align: left;
+}
+
+/* Card-style panels */
+.card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 0.8em 1em;
+  font-size: 0.72em;
+}
+
+.card h4 {
+  margin: 0 0 0.4em;
+  font-size: 1em;
+  color: var(--aws-orange);
+}
+
+/* Highlighted code-like blocks */
+.reveal .code-block {
+  background: #1e1e2e;
+  border-left: 4px solid var(--aws-orange);
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.65em;
+  padding: 0.6em 1em;
+  text-align: left;
+  white-space: pre;
+  overflow: auto;
+}
+
+/* Step boxes for workflow */
+.step-box {
+  background: rgba(255,153,0,0.12);
+  border: 2px solid var(--aws-orange);
+  border-radius: 10px;
+  padding: 0.6em 1em;
+  margin: 0.3em 0;
+  font-size: 0.7em;
+}
+
+.step-box.green-step {
+  background: rgba(63,179,79,0.12);
+  border-color: var(--green-stage);
+}
+
+.step-box.blue-step {
+  background: rgba(26,155,219,0.12);
+  border-color: var(--blue-stage);
+}
+
+/* Callout / tip boxes */
+.callout {
+  background: rgba(255,153,0,0.15);
+  border-radius: 8px;
+  border-left: 5px solid var(--aws-orange);
+  padding: 0.5em 1em;
+  font-size: 0.7em;
+  text-align: left;
+  margin-top: 0.5em;
+}
+
+/* Comparison table */
+.compare-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.68em;
+}
+.compare-table th {
+  background: var(--aws-dark-blue);
+  color: var(--aws-orange);
+  padding: 0.5em 0.8em;
+}
+.compare-table td {
+  padding: 0.4em 0.8em;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.compare-table tr:nth-child(even) td {
+  background: rgba(255,255,255,0.04);
+}
+
+/* Presenter info */
+.presenter-info {
+  font-size: 0.65em;
+  color: var(--text-muted);
+  margin-top: 0.5em;
+}
+.presenter-info .name {
+  font-size: 1.2em;
+  color: var(--text-light);
+  font-weight: bold;
+}
+
+/* Footer bar on slides */
+.slide-footer {
+  position: absolute;
+  bottom: 0.4em;
+  left: 0;
+  right: 0;
+  font-size: 0.35em;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+/* Vertical separator */
+.v-sep {
+  border-left: 2px solid rgba(255,255,255,0.2);
+}
+
+/* Diagram: traffic split visualization */
+.traffic-bar {
+  display: flex;
+  height: 28px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 0.5em 0;
+  font-size: 0.65em;
+}
+.traffic-bar .blue-fill {
+  background: var(--blue-stage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  transition: width 0.5s;
+}
+.traffic-bar .green-fill {
+  background: var(--green-stage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  transition: width 0.5s;
+}
+
+/* Large emoji icons used as visual anchors */
+.big-icon { font-size: 2em; }
+
+/* URL display style */
+.url-display {
+  font-family: 'Courier New', monospace;
+  font-size: 0.65em;
+  background: #1e1e2e;
+  border-radius: 6px;
+  padding: 0.3em 0.8em;
+  display: inline-block;
+}
+.url-display .blue-url  { color: var(--blue-stage); }
+.url-display .green-url { color: var(--green-stage); }
+
+/* Agenda list */
+.agenda-list {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  font-size: 0.78em;
+}
+.agenda-list li {
+  padding: 0.3em 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.agenda-list li::before {
+  content: '▸ ';
+  color: var(--aws-orange);
+}
