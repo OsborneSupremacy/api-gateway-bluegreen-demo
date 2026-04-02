@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</title>
+
+  <!-- Reveal.js (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css" />
+  <!-- Syntax highlighting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css" />
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="css/custom.css" />
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+  <!-- ============================================================
+       SLIDE 1 — TITLE
+       ============================================================ -->
+  <section class="title-slide" data-background-color="#232F3E">
+    <div class="event-badge">☁️ AWS Community Day Midwest 2026</div>
+    <h1>Deploy Green, Verify, Promote</h1>
+    <h2>Blue/Green Releases with API Gateway &amp; Lambda</h2>
+    <hr style="border-color:rgba(255,255,255,0.2);margin:1em auto;width:60%;" />
+    <!-- TODO: Replace the presenter details below with your own name, title, company, and social handle -->
+    <div class="presenter-info">
+      <div class="name">Your Name</div>
+      <div>Your Title · Your Company</div>
+      <div style="margin-top:0.4em;">
+        🐦 @YourHandle &nbsp;|&nbsp; github.com/OsborneSupremacy/api-gateway-bluegreen-demo
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 2 — AGENDA
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2><span class="orange">Agenda</span></h2>
+    <ul class="agenda-list">
+      <li>What is Blue/Green deployment — and why it matters</li>
+      <li>The key AWS building blocks: Lambda versions &amp; aliases, API Gateway stages</li>
+      <li>Architecture: what "production" looks like in this model</li>
+      <li>The workflow — Deploy Green → Verify → Promote (or don't)</li>
+      <li>Control-plane promotion — zero downtime in practice</li>
+      <li>What to watch: observability &amp; rollback signals</li>
+      <li>Takeaways &amp; Q&amp;A</li>
+    </ul>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 3 — WHAT IS BLUE/GREEN?
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>What is <span class="blue">Blue</span>/<span class="green">Green</span> Deployment?</h2>
+    <div class="two-col" style="margin-top:0.6em;">
+      <div class="card blue-step">
+        <h4>🔵 Blue (Current Production)</h4>
+        <ul style="font-size:0.9em;padding-left:1.2em;">
+          <li>Live, serving 100% of real traffic</li>
+          <li>Known-good state</li>
+          <li>Your rollback target</li>
+        </ul>
+      </div>
+      <div class="card green-step">
+        <h4>🟢 Green (Next Version)</h4>
+        <ul style="font-size:0.9em;padding-left:1.2em;">
+          <li>Deployed alongside Blue</li>
+          <li>Isolated — real traffic not yet routed here</li>
+          <li>Available for validation &amp; testing</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:0.8em;">
+      <strong>The big idea:</strong> promote Green to Blue via a <em>control-plane switch</em> — no redeployment,
+      no traffic spike, no crossed fingers. If something looks wrong, don't promote.
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 4 — WHY BLUE/GREEN?
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Why <span class="blue">Blue</span>/<span class="green">Green</span>?</h2>
+    <div class="three-col" style="margin-top:0.6em;">
+      <div class="card">
+        <h4>🛡️ Risk Reduction</h4>
+        Validate in the real environment before any customer is affected. Rollback is instant — just don't promote.
+      </div>
+      <div class="card">
+        <h4>⚡ Zero Downtime</h4>
+        Promotion is a config change (Lambda alias pointer / stage variable update), not a redeployment. Takes milliseconds.
+      </div>
+      <div class="card">
+        <h4>🔍 Production Parity</h4>
+        Green runs in the same account, same region, same VPC — not a staging clone that lies to you.
+      </div>
+    </div>
+    <div class="three-col" style="margin-top:0.6em;">
+      <div class="card">
+        <h4>↩️ Safe Rollback</h4>
+        Blue stays warm and intact until you explicitly retire it. Rollback = no action needed.
+      </div>
+      <div class="card">
+        <h4>🧪 Smoke &amp; Canary Friendly</h4>
+        Run automated smoke tests against the green URL before any promotion decision.
+      </div>
+      <div class="card">
+        <h4>🔑 Control Plane, not Data Plane</h4>
+        Promotion touches config — not code. Minimises blast radius of the promotion itself.
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 5 — AWS BUILDING BLOCKS (overview)
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>The AWS Building Blocks</h2>
+    <div class="two-col" style="margin-top:0.6em;align-items:start;">
+      <div>
+        <div class="card" style="margin-bottom:0.6em;">
+          <h4>🔶 AWS Lambda</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li><strong>Versions</strong> — immutable snapshots of code + config</li>
+            <li><strong>Aliases</strong> — named pointers to a version (<code>blue</code>, <code>green</code>, <code>live</code>)</li>
+            <li>Alias ARN is stable; consumers don't change when you re-point it</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>🟣 Amazon API Gateway</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li><strong>Stages</strong> — named deployments of an API (<code>blue</code>, <code>green</code>)</li>
+            <li><strong>Stage Variables</strong> — key/value config injected at runtime</li>
+            <li>Each stage gets its own invoke URL</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card" style="font-size:0.7em;">
+        <h4>How they fit together</h4>
+        <p>A stage variable (e.g. <code>lambdaAlias</code>) tells the integration
+           which Lambda alias to call. Flip the variable → promotion complete.</p>
+        <div class="code-block" style="margin-top:0.5em;">
+# Stage variable example
+lambdaAlias = blue   ← production
+lambdaAlias = green  ← pre-promotion
+
+# Integration ARN (parameterised)
+arn:aws:lambda:us-east-1:123:function:
+  MyFunction:${stageVariables.lambdaAlias}</div>
+        <p style="margin-top:0.5em;color:var(--text-muted);">
+          No code change. No redeployment. Just a stage-variable update.
+        </p>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 6 — LAMBDA VERSIONS & ALIASES (deep dive)
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Lambda <span class="orange">Versions</span> &amp; <span class="orange">Aliases</span></h2>
+    <div class="two-col" style="margin-top:0.5em;">
+      <div>
+        <div class="card" style="margin-bottom:0.5em;">
+          <h4>Versions (immutable)</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>Published from <code>$LATEST</code></li>
+            <li>Numbered sequentially: <code>1</code>, <code>2</code>, <code>3</code> …</li>
+            <li>Code &amp; config are frozen at publish time</li>
+            <li>Can't be modified after creation</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Aliases (mutable pointers)</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>Human-readable name → version number</li>
+            <li>Stable ARN regardless of which version it points to</li>
+            <li>Can split traffic between two versions (weighted alias)</li>
+            <li>In our model: <span class="blue"><code>blue</code></span> = live, <span class="green"><code>green</code></span> = candidate</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card" style="font-size:0.65em;">
+        <h4>Anatomy of a promotion</h4>
+        <div class="code-block">
+# Before promotion
+blue alias → version 7  (live)
+green alias → version 8 (candidate)
+
+# Smoke tests pass ✅
+
+# Promotion: update blue alias
+aws lambda update-alias \
+  --function-name MyFunction \
+  --name blue \
+  --function-version 8
+
+# After promotion
+blue alias → version 8  (live ✅)
+green alias → version 8 (still points here)
+
+# Cleanup (later)
+# Retire version 7 when confident</div>
+        <p style="margin-top:0.4em;color:var(--text-muted);">
+          The alias ARN seen by API Gateway never changes.
+          Zero client impact.
+        </p>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 7 — API GATEWAY STAGES (deep dive)
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>API Gateway <span class="orange">Stages</span></h2>
+    <div class="two-col" style="margin-top:0.5em;">
+      <div>
+        <div class="card" style="margin-bottom:0.5em;">
+          <h4>What a Stage gives you</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>A unique invoke URL: <br/>
+              <code>https://&lt;id&gt;.execute-api.&lt;region&gt;.amazonaws.com/<strong>blue</strong></code></li>
+            <li>Independent throttling, caching &amp; logging settings</li>
+            <li>Stage variables — runtime config injected into integrations</li>
+            <li>Deployment history — roll back a stage independently</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Stage Variables for integration routing</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>Passed to Lambda as part of the event</li>
+            <li>Used in the integration URI to parameterise the alias</li>
+            <li>Update via console, CLI, or IaC</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card" style="font-size:0.65em;">
+        <h4>Stage variable — routing example</h4>
+        <div class="code-block">
+# blue stage
+lambdaAlias = blue
+invokeUrl   = /blue
+
+# green stage (separate URL, separate config)
+lambdaAlias = green
+invokeUrl   = /green
+
+# Lambda integration URI (shared by both stages)
+arn:aws:apigateway:us-east-1:lambda:path/
+  2015-03-31/functions/
+  arn:aws:lambda:us-east-1:123456789:
+  function:MyFunction:
+  ${stageVariables.lambdaAlias}/invocations</div>
+        <div class="callout" style="margin-top:0.4em;">
+          Green gets a <em>real</em> URL you can test against in production.
+          Blue is untouched. Promotion = update the blue stage variable.
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 8 — ARCHITECTURE: STEADY STATE (BLUE)
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Architecture: Steady State (<span class="blue">Blue</span> Production)</h2>
+    <p style="font-size:0.65em;color:var(--text-muted);margin-top:-0.3em;">
+      Everything is on <code>blue</code>. One Lambda version is live. Green doesn't exist yet.
+    </p>
+
+    <!-- Diagram placeholder — replace SVG below with official AWS icons -->
+    <div class="arch-diagram" style="gap:0.6em;flex-wrap:wrap;">
+      <div class="aws-box user">👤<br/>Client</div>
+      <div class="arrow-right">→</div>
+      <div style="text-align:center;">
+        <div class="aws-box apigw" style="margin-bottom:0.3em;">🟣 API Gateway</div>
+        <div class="stage-pill blue-pill">stage: blue</div>
+        <div style="font-size:0.5em;color:var(--text-muted);margin-top:0.2em;">
+          lambdaAlias = <span class="blue">blue</span>
+        </div>
+      </div>
+      <div class="arrow-right">→</div>
+      <div style="text-align:center;">
+        <div class="aws-box lambda" style="margin-bottom:0.3em;">🔶 Lambda</div>
+        <div class="stage-pill blue-pill">alias: blue</div>
+        <div style="font-size:0.5em;color:var(--text-muted);margin-top:0.2em;">
+          → version 7
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:0.8em;font-size:0.65em;">
+      <div class="card">
+        <h4>URLs in play</h4>
+        <div class="url-display">
+          <span class="blue-url">https://api.example.com/blue</span> ← live traffic
+        </div>
+      </div>
+      <div class="card">
+        <h4>Lambda versions in play</h4>
+        <table class="compare-table" style="font-size:0.9em;">
+          <tr><th>Alias</th><th>Version</th><th>Traffic</th></tr>
+          <tr><td class="blue">blue</td><td>7</td><td>100%</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout" style="font-size:0.6em;margin-top:0.5em;">
+      📝 Replace the boxes above with <a href="https://aws.amazon.com/architecture/icons/" style="color:var(--aws-orange);">official AWS Architecture Icons</a>
+      for the final presentation.
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 9 — WORKFLOW OVERVIEW
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>The Workflow</h2>
+    <div style="display:flex;justify-content:center;align-items:stretch;gap:0.6em;margin-top:0.5em;">
+      <div class="card green-step" style="flex:1;text-align:center;">
+        <div class="big-icon">🚀</div>
+        <h4>1. Deploy Green</h4>
+        <ul style="font-size:0.85em;padding-left:1em;text-align:left;">
+          <li>Publish new Lambda version</li>
+          <li>Point <code>green</code> alias to it</li>
+          <li>Deploy (or update) API Gateway <code>green</code> stage</li>
+          <li>Set <code>lambdaAlias = green</code> on that stage</li>
+        </ul>
+      </div>
+      <div class="arrow-right" style="align-self:center;">→</div>
+      <div class="card" style="flex:1;text-align:center;border-color:var(--aws-orange);">
+        <div class="big-icon">🔍</div>
+        <h4 class="orange">2. Verify</h4>
+        <ul style="font-size:0.85em;padding-left:1em;text-align:left;">
+          <li>Run smoke / integration tests</li>
+          <li>Hit the <code>/green</code> URL directly</li>
+          <li>Review CloudWatch metrics &amp; logs</li>
+          <li>Manual sign-off if required</li>
+        </ul>
+      </div>
+      <div class="arrow-right" style="align-self:center;">→</div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:0.5em;">
+        <div class="card blue-step" style="flex:1;text-align:center;">
+          <div class="big-icon">✅</div>
+          <h4>3a. Promote</h4>
+          <ul style="font-size:0.85em;padding-left:1em;text-align:left;">
+            <li>Update <code>blue</code> Lambda alias → new version</li>
+            <li>Update <code>blue</code> stage variable (if needed)</li>
+            <li>Blue is now running green's code</li>
+          </ul>
+        </div>
+        <div class="card" style="flex:1;text-align:center;border-color:#cc3333;">
+          <div class="big-icon">🛑</div>
+          <h4 style="color:#ff5555;">3b. Don't Promote</h4>
+          <ul style="font-size:0.85em;padding-left:1em;text-align:left;">
+            <li>Blue is untouched — still live</li>
+            <li>Fix issues in green</li>
+            <li>Re-deploy and re-verify</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 10 — STEP 1: DEPLOY GREEN
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Step 1: Deploy <span class="green">Green</span></h2>
+    <div class="two-col" style="margin-top:0.5em;">
+      <div>
+        <div class="step-box green-step">
+          <strong>① Build &amp; publish Lambda version</strong>
+          <div class="code-block" style="margin-top:0.4em;">
+aws lambda update-function-code \
+  --function-name MyFunction \
+  --zip-file fileb://package.zip
+
+aws lambda publish-version \
+  --function-name MyFunction
+# → returns VersionNumber: 8</div>
+        </div>
+        <div class="step-box green-step" style="margin-top:0.4em;">
+          <strong>② Point <code>green</code> alias to new version</strong>
+          <div class="code-block" style="margin-top:0.4em;">
+aws lambda update-alias \
+  --function-name MyFunction \
+  --name green \
+  --function-version 8</div>
+        </div>
+      </div>
+      <div>
+        <div class="step-box green-step">
+          <strong>③ Create/update API Gateway <code>green</code> stage</strong>
+          <div class="code-block" style="margin-top:0.4em;">
+# Create a deployment for the green stage
+aws apigateway create-deployment \
+  --rest-api-id abc123 \
+  --stage-name green \
+  --variables lambdaAlias=green</div>
+        </div>
+        <div class="card" style="margin-top:0.4em;font-size:0.68em;">
+          <h4>After this step</h4>
+          <table class="compare-table">
+            <tr><th>URL</th><th>Alias</th><th>Version</th></tr>
+            <tr><td class="blue">/blue (live)</td><td class="blue">blue</td><td>7</td></tr>
+            <tr><td class="green">/green (candidate)</td><td class="green">green</td><td>8</td></tr>
+          </table>
+          <p style="color:var(--text-muted);margin-top:0.4em;">
+            Blue is untouched. Green is deployed and ready to verify.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 11 — STEP 2: VERIFY
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Step 2: <span class="orange">Verify</span></h2>
+    <div class="two-col" style="margin-top:0.5em;">
+      <div>
+        <div class="card" style="margin-bottom:0.5em;">
+          <h4>🧪 Automated Smoke Tests</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>Point your test suite at the <span class="green">green</span> URL</li>
+            <li>Exercise critical paths / contracts</li>
+            <li>Assert on status codes, response shapes, latency</li>
+            <li>Run in CI/CD pipeline before promotion gate</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>👁️ Observability Checks</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>CloudWatch Lambda metrics (errors, duration, throttles)</li>
+            <li>API Gateway access logs (4xx / 5xx rates)</li>
+            <li>X-Ray traces (latency anomalies)</li>
+            <li>CloudWatch Alarms as promotion gates</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:0.5em;">
+          <h4>🙋 Manual Sign-off (optional)</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>Share the <span class="green">green</span> URL with QA / stakeholders</li>
+            <li>They verify against production data, real infrastructure</li>
+            <li>Approval gate in your pipeline (CodePipeline approval, GitHub environment protection)</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <strong>Key insight:</strong> Green runs in production — same DB, same caches,
+          same downstream services. No "it worked in staging" surprises.
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 12 — STEP 3A: PROMOTE
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Step 3a: <span class="blue">Promote</span></h2>
+    <p style="font-size:0.65em;color:var(--text-muted);margin-top:-0.3em;">
+      Verification passed — time to make Green the new Blue.
+    </p>
+    <div class="two-col" style="margin-top:0.5em;">
+      <div>
+        <div class="step-box blue-step">
+          <strong>① Update <code>blue</code> Lambda alias</strong>
+          <div class="code-block" style="margin-top:0.4em;">
+aws lambda update-alias \
+  --function-name MyFunction \
+  --name blue \
+  --function-version 8
+# blue now → version 8 ✅</div>
+        </div>
+        <div class="step-box blue-step" style="margin-top:0.4em;">
+          <strong>② (Optional) Re-deploy blue API stage</strong>
+          <p style="font-size:0.9em;margin:0.3em 0;">
+            Only needed if stage-level config (throttling, caching) changed.
+            If only the Lambda alias changed, no API Gateway update is required.
+          </p>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:0.5em;font-size:0.68em;">
+          <h4>Before &amp; After Promotion</h4>
+          <table class="compare-table">
+            <tr><th>Alias</th><th>Before</th><th>After</th></tr>
+            <tr><td class="blue">blue</td><td>version 7</td><td><strong class="green">version 8 ✅</strong></td></tr>
+            <tr><td class="green">green</td><td>version 8</td><td>version 8 (unchanged)</td></tr>
+          </table>
+        </div>
+        <div class="callout">
+          <strong>Zero downtime:</strong> The <code>blue</code> alias ARN never changed.
+          API Gateway keeps calling the same ARN. Lambda silently serves version 8 instead of 7.
+          In-flight requests on version 7 complete naturally.
+        </div>
+        <div class="card" style="margin-top:0.5em;font-size:0.68em;">
+          <h4>Cleanup (when confident)</h4>
+          <ul style="padding-left:1.2em;">
+            <li>Retire or delete the <code>green</code> API stage</li>
+            <li>Delete old Lambda version 7 (or let it age out)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 13 — STEP 3B: DON'T PROMOTE / ROLLBACK
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Step 3b: Don't Promote — <span style="color:#ff5555;">Rollback</span></h2>
+    <p style="font-size:0.65em;color:var(--text-muted);margin-top:-0.3em;">
+      Verification failed (or you changed your mind). Blue is still live and unaffected.
+    </p>
+    <div class="two-col" style="margin-top:0.5em;">
+      <div>
+        <div class="card" style="border-color:#cc3333;">
+          <h4 style="color:#ff5555;">What rollback means in this model</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>Do nothing — Blue was never touched</li>
+            <li>Delete or re-deploy the <code>green</code> stage with a fixed version</li>
+            <li>No hotfix, no emergency redeploy, no phone calls at 2 AM</li>
+          </ul>
+        </div>
+        <div class="card" style="margin-top:0.5em;border-color:#cc3333;">
+          <h4 style="color:#ff5555;">Fix &amp; Re-verify cycle</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>Fix the issue in code</li>
+            <li>Publish a new version (9, 10, …)</li>
+            <li>Update <code>green</code> alias → new version</li>
+            <li>Re-run verification</li>
+            <li>Repeat until it passes</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="callout" style="border-color:#ff5555;background:rgba(204,0,0,0.1);">
+          <strong>The safety net:</strong> Because promotion is a control-plane operation
+          — not a traffic reroute or load-balancer drain — the blast radius of a bad
+          deployment is limited to whoever is testing the green URL. Zero customers
+          are affected, zero SLA impact.
+        </div>
+        <div class="card" style="margin-top:0.5em;font-size:0.68em;">
+          <h4>Compare: traditional deploy gone wrong</h4>
+          <table class="compare-table">
+            <tr><th></th><th>Traditional</th><th>Blue/Green</th></tr>
+            <tr><td>Customer impact</td><td>Immediate</td><td>Zero</td></tr>
+            <tr><td>Rollback time</td><td>Minutes</td><td>Seconds (alias flip)</td></tr>
+            <tr><td>Rollback risk</td><td>Another deploy</td><td>No action needed</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 14 — ARCHITECTURE: DURING GREEN DEPLOYMENT
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Architecture: During <span class="green">Green</span> Deployment</h2>
+    <p style="font-size:0.65em;color:var(--text-muted);margin-top:-0.3em;">
+      Blue is live. Green is deployed and being verified. Two independent traffic paths.
+    </p>
+
+    <!-- Diagram placeholder -->
+    <div style="font-size:0.65em;">
+      <div class="arch-diagram" style="gap:0.5em;margin-bottom:0.4em;">
+        <!-- Blue path -->
+        <div style="display:flex;align-items:center;gap:0.4em;">
+          <div class="aws-box user">👤<br/>Customer</div>
+          <div class="arrow-right">→</div>
+          <div style="text-align:center;">
+            <div class="aws-box apigw">🟣 API GW</div>
+            <div class="stage-pill blue-pill" style="margin-top:0.2em;">stage: blue</div>
+          </div>
+          <div class="arrow-right">→</div>
+          <div style="text-align:center;">
+            <div class="aws-box lambda">🔶 Lambda</div>
+            <div class="stage-pill blue-pill" style="margin-top:0.2em;">alias: blue → v7</div>
+          </div>
+        </div>
+      </div>
+      <div class="arch-diagram" style="gap:0.5em;">
+        <!-- Green path -->
+        <div style="display:flex;align-items:center;gap:0.4em;">
+          <div class="aws-box user" style="background:#444;">🧪<br/>Tester</div>
+          <div class="arrow-right" style="color:var(--green-stage);">→</div>
+          <div style="text-align:center;">
+            <div class="aws-box green-box">🟣 API GW</div>
+            <div class="stage-pill green-pill" style="margin-top:0.2em;">stage: green</div>
+          </div>
+          <div class="arrow-right" style="color:var(--green-stage);">→</div>
+          <div style="text-align:center;">
+            <div class="aws-box green-box">🔶 Lambda</div>
+            <div class="stage-pill green-pill" style="margin-top:0.2em;">alias: green → v8</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="font-size:0.6em;margin-top:0.5em;">
+      📝 Replace these boxes with
+      <a href="https://aws.amazon.com/architecture/icons/" style="color:var(--aws-orange);">official AWS Architecture Icons</a>
+      for the final presentation. The same API Gateway REST API and Lambda function are used;
+      only the stage and alias differ.
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 15 — ARCHITECTURE: AFTER PROMOTION
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Architecture: After <span class="blue">Promotion</span></h2>
+    <p style="font-size:0.65em;color:var(--text-muted);margin-top:-0.3em;">
+      Blue alias now points to version 8. Green stage can be retired.
+    </p>
+
+    <!-- Diagram placeholder -->
+    <div class="arch-diagram" style="gap:0.6em;margin-top:0.5em;">
+      <div class="aws-box user">👤<br/>Customer</div>
+      <div class="arrow-right">→</div>
+      <div style="text-align:center;">
+        <div class="aws-box apigw">🟣 API GW</div>
+        <div class="stage-pill blue-pill" style="margin-top:0.2em;">stage: blue</div>
+        <div style="font-size:0.8em;color:var(--text-muted);margin-top:0.2em;">
+          lambdaAlias = <span class="blue">blue</span>
+        </div>
+      </div>
+      <div class="arrow-right">→</div>
+      <div style="text-align:center;">
+        <div class="aws-box lambda">🔶 Lambda</div>
+        <div class="stage-pill blue-pill" style="margin-top:0.2em;">alias: blue → v8 ✅</div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:0.8em;font-size:0.65em;">
+      <div class="card">
+        <h4>Lambda aliases after promotion</h4>
+        <table class="compare-table">
+          <tr><th>Alias</th><th>Version</th><th>Status</th></tr>
+          <tr><td class="blue">blue</td><td>8</td><td>✅ Live (promoted)</td></tr>
+          <tr><td class="green">green</td><td>8</td><td>🔜 Retire soon</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h4>No API Gateway changes required</h4>
+        <p>The blue stage variable still reads <code>lambdaAlias = blue</code>.
+           API Gateway calls the <code>blue</code> alias ARN — which now silently resolves to version 8.
+           No redeploy needed.</p>
+      </div>
+    </div>
+
+    <div class="callout" style="font-size:0.6em;margin-top:0.5em;">
+      📝 Replace with <a href="https://aws.amazon.com/architecture/icons/" style="color:var(--aws-orange);">official AWS Architecture Icons</a> for the final presentation.
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 16 — OBSERVABILITY & PROMOTION GATES
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2><span class="orange">Observability</span> &amp; Promotion Gates</h2>
+    <div class="three-col" style="margin-top:0.6em;">
+      <div class="card">
+        <h4>📊 CloudWatch Metrics</h4>
+        <ul style="font-size:0.9em;padding-left:1.2em;">
+          <li>Lambda: <code>Errors</code>, <code>Duration</code>, <code>Throttles</code>, <code>ConcurrentExecutions</code></li>
+          <li>API GW: <code>4XXError</code>, <code>5XXError</code>, <code>Latency</code></li>
+          <li>Scope metrics to the <code>green</code> alias / stage</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🔍 X-Ray Tracing</h4>
+        <ul style="font-size:0.9em;padding-left:1.2em;">
+          <li>Enable active tracing on the <code>green</code> alias</li>
+          <li>Identify cold-start regressions</li>
+          <li>Trace end-to-end latency through downstream services</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>📋 Structured Logs</h4>
+        <ul style="font-size:0.9em;padding-left:1.2em;">
+          <li>Emit <code>version</code> in every log line</li>
+          <li>Filter CloudWatch Logs Insights by version</li>
+          <li>Easier post-promotion comparison</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0.6em;font-size:0.68em;">
+      <h4>🚦 Promotion Gate Pattern</h4>
+      <div class="code-block">
+# CodePipeline / GitHub Actions gate example (pseudo-code)
+1. Deploy Green  → trigger pipeline
+2. Run smoke tests against /green URL
+3. Wait N minutes → check CloudWatch alarm state
+   - Alarm: GreenErrorRate > 1%  → ABORT promotion, alert team
+   - Alarm: GreenP99Latency > 2s → ABORT promotion, alert team
+4. (Optional) Manual approval step
+5. All clear → promote (update blue alias)</div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 17 — IaC CONSIDERATIONS
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>IaC Considerations</h2>
+    <div class="two-col" style="margin-top:0.5em;">
+      <div>
+        <div class="card" style="margin-bottom:0.5em;">
+          <h4>🏗️ What to manage in IaC (Terraform / CDK / SAM)</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>Lambda function definition (not version — let pipeline publish)</li>
+            <li>Lambda aliases (<code>blue</code>, <code>green</code>) with placeholder versions</li>
+            <li>API Gateway REST API &amp; shared resources</li>
+            <li>Both stages (<code>blue</code>, <code>green</code>) with stage-variable schema</li>
+            <li>IAM roles, CloudWatch alarms, X-Ray config</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>⚙️ What to manage in your pipeline</h4>
+          <ul style="font-size:0.9em;padding-left:1.2em;">
+            <li>Publishing Lambda versions (<code>publish-version</code>)</li>
+            <li>Updating alias version pointers</li>
+            <li>Running smoke tests</li>
+            <li>Promotion (alias flip)</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="callout">
+          <strong>Tip:</strong> Separate the <em>infrastructure lifecycle</em>
+          (IaC) from the <em>deployment lifecycle</em> (pipeline). IaC creates the
+          slots; the pipeline fills them.
+        </div>
+        <div class="card" style="margin-top:0.5em;font-size:0.68em;">
+          <h4>AWS SAM alias example</h4>
+          <div class="code-block">
+# template.yaml
+MyFunctionBlueAlias:
+  Type: AWS::Lambda::Alias
+  Properties:
+    FunctionName: !Ref MyFunction
+    Name: blue
+    FunctionVersion: !GetAtt MyFunction.Version
+
+MyFunctionGreenAlias:
+  Type: AWS::Lambda::Alias
+  Properties:
+    FunctionName: !Ref MyFunction
+    Name: green
+    FunctionVersion: !GetAtt MyFunction.Version</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 18 — OPINIONATED WORKFLOW SUMMARY
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Opinionated Workflow Summary</h2>
+    <div style="font-size:0.68em;margin-top:0.5em;">
+      <div class="step-box green-step">
+        <strong>🚀 DEPLOY</strong> — CI builds artifact → publishes Lambda version →
+        updates <code>green</code> alias → deploys/updates API Gateway <code>green</code> stage
+      </div>
+      <div style="text-align:center;color:var(--aws-orange);margin:0.2em 0;">▼</div>
+      <div class="step-box" style="border-color:var(--aws-orange);">
+        <strong>🧪 SMOKE TEST</strong> — automated tests hit <code>/green</code> URL →
+        assert contracts → fail pipeline on any error
+      </div>
+      <div style="text-align:center;color:var(--aws-orange);margin:0.2em 0;">▼</div>
+      <div class="step-box" style="border-color:var(--aws-orange);">
+        <strong>👁️ OBSERVE</strong> — wait N minutes → check CloudWatch alarms →
+        fail pipeline if any alarm is in ALARM state
+      </div>
+      <div style="text-align:center;color:var(--aws-orange);margin:0.2em 0;">▼</div>
+      <div class="step-box" style="border-color:var(--aws-orange);">
+        <strong>🙋 (OPTIONAL) APPROVE</strong> — manual gate for high-risk changes
+      </div>
+      <div style="text-align:center;color:var(--aws-orange);margin:0.2em 0;">▼</div>
+      <div class="step-box blue-step">
+        <strong>✅ PROMOTE</strong> — update <code>blue</code> Lambda alias to new version →
+        (optionally) update <code>blue</code> stage variables → Blue is now the new Green
+      </div>
+      <div style="text-align:center;color:var(--aws-orange);margin:0.2em 0;">▼</div>
+      <div class="step-box">
+        <strong>🧹 CLEANUP</strong> — retire <code>green</code> API stage →
+        remove old Lambda version when confident
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 19 — COMMON PITFALLS
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Common Pitfalls</h2>
+    <div class="two-col" style="margin-top:0.5em;">
+      <div>
+        <div class="card" style="margin-bottom:0.5em;border-color:#cc3333;">
+          <h4 style="color:#ff5555;">❌ Stateful schema migrations</h4>
+          <p>If your Lambda writes to a DB, a green version with a breaking schema change will
+             affect the shared database used by blue. Use backward-compatible migrations first.</p>
+        </div>
+        <div class="card" style="border-color:#cc3333;">
+          <h4 style="color:#ff5555;">❌ Shared caches / event sources</h4>
+          <p>SQS queues, Kinesis streams, and DynamoDB Streams are not stage-aware.
+             Messages processed by green may have side effects visible to blue consumers.
+             Plan accordingly.</p>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:0.5em;border-color:#cc3333;">
+          <h4 style="color:#ff5555;">❌ Forgetting Lambda resource-based policies</h4>
+          <p>API Gateway must have invoke permission on <em>both</em> aliases
+             (<code>blue</code> and <code>green</code>). Add permissions at alias level, not at function level.</p>
+        </div>
+        <div class="card" style="border-color:#cc3333;">
+          <h4 style="color:#ff5555;">❌ Treating <code>$LATEST</code> as an alias</h4>
+          <p><code>$LATEST</code> is mutable and not suitable for production routing.
+             Always publish a version and target a named alias.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 20 — KEY TAKEAWAYS
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2>Key Takeaways</h2>
+    <div class="three-col" style="margin-top:0.6em;">
+      <div class="card" style="text-align:center;">
+        <div class="big-icon">🔵🟢</div>
+        <h4>Two slots, one function</h4>
+        Lambda aliases and API Gateway stages give you two independent traffic paths on a single function with no extra cost.
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="big-icon">⚡</div>
+        <h4>Promotion is a config change</h4>
+        An alias pointer update is milliseconds of latency, not a redeployment. Zero-downtime is structural, not heroic.
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="big-icon">🛡️</div>
+        <h4>Rollback is "do nothing"</h4>
+        Blue never changes until you explicitly promote. If verification fails, Blue keeps serving customers without incident.
+      </div>
+    </div>
+    <div class="three-col" style="margin-top:0.6em;">
+      <div class="card" style="text-align:center;">
+        <div class="big-icon">🔍</div>
+        <h4>Production parity</h4>
+        Green runs in the same account, same region, same services. No staging-vs-prod surprises at promotion time.
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="big-icon">🚦</div>
+        <h4>Gate on signals</h4>
+        Automate promotion gates: smoke tests + CloudWatch alarms = confident promotion without manual guesswork.
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="big-icon">🏗️</div>
+        <h4>Separate infra from deploy</h4>
+        IaC owns the slots. Your pipeline fills them. Keeps both concerns clean and independently evolvable.
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 21 — RESOURCES
+       ============================================================ -->
+  <section data-background-color="#1a2030">
+    <h2><span class="orange">Resources</span></h2>
+    <div class="two-col" style="margin-top:0.6em;font-size:0.72em;">
+      <div>
+        <div class="card" style="margin-bottom:0.5em;">
+          <h4>📖 AWS Documentation</h4>
+          <ul style="padding-left:1.2em;">
+            <li><a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-aliases.html" style="color:var(--aws-orange);">Lambda Aliases</a></li>
+            <li><a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-versions.html" style="color:var(--aws-orange);">Lambda Versions</a></li>
+            <li><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-stages.html" style="color:var(--aws-orange);">API Gateway Stages</a></li>
+            <li><a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/aws-api-gateway-stage-variables-reference.html" style="color:var(--aws-orange);">API Gateway Stage Variables</a></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>🏛️ AWS Architecture Icons</h4>
+          <ul style="padding-left:1.2em;">
+            <li><a href="https://aws.amazon.com/architecture/icons/" style="color:var(--aws-orange);">aws.amazon.com/architecture/icons</a></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:0.5em;">
+          <h4>📦 This Repository</h4>
+          <ul style="padding-left:1.2em;">
+            <li><a href="https://github.com/OsborneSupremacy/api-gateway-bluegreen-demo" style="color:var(--aws-orange);">github.com/OsborneSupremacy/api-gateway-bluegreen-demo</a></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>📺 Reveal.js</h4>
+          <ul style="padding-left:1.2em;">
+            <li><a href="https://revealjs.com" style="color:var(--aws-orange);">revealjs.com</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+  <!-- ============================================================
+       SLIDE 22 — Q&A / CLOSING
+       ============================================================ -->
+  <section class="title-slide" data-background-color="#232F3E">
+    <div class="event-badge">☁️ AWS Community Day Midwest 2026</div>
+    <h1 style="font-size:2em;">Questions?</h1>
+    <hr style="border-color:rgba(255,255,255,0.2);margin:0.8em auto;width:50%;" />
+    <!-- TODO: Replace the presenter details below with your own name and social handle -->
+    <div class="presenter-info">
+      <div class="name">Your Name</div>
+      <div style="margin-top:0.3em;">🐦 @YourHandle</div>
+      <div style="margin-top:0.3em;">
+        <a href="https://github.com/OsborneSupremacy/api-gateway-bluegreen-demo"
+           style="color:var(--aws-orange);">
+          github.com/OsborneSupremacy/api-gateway-bluegreen-demo
+        </a>
+      </div>
+    </div>
+    <div class="slide-footer">Deploy Green, Verify, Promote — AWS Community Day Midwest 2026</div>
+  </section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<!-- Reveal.js scripts (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/zoom/zoom.js"></script>
+
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'fade',
+    transitionSpeed: 'fast',
+    backgroundTransition: 'fade',
+    controls: true,
+    progress: true,
+    center: true,
+    width: 1280,
+    height: 720,
+    margin: 0.04,
+    plugins: [ RevealHighlight, RevealNotes, RevealZoom ],
+    // Keyboard shortcuts reminder
+    keyboard: {
+      // 'f' already maps to fullscreen in reveal.js defaults
+    }
+  });
+</script>
+</body>
+</html>
