@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CreateOrder.Tests/CreateOrder.Tests.csproj" />
+  <Project Path="CreateOrder/CreateOrder.csproj" />
+</Solution>
