@@ -9,6 +9,7 @@ resource "aws_lambda_function" "lambda_function" {
   filename         = var.lambda_package_path
   source_code_hash = filebase64sha256(var.lambda_package_path)
   role             = aws_iam_role.lambda_execution_role.arn
+  publish          = local.publish_version
   environment {
     variables = var.environment_variables
   }
