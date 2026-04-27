@@ -159,11 +159,6 @@ public class Function
     private static string ResolveOrdersTableName()
     {
         var tableName = Environment.GetEnvironmentVariable("ORDERS_TABLE_NAME");
-        if (string.IsNullOrWhiteSpace(tableName))
-        {
-            throw new InvalidOperationException("Environment variable ORDERS_TABLE_NAME is required.");
-        }
-
-        return tableName;
+        return string.IsNullOrWhiteSpace(tableName) ? throw new InvalidOperationException("Environment variable ORDERS_TABLE_NAME is required.") : tableName;
     }
 }

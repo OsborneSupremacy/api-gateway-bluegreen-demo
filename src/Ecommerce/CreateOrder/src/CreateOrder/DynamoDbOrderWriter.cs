@@ -25,13 +25,13 @@ public sealed class DynamoDbOrderWriter : IOrderWriter
             TableName = _tableName,
             Item = new Dictionary<string, AttributeValue>
             {
-                ["OrderId"] = new AttributeValue { S = order.OrderId },
-                ["CustomerId"] = new AttributeValue { S = order.CustomerId },
-                ["Currency"] = new AttributeValue { S = order.Currency },
-                ["ShippingAddress"] = new AttributeValue { S = order.ShippingAddress },
-                ["TotalAmount"] = new AttributeValue { N = order.TotalAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
-                ["CreatedAtUtc"] = new AttributeValue { S = order.CreatedAtUtc.ToString("O") },
-                ["Items"] = new AttributeValue
+                ["OrderId"] = new() { S = order.OrderId },
+                ["CustomerId"] = new() { S = order.CustomerId },
+                ["Currency"] = new() { S = order.Currency },
+                ["ShippingAddress"] = new() { S = order.ShippingAddress },
+                ["TotalAmount"] = new() { N = order.TotalAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
+                ["CreatedAtUtc"] = new() { S = order.CreatedAtUtc.ToString("O") },
+                ["Items"] = new()
                 {
                     L =
                     [
@@ -39,11 +39,11 @@ public sealed class DynamoDbOrderWriter : IOrderWriter
                         {
                             M = new Dictionary<string, AttributeValue>
                             {
-                                ["Sku"] = new AttributeValue { S = item.Sku },
-                                ["Name"] = new AttributeValue { S = item.Name },
-                                ["Quantity"] = new AttributeValue { N = item.Quantity.ToString(System.Globalization.CultureInfo.InvariantCulture) },
-                                ["UnitPrice"] = new AttributeValue { N = item.UnitPrice.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
-                                ["LineTotal"] = new AttributeValue { N = item.LineTotal.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) }
+                                ["Sku"] = new() { S = item.Sku },
+                                ["Name"] = new() { S = item.Name },
+                                ["Quantity"] = new() { N = item.Quantity.ToString(System.Globalization.CultureInfo.InvariantCulture) },
+                                ["UnitPrice"] = new() { N = item.UnitPrice.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
+                                ["LineTotal"] = new() { N = item.LineTotal.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) }
                             }
                         })
                     ]
