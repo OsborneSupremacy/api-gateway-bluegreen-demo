@@ -426,3 +426,6 @@ FodyWeavers.xsd
 
 # Jetbrains User Was Here
 .idea/
+
+# Terraform working directory
+.terraform/
