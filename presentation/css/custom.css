@@ -282,3 +282,96 @@
   content: '▸ ';
   color: var(--aws-orange);
 }
+
+/* ─── Animated traffic-flow green dots ─── */
+
+/*
+ * Left segments run from x=90 → x=400  (user → APIGW)
+ * Right segments run from x=460 → x=780 (APIGW → Lambda)
+ * Each dot goes RIGHT then comes BACK LEFT in a single cycle.
+ * Row y-values: row1=175, row2=300, row3=425
+ */
+
+/* ── Row 1 (y=175) ── */
+.dot-r1-left {
+  animation: travelLeftSeg-r1 3.6s ease-in-out infinite;
+}
+.dot-r1-right {
+  animation: travelRightSeg-r1 3.6s ease-in-out 0.5s infinite;
+}
+
+@keyframes travelLeftSeg-r1 {
+  0%   { transform: translate(90px, 175px);  opacity: 1; }
+  22%  { transform: translate(400px, 175px); opacity: 1; }
+  24%  { transform: translate(400px, 175px); opacity: 0; }
+  74%  { transform: translate(400px, 175px); opacity: 0; }
+  76%  { transform: translate(400px, 175px); opacity: 1; }
+  98%  { transform: translate(90px, 175px);  opacity: 1; }
+  100% { transform: translate(90px, 175px);  opacity: 1; }
+}
+
+@keyframes travelRightSeg-r1 {
+  0%   { transform: translate(460px, 175px); opacity: 1; }
+  22%  { transform: translate(780px, 175px); opacity: 1; }
+  24%  { transform: translate(780px, 175px); opacity: 0; }
+  74%  { transform: translate(780px, 175px); opacity: 0; }
+  76%  { transform: translate(780px, 175px); opacity: 1; }
+  98%  { transform: translate(460px, 175px); opacity: 1; }
+  100% { transform: translate(460px, 175px); opacity: 1; }
+}
+
+/* ── Row 2 (y=300), delayed 0.6s ── */
+.dot-r2-left {
+  animation: travelLeftSeg-r2 3.6s ease-in-out 0.6s infinite;
+}
+.dot-r2-right {
+  animation: travelRightSeg-r2 3.6s ease-in-out 1.1s infinite;
+}
+
+@keyframes travelLeftSeg-r2 {
+  0%   { transform: translate(90px, 300px);  opacity: 1; }
+  22%  { transform: translate(400px, 300px); opacity: 1; }
+  24%  { transform: translate(400px, 300px); opacity: 0; }
+  74%  { transform: translate(400px, 300px); opacity: 0; }
+  76%  { transform: translate(400px, 300px); opacity: 1; }
+  98%  { transform: translate(90px, 300px);  opacity: 1; }
+  100% { transform: translate(90px, 300px);  opacity: 1; }
+}
+
+@keyframes travelRightSeg-r2 {
+  0%   { transform: translate(460px, 300px); opacity: 1; }
+  22%  { transform: translate(780px, 300px); opacity: 1; }
+  24%  { transform: translate(780px, 300px); opacity: 0; }
+  74%  { transform: translate(780px, 300px); opacity: 0; }
+  76%  { transform: translate(780px, 300px); opacity: 1; }
+  98%  { transform: translate(460px, 300px); opacity: 1; }
+  100% { transform: translate(460px, 300px); opacity: 1; }
+}
+
+/* ── Row 3 (y=425), delayed 1.2s ── */
+.dot-r3-left {
+  animation: travelLeftSeg-r3 3.6s ease-in-out 1.2s infinite;
+}
+.dot-r3-right {
+  animation: travelRightSeg-r3 3.6s ease-in-out 1.7s infinite;
+}
+
+@keyframes travelLeftSeg-r3 {
+  0%   { transform: translate(90px, 425px);  opacity: 1; }
+  22%  { transform: translate(400px, 425px); opacity: 1; }
+  24%  { transform: translate(400px, 425px); opacity: 0; }
+  74%  { transform: translate(400px, 425px); opacity: 0; }
+  76%  { transform: translate(400px, 425px); opacity: 1; }
+  98%  { transform: translate(90px, 425px);  opacity: 1; }
+  100% { transform: translate(90px, 425px);  opacity: 1; }
+}
+
+@keyframes travelRightSeg-r3 {
+  0%   { transform: translate(460px, 425px); opacity: 1; }
+  22%  { transform: translate(780px, 425px); opacity: 1; }
+  24%  { transform: translate(780px, 425px); opacity: 0; }
+  74%  { transform: translate(780px, 425px); opacity: 0; }
+  76%  { transform: translate(780px, 425px); opacity: 1; }
+  98%  { transform: translate(460px, 425px); opacity: 1; }
+  100% { transform: translate(460px, 425px); opacity: 1; }
+}

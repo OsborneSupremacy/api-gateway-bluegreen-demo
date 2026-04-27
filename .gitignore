@@ -420,3 +420,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Mac User Was Here
+.DS_Store
+
+# Jetbrains User Was Here
+.idea/
