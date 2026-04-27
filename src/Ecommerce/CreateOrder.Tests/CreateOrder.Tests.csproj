@@ -14,6 +14,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\CreateOrder\CreateOrder.csproj" />
+    <ProjectReference Include="..\CreateOrder\CreateOrder.csproj" />
   </ItemGroup>
 </Project>
