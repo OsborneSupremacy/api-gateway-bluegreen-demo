@@ -1,176 +1,57 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Create Order Request",
-  "description": "Request schema for creating a new order in the ecommerce application",
+  "description": "Request schema for CreateOrderRequest",
   "type": "object",
-  "required": [
-    "customer",
-    "items",
-    "shippingAddress",
-    "billingAddress"
-  ],
+  "additionalProperties": false,
+  "required": ["customerId", "currency", "shippingAddress", "items"],
   "properties": {
-    "customer": {
-      "type": "object",
-      "description": "Customer information",
-      "required": [
-        "email",
-        "firstName",
-        "lastName"
-      ],
-      "properties": {
-        "email": {
-          "type": "string",
-          "format": "email",
-          "description": "Customer email address"
-        },
-        "firstName": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100,
-          "description": "Customer first name"
-        },
-        "lastName": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100,
-          "description": "Customer last name"
-        },
-        "phone": {
-          "type": "string",
-          "description": "Customer phone number"
-        }
-      }
+    "customerId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Customer identifier"
+    },
+    "currency": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Order currency code"
+    },
+    "shippingAddress": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Shipping address"
     },
     "items": {
       "type": "array",
-      "description": "List of items in the order",
+      "description": "Order line items",
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": [
-          "productId",
-          "quantity",
-          "price"
-        ],
+        "additionalProperties": false,
+        "required": ["sku", "name", "quantity", "unitPrice"],
         "properties": {
-          "productId": {
+          "sku": {
             "type": "string",
-            "description": "Unique product identifier"
+            "minLength": 1,
+            "description": "Stock keeping unit"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Item name"
           },
           "quantity": {
             "type": "integer",
             "minimum": 1,
-            "description": "Quantity of the item"
+            "description": "Item quantity"
           },
-          "price": {
+          "unitPrice": {
             "type": "number",
             "minimum": 0,
-            "description": "Unit price of the item in USD"
+            "description": "Item unit price"
           }
         }
       }
-    },
-    "shippingAddress": {
-      "type": "object",
-      "description": "Shipping address for the order",
-      "required": [
-        "street",
-        "city",
-        "state",
-        "zipCode",
-        "country"
-      ],
-      "properties": {
-        "street": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 255,
-          "description": "Street address"
-        },
-        "city": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100,
-          "description": "City name"
-        },
-        "state": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100,
-          "description": "State or province"
-        },
-        "zipCode": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 20,
-          "description": "Postal code"
-        },
-        "country": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100,
-          "description": "Country name"
-        }
-      }
-    },
-    "billingAddress": {
-      "type": "object",
-      "description": "Billing address for the order",
-      "required": [
-        "street",
-        "city",
-        "state",
-        "zipCode",
-        "country"
-      ],
-      "properties": {
-        "street": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 255,
-          "description": "Street address"
-        },
-        "city": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100,
-          "description": "City name"
-        },
-        "state": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100,
-          "description": "State or province"
-        },
-        "zipCode": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 20,
-          "description": "Postal code"
-        },
-        "country": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100,
-          "description": "Country name"
-        }
-      }
-    },
-    "paymentMethod": {
-      "type": "string",
-      "description": "Payment method (e.g., credit_card, paypal, etc.)",
-      "enum": [
-        "credit_card",
-        "debit_card",
-        "paypal",
-        "bank_transfer"
-      ]
-    },
-    "notes": {
-      "type": "string",
-      "maxLength": 500,
-      "description": "Optional order notes or special instructions"
     }
   }
 }
