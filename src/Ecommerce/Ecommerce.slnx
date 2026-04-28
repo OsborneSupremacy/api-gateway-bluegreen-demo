@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="CreateOrder.Tests/CreateOrder.Tests.csproj" />
   <Project Path="CreateOrder/CreateOrder.csproj" />
+  <Project Path="Ecommerce.Library/Ecommerce.Library.csproj" />
 </Solution>

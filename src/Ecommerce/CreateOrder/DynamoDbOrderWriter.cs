@@ -1,5 +1,6 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using Ecommerce.Library.Models;
 
 namespace CreateOrder;
 

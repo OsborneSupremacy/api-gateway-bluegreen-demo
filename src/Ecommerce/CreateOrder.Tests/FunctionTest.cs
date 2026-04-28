@@ -2,6 +2,8 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.TestUtilities;
 using System.Collections.Immutable;
 using System.Text.Json;
+using CreateOrder.Models;
+using Ecommerce.Library.Models;
 using Xunit;
 
 namespace CreateOrder.Tests;
