@@ -31,6 +31,9 @@ resource "aws_api_gateway_deployment" "ecommerce_deployment" {
   lifecycle {
     create_before_destroy = true
   }
+  depends_on = [
+    module.create_order_lambda
+  ]
 }
 
 resource "aws_api_gateway_stage" "blue_stage" {
