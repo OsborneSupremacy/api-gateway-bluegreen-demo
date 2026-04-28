@@ -67,6 +67,16 @@ output "latest_invoke_arn" {
   value       = aws_lambda_function.lambda_function.invoke_arn
 }
 
+output "qualified_arn" {
+  description = "The ARN of the Lambda function with version or alias qualifier. Available only when versioning is enabled."
+  value       = local.publish_version ? aws_lambda_function.lambda_function.qualified_arn : null
+}
+
+output "qualified_invoke_arn" {
+  description = "The invoke ARN of the Lambda function with version or alias qualifier. Available only when versioning is enabled."
+  value       = local.publish_version ? aws_lambda_function.lambda_function.qualified_invoke_arn : null
+}
+
 output "version" {
   description = "The version of the Lambda function. Available only when versioning is enabled."
   value       = local.publish_version ? aws_lambda_function.lambda_function.version : null
