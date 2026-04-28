@@ -1,0 +1,11 @@
+$kind: http-request
+name: Create Order
+url: "{{domain}}/v1/order"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        
+    }
+order: 1777411285741

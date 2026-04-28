@@ -27,3 +27,27 @@ resource "aws_route53_record" "api_certificate_validation" {
   records = [each.value.record]
 }
 
+resource "aws_route53_record" "api_blue_alias" {
+  zone_id = aws_route53_zone.ecommerce_subdomain.zone_id
+  name    = local.api_domain_name
+  type    = "A"
+
+  alias {
+    name                   = aws_api_gateway_domain_name.api_blue.regional_domain_name
+    zone_id                = aws_api_gateway_domain_name.api_blue.regional_zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "api_green_alias" {
+  zone_id = aws_route53_zone.ecommerce_subdomain.zone_id
+  name    = local.green_api_domain_name
+  type    = "A"
+
+  alias {
+    name                   = aws_api_gateway_domain_name.api_green.regional_domain_name
+    zone_id                = aws_api_gateway_domain_name.api_green.regional_zone_id
+    evaluate_target_health = false
+  }
+}
+
