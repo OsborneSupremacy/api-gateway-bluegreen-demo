@@ -1,3 +1,10 @@
+locals {
+  ecommerce_domain_name = "${var.application_name}.${var.root_domain_name}"
+  api_domain_name       = "api.${local.ecommerce_domain_name}"
+  green_api_domain_name = "green-api.${local.ecommerce_domain_name}"
+}
+
+# Inputs
 
 variable "application_name" {
   description = "The name of the application. This will be used as a prefix for various resources, and part of the subdomain."
