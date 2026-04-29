@@ -41,6 +41,9 @@ resource "aws_api_gateway_stage" "blue_stage" {
   description = "Blue (production-serving) stage for the ecommerce API Gateway"
   rest_api_id   = aws_api_gateway_rest_api.ecommerce_gateway.id
   deployment_id = aws_api_gateway_deployment.ecommerce_deployment.id
+  lifecycle {
+    ignore_changes = [ deployment_id ] # Don't trigger a new deployment when the deployment_id changes, since that would cause downtime. We'll manage deployments in the CI/CD pipeline.
+  }
 }
 
 resource "aws_api_gateway_stage" "green_stage" {
@@ -48,4 +51,7 @@ resource "aws_api_gateway_stage" "green_stage" {
   description = "Green (candidate/incoming) stage for the ecommerce API Gateway"
   rest_api_id   = aws_api_gateway_rest_api.ecommerce_gateway.id
   deployment_id = aws_api_gateway_deployment.ecommerce_deployment.id
+  lifecycle {
+    ignore_changes = [ deployment_id ] # Don't trigger a new deployment when the deployment_id changes, since that would cause downtime. We'll manage deployments in the CI/CD pipeline.
+  }
 }
