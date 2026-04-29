@@ -44,6 +44,9 @@ resource "aws_api_gateway_stage" "blue_stage" {
   lifecycle {
     ignore_changes = [ deployment_id ] # Don't trigger a new deployment when the deployment_id changes, since that would cause downtime. We'll manage deployments in the CI/CD pipeline.
   }
+  variables = {
+    "functionversion" = "4"
+  }
 }
 
 resource "aws_api_gateway_stage" "green_stage" {
@@ -53,5 +56,8 @@ resource "aws_api_gateway_stage" "green_stage" {
   deployment_id = aws_api_gateway_deployment.ecommerce_deployment.id
   lifecycle {
     ignore_changes = [ deployment_id ] # Don't trigger a new deployment when the deployment_id changes, since that would cause downtime. We'll manage deployments in the CI/CD pipeline.
+  }
+  variables = {
+    "functionversion" = "3"
   }
 }
