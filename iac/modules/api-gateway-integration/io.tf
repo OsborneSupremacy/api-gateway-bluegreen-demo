@@ -41,6 +41,11 @@ variable "lambda_invoke_arn" {
   type = string
 }
 
+variable "lambda_function_arn" {
+  description = "The unqualified ARN of the Lambda function (no version or alias suffix). Used to grant API Gateway permission to invoke any version or alias."
+  type        = string
+}
+
 variable "include_404_response" {
   type    = bool
   default = false

@@ -26,6 +26,7 @@ module "create_order_api_gateway_integration" {
   gateway_method_request_model_name                 = "CreateOrderRequestModel"
   gateway_method_request_model_description          = "Model schema for the Create Order API request body"
   lambda_invoke_arn                                 = module.create_order_lambda.latest_invoke_arn
+  lambda_function_arn                               = module.create_order_lambda.latest_arn
   include_404_response                              = false
   include_409_response                              = false
   good_response_model_name                          = ""

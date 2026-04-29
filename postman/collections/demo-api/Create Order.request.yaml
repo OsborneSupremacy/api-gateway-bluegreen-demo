@@ -6,6 +6,16 @@ body:
   type: json
   content: |-
     {
-        
+      "customerId": "{{$randomUUID}}",
+      "currency": "{{$randomCurrencyCode}}",
+      "shippingAddress": "{{$randomStreetAddress}}",
+      "items": [
+        {
+          "sku": "SKU-{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}",
+          "name": "{{$randomProductName}}",
+          "quantity": {{$randomInt}},
+          "unitPrice": {{$randomPrice}}
+        }
+      ]
     }
 order: 1777411285741
