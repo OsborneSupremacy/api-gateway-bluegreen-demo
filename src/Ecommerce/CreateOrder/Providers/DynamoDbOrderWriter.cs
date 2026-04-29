@@ -1,12 +1,11 @@
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
-using Ecommerce.Library.Models;
 
-namespace CreateOrder;
+namespace CreateOrder.Providers;
 
 public sealed class DynamoDbOrderWriter : IOrderWriter
 {
     private readonly IAmazonDynamoDB _dynamoDb;
+
     private readonly string _tableName;
 
     public DynamoDbOrderWriter(IAmazonDynamoDB dynamoDb, string tableName)
@@ -26,6 +25,8 @@ public sealed class DynamoDbOrderWriter : IOrderWriter
             TableName = _tableName,
             Item = new Dictionary<string, AttributeValue>
             {
+                ["PK"] = new() { S = $"CUSTOMER#{order.CustomerId}#ORDER" },
+                ["SK"] = new() { S = $"ORDER#{order.OrderId}" },
                 ["OrderId"] = new() { S = order.OrderId },
                 ["CustomerId"] = new() { S = order.CustomerId },
                 ["Currency"] = new() { S = order.Currency },

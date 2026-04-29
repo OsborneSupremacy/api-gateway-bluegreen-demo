@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace CreateOrder.Models;
 
 public sealed record CreateOrderRequest

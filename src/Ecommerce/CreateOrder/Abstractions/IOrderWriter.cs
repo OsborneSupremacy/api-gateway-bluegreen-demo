@@ -1,6 +1,4 @@
-using Ecommerce.Library.Models;
-
-namespace CreateOrder;
+namespace CreateOrder.Abstractions;
 
 public interface IOrderWriter
 {
