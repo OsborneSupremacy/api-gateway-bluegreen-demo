@@ -1,7 +1,10 @@
+using System.Net;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.DynamoDBv2;
 using System.Text.Json;
+using CreateOrder.Validators;
+using FluentValidation;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -16,26 +19,26 @@ public class Function
     };
 
     private readonly IOrderWriter _orderWriter;
+    private readonly IValidator<CreateOrderRequest> _validator;
 
     public Function()
-        : this(new DynamoDbOrderWriter(new AmazonDynamoDBClient(), ResolveOrdersTableName()))
+        : this(new DynamoDbOrderWriter(new AmazonDynamoDBClient(), ResolveOrdersTableName()),
+               new CreateOrderRequestValidator())
     {
     }
 
-    public Function(IOrderWriter orderWriter)
+    public Function(IOrderWriter orderWriter, IValidator<CreateOrderRequest> validator)
     {
         _orderWriter = orderWriter ?? throw new ArgumentNullException(nameof(orderWriter));
+        _validator = validator ?? throw new ArgumentNullException(nameof(validator));
     }
 
-    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(
+        APIGatewayProxyRequest input,
+        ILambdaContext context)
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(context);
-
-        if (string.IsNullOrWhiteSpace(input.Body))
-        {
-            return BuildJsonResponse(400, new ErrorResult { Message = "Request body is required." });
-        }
 
         CreateOrderRequest request;
 
@@ -46,13 +49,14 @@ public class Function
         }
         catch (JsonException)
         {
-            return BuildJsonResponse(400, new ErrorResult { Message = "Request body JSON is invalid." });
+            return BuildJsonResponse(HttpStatusCode.BadRequest, new ErrorResult { Message = "Request body JSON is invalid." });
         }
 
-        var validationError = Validate(request);
-        if (validationError.Length > 0)
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
         {
-            return BuildJsonResponse(400, new ErrorResult { Message = validationError });
+            return BuildJsonResponse(HttpStatusCode.BadRequest,
+                new ErrorResult { Message = validationResult.Errors[0].ErrorMessage });
         }
 
         var order = BuildOrder(request);
@@ -64,10 +68,10 @@ public class Function
         catch (Exception ex)
         {
             context.Logger.Log($"CreateOrder failure for order '{order.OrderId}'. Error: {ex}");
-            return BuildJsonResponse(500, new ErrorResult { Message = "Failed to persist order." });
+            return BuildJsonResponse(HttpStatusCode.InternalServerError, new ErrorResult { Message = "Failed to persist order." });
         }
 
-        return BuildJsonResponse(201, new CreateOrderResult { Order = order });
+        return BuildJsonResponse(HttpStatusCode.Created, new CreateOrderResult { Order = order });
     }
 
     private static Order BuildOrder(CreateOrderRequest request)
@@ -85,9 +89,11 @@ public class Function
 
         var totalAmount = decimal.Round(lines.Sum(line => line.LineTotal), 2, MidpointRounding.AwayFromZero);
 
+        var orderId = $"{Guid.CreateVersion7():N}";
+
         return new Order
         {
-            OrderId = $"ord_{Guid.NewGuid():N}",
+            OrderId = orderId,
             CustomerId = request.CustomerId.Trim(),
             Currency = request.Currency.Trim().ToUpperInvariant(),
             ShippingAddress = request.ShippingAddress.Trim(),
@@ -97,56 +103,12 @@ public class Function
         };
     }
 
-    private static string Validate(CreateOrderRequest request)
-    {
-        if (string.IsNullOrWhiteSpace(request.CustomerId))
-        {
-            return "customerId is required.";
-        }
 
-        if (string.IsNullOrWhiteSpace(request.Currency))
-        {
-            return "currency is required.";
-        }
-
-        if (string.IsNullOrWhiteSpace(request.ShippingAddress))
-        {
-            return "shippingAddress is required.";
-        }
-
-        if (request.Items.Count == 0)
-        {
-            return "At least one order item is required.";
-        }
-
-        if (request.Items.Any(item => string.IsNullOrWhiteSpace(item.Sku)))
-        {
-            return "Each item must include sku.";
-        }
-
-        if (request.Items.Any(item => string.IsNullOrWhiteSpace(item.Name)))
-        {
-            return "Each item must include name.";
-        }
-
-        if (request.Items.Any(item => item.Quantity <= 0))
-        {
-            return "Each item quantity must be greater than zero.";
-        }
-
-        if (request.Items.Any(item => item.UnitPrice <= 0))
-        {
-            return "Each item unitPrice must be greater than zero.";
-        }
-
-        return string.Empty;
-    }
-
-    private static APIGatewayProxyResponse BuildJsonResponse(int statusCode, object payload)
+    private static APIGatewayProxyResponse BuildJsonResponse(HttpStatusCode statusCode, object payload)
     {
         return new APIGatewayProxyResponse
         {
-            StatusCode = statusCode,
+            StatusCode = (int)statusCode,
             Body = JsonSerializer.Serialize(payload, JsonOptions),
             Headers = new Dictionary<string, string>
             {

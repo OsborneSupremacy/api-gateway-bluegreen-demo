@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using CreateOrder.Abstractions;
 using CreateOrder.Models;
+using CreateOrder.Validators;
 using Ecommerce.Library.Models;
 using Xunit;
 
@@ -15,7 +16,7 @@ public class FunctionTest
     public async Task FunctionHandler_ReturnsCreatedAndSavesOrder_WhenRequestIsValid()
     {
         var writer = new InMemoryOrderWriter();
-        var function = new Function(writer);
+        var function = new Function(writer, new CreateOrderRequestValidator());
         var request = new APIGatewayProxyRequest
         {
             Body = JsonSerializer.Serialize(new CreateOrderRequest
@@ -46,10 +47,10 @@ public class FunctionTest
     }
 
     [Fact]
-    public async Task FunctionHandler_ReturnsBadRequest_WhenItemsAreMissing()
+    public async Task FunctionHandler_ReturnsBadRequest_WhenItemQuantityIsZero()
     {
         var writer = new InMemoryOrderWriter();
-        var function = new Function(writer);
+        var function = new Function(writer, new CreateOrderRequestValidator());
         var request = new APIGatewayProxyRequest
         {
             Body = JsonSerializer.Serialize(new CreateOrderRequest
@@ -57,7 +58,41 @@ public class FunctionTest
                 CustomerId = "customer-456",
                 Currency = "USD",
                 ShippingAddress = "456 Main St",
-                Items = ImmutableList<CreateOrderItemRequest>.Empty
+                Items = ImmutableList.Create(new CreateOrderItemRequest
+                {
+                    Sku = "SKU-001",
+                    Name = "Wireless Mouse",
+                    Quantity = 0,
+                    UnitPrice = 25.50m
+                })
+            })
+        };
+
+        var response = await function.FunctionHandler(request, new TestLambdaContext());
+
+        Assert.Equal(400, response.StatusCode);
+        Assert.Empty(writer.Orders);
+    }
+
+    [Fact]
+    public async Task FunctionHandler_ReturnsBadRequest_WhenItemUnitPriceIsZero()
+    {
+        var writer = new InMemoryOrderWriter();
+        var function = new Function(writer, new CreateOrderRequestValidator());
+        var request = new APIGatewayProxyRequest
+        {
+            Body = JsonSerializer.Serialize(new CreateOrderRequest
+            {
+                CustomerId = "customer-456",
+                Currency = "USD",
+                ShippingAddress = "456 Main St",
+                Items = ImmutableList.Create(new CreateOrderItemRequest
+                {
+                    Sku = "SKU-001",
+                    Name = "Wireless Mouse",
+                    Quantity = 1,
+                    UnitPrice = 0m
+                })
             })
         };
 
@@ -70,7 +105,7 @@ public class FunctionTest
     [Fact]
     public async Task FunctionHandler_ReturnsServerError_WhenWriterThrows()
     {
-        var function = new Function(new ThrowingOrderWriter());
+        var function = new Function(new ThrowingOrderWriter(), new CreateOrderRequestValidator());
         var request = new APIGatewayProxyRequest
         {
             Body = JsonSerializer.Serialize(new CreateOrderRequest
