@@ -18,4 +18,16 @@ body:
         }
       ]
     }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+
+      if (pm.response.code === 201) {
+          const orderId = pm.response.json().Order.OrderId;
+          pm.environment.set("OrderId", orderId);
+      }
+    language: text/javascript
 order: 1777411285741
