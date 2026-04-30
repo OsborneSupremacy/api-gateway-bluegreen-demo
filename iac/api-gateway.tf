@@ -45,7 +45,7 @@ resource "aws_api_gateway_stage" "blue_stage" {
     ignore_changes = [ deployment_id ] # Don't trigger a new deployment when the deployment_id changes, since that would cause downtime. We'll manage deployments in the CI/CD pipeline.
   }
   variables = {
-    "functionversion" = "4"
+    "alias" = "blue"
   }
 }
 
@@ -58,6 +58,6 @@ resource "aws_api_gateway_stage" "green_stage" {
     ignore_changes = [ deployment_id ] # Don't trigger a new deployment when the deployment_id changes, since that would cause downtime. We'll manage deployments in the CI/CD pipeline.
   }
   variables = {
-    "functionversion" = "3"
+    "alias" = "green"
   }
 }

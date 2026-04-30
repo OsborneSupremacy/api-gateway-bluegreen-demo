@@ -6,6 +6,8 @@ resource "aws_lambda_alias" "blue_alias" {
   function_version = aws_lambda_function.lambda_function.version
   lifecycle {
     ignore_changes = [function_version]
+    # this prevents Terraform from to updating the blue alias to point to the new version during deployment,
+    # allowing for manual control over when the blue alias is switched to the new version
   }
 }
 
