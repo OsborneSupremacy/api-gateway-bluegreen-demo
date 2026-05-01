@@ -15,7 +15,7 @@ public class FunctionTest
     [Fact]
     public async Task FunctionHandler_ReturnsCreatedAndSavesOrder_WhenRequestIsValid()
     {
-        var writer = new InMemoryOrderWriter();
+        var writer = new InMemoryOrderProvider();
         var function = new Function(writer, new CreateOrderRequestValidator());
         var request = new APIGatewayProxyRequest
         {
@@ -47,7 +47,7 @@ public class FunctionTest
     [Fact]
     public async Task FunctionHandler_ReturnsBadRequest_WhenItemQuantityIsZero()
     {
-        var writer = new InMemoryOrderWriter();
+        var writer = new InMemoryOrderProvider();
         var function = new Function(writer, new CreateOrderRequestValidator());
         var request = new APIGatewayProxyRequest
         {
@@ -75,7 +75,7 @@ public class FunctionTest
     [Fact]
     public async Task FunctionHandler_ReturnsBadRequest_WhenItemUnitPriceIsZero()
     {
-        var writer = new InMemoryOrderWriter();
+        var writer = new InMemoryOrderProvider();
         var function = new Function(writer, new CreateOrderRequestValidator());
         var request = new APIGatewayProxyRequest
         {
@@ -103,7 +103,7 @@ public class FunctionTest
     [Fact]
     public async Task FunctionHandler_ReturnsServerError_WhenWriterThrows()
     {
-        var function = new Function(new ThrowingOrderWriter(), new CreateOrderRequestValidator());
+        var function = new Function(new ThrowingOrderProvider(), new CreateOrderRequestValidator());
         var request = new APIGatewayProxyRequest
         {
             Body = JsonSerializer.Serialize(new CreateOrderRequest
@@ -127,7 +127,7 @@ public class FunctionTest
         Assert.Equal(500, response.StatusCode);
     }
 
-    private sealed class InMemoryOrderWriter : IOrderWriter
+    private sealed class InMemoryOrderProvider : IOrderProvider
     {
         public List<Order> Orders { get; } = [];
 
@@ -138,7 +138,7 @@ public class FunctionTest
         }
     }
 
-    private sealed class ThrowingOrderWriter : IOrderWriter
+    private sealed class ThrowingOrderProvider : IOrderProvider
     {
         public Task SaveAsync(Order order, CancellationToken cancellationToken)
         {

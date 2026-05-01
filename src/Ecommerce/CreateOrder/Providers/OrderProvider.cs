@@ -2,13 +2,13 @@ using Amazon.DynamoDBv2;
 
 namespace CreateOrder.Providers;
 
-public sealed class DynamoDbOrderWriter : IOrderWriter
+public sealed class OrderProvider : IOrderProvider
 {
     private readonly IAmazonDynamoDB _dynamoDb;
 
     private readonly string _tableName;
 
-    public DynamoDbOrderWriter(IAmazonDynamoDB dynamoDb, string tableName)
+    public OrderProvider(IAmazonDynamoDB dynamoDb, string tableName)
     {
         _dynamoDb = dynamoDb ?? throw new ArgumentNullException(nameof(dynamoDb));
         _tableName = string.IsNullOrWhiteSpace(tableName)

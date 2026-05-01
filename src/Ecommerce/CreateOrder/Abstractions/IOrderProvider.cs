@@ -1,6 +1,6 @@
 namespace CreateOrder.Abstractions;
 
-public interface IOrderWriter
+public interface IOrderProvider
 {
     Task SaveAsync(Order order, CancellationToken cancellationToken);
 }

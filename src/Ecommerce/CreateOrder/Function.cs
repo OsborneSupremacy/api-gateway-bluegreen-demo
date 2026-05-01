@@ -18,19 +18,19 @@ public class Function
         PropertyNameCaseInsensitive = true
     };
 
-    private readonly IOrderWriter _orderWriter;
+    private readonly IOrderProvider _orderProvider;
 
     private readonly IValidator<CreateOrderRequest> _validator;
 
     public Function()
-        : this(new DynamoDbOrderWriter(new AmazonDynamoDBClient(), ResolveOrdersTableName()),
+        : this(new OrderProvider(new AmazonDynamoDBClient(), ResolveOrdersTableName()),
                new CreateOrderRequestValidator())
     {
     }
 
-    public Function(IOrderWriter orderWriter, IValidator<CreateOrderRequest> validator)
+    public Function(IOrderProvider orderProvider, IValidator<CreateOrderRequest> validator)
     {
-        _orderWriter = orderWriter ?? throw new ArgumentNullException(nameof(orderWriter));
+        _orderProvider = orderProvider ?? throw new ArgumentNullException(nameof(orderProvider));
         _validator = validator ?? throw new ArgumentNullException(nameof(validator));
     }
 
@@ -65,7 +65,7 @@ public class Function
 
         try
         {
-            await _orderWriter.SaveAsync(order, CancellationToken.None);
+            await _orderProvider.SaveAsync(order, CancellationToken.None);
         }
         catch (Exception ex)
         {
