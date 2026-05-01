@@ -26,7 +26,7 @@ scripts:
       });
 
       if (pm.response.code === 201) {
-          const orderId = pm.response.json().Order.OrderId;
+          const orderId = pm.response.json().orderId;
           pm.environment.set("OrderId", orderId);
       }
     language: text/javascript

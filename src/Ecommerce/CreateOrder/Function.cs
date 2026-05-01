@@ -19,6 +19,7 @@ public class Function
     };
 
     private readonly IOrderWriter _orderWriter;
+
     private readonly IValidator<CreateOrderRequest> _validator;
 
     public Function()
@@ -35,7 +36,8 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(
         APIGatewayProxyRequest input,
-        ILambdaContext context)
+        ILambdaContext context
+        )
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(context);
@@ -71,7 +73,7 @@ public class Function
             return BuildJsonResponse(HttpStatusCode.InternalServerError, new ErrorResult { Message = "Failed to persist order." });
         }
 
-        return BuildJsonResponse(HttpStatusCode.Created, new CreateOrderResult { Order = order });
+        return BuildJsonResponse(HttpStatusCode.Created, new CreateOrderResponse { OrderId = order.OrderId });
     }
 
     private static Order BuildOrder(CreateOrderRequest request)
@@ -93,7 +95,7 @@ public class Function
 
         return new Order
         {
-            OrderId = orderId,
+            OrderId = Guid.Parse(orderId),
             CustomerId = request.CustomerId.Trim(),
             Currency = request.Currency.Trim().ToUpperInvariant(),
             ShippingAddress = request.ShippingAddress.Trim(),

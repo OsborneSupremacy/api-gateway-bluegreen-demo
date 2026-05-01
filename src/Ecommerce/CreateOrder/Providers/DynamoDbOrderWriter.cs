@@ -27,7 +27,7 @@ public sealed class DynamoDbOrderWriter : IOrderWriter
             {
                 ["PK"] = new() { S = $"CUSTOMER#{order.CustomerId}#ORDER" },
                 ["SK"] = new() { S = $"ORDER#{order.OrderId}" },
-                ["OrderId"] = new() { S = order.OrderId },
+                ["OrderId"] = new() { S = order.OrderId.ToString() },
                 ["CustomerId"] = new() { S = order.CustomerId },
                 ["Currency"] = new() { S = order.Currency },
                 ["ShippingAddress"] = new() { S = order.ShippingAddress },

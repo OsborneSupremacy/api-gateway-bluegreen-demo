@@ -40,10 +40,8 @@ public class FunctionTest
         Assert.Equal(201, response.StatusCode);
         Assert.Single(writer.Orders);
 
-        var result = JsonSerializer.Deserialize<CreateOrderResult>(response.Body);
-        Assert.NotNull(result);
-        Assert.Equal("customer-123", result.Order.CustomerId);
-        Assert.Equal(51.00m, result.Order.TotalAmount);
+        var result = JsonSerializer.Deserialize<CreateOrderResponse>(response.Body);
+        Assert.NotNull(result?.OrderId);
     }
 
     [Fact]

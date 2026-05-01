@@ -29,8 +29,8 @@ module "create_order_api_gateway_integration" {
   lambda_function_arn                               = module.create_order_lambda.latest_arn
   include_404_response                              = false
   include_409_response                              = false
-  good_response_model_name                          = ""
-  good_response_model_description                   = ""
-  good_response_model_schema_file_location          = ""
+  good_response_model_name                          = "CreateOrderResponseModel"
+  good_response_model_description                   = "Model schema for the Create Order API response body"
+  good_response_model_schema_file_location          = "../schemas/create-order-response.json"
   request_validator_id                              = aws_api_gateway_request_validator.request_body_validator.id
 }

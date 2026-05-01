@@ -4,7 +4,7 @@ namespace Ecommerce.Library.Models;
 
 public sealed record Order
 {
-    public required string OrderId { get; init; }
+    public required Guid OrderId { get; init; }
 
     public required string CustomerId { get; init; }
 
