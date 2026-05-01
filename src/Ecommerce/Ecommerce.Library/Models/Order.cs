@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace Ecommerce.Library.Models;
 
 public sealed record Order

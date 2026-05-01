@@ -1,9 +1,6 @@
-using CreateOrder.Models;
-using FluentValidation;
-
 namespace CreateOrder.Validators;
 
-public sealed class CreateOrderRequestValidator : AbstractValidator<CreateOrderRequest>
+internal sealed class CreateOrderRequestValidator : AbstractValidator<CreateOrderRequest>
 {
     public CreateOrderRequestValidator()
     {

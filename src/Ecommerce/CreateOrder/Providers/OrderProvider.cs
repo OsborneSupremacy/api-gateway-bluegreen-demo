@@ -2,24 +2,20 @@ using Amazon.DynamoDBv2;
 
 namespace CreateOrder.Providers;
 
-public sealed class OrderProvider : IOrderProvider
+internal sealed class OrderProvider : IOrderProvider
 {
-    private readonly IAmazonDynamoDB _dynamoDb;
+    private readonly IAmazonDynamoDB _dynamoDbClient;
 
     private readonly string _tableName;
 
     public OrderProvider(IAmazonDynamoDB dynamoDb, string tableName)
     {
-        _dynamoDb = dynamoDb ?? throw new ArgumentNullException(nameof(dynamoDb));
-        _tableName = string.IsNullOrWhiteSpace(tableName)
-            ? throw new ArgumentException("A DynamoDB table name must be configured.", nameof(tableName))
-            : tableName;
+        _dynamoDbClient = dynamoDb ?? throw new ArgumentNullException(nameof(dynamoDb));
+        _tableName = EnvReader.GetStringValue("TABLE_NAME");
     }
 
     public async Task SaveAsync(Order order, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(order);
-
         var request = new PutItemRequest
         {
             TableName = _tableName,
@@ -53,7 +49,7 @@ public sealed class OrderProvider : IOrderProvider
             }
         };
 
-        await _dynamoDb.PutItemAsync(request, cancellationToken);
+        await _dynamoDbClient.PutItemAsync(request, cancellationToken);
     }
 }
 

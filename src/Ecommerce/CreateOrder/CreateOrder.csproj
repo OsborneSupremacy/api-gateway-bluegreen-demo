@@ -13,12 +13,23 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Amazon.Lambda.Core" Version="2.8.1" />
+        <PackageReference Include="Amazon.Lambda.Logging.AspNetCore" Version="4.1.1"/>
         <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.3" />
         <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.5" />
-        <PackageReference Include="AWSSDK.Core" Version="4.0.5" />
-        <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.17.11" />
+        <PackageReference Include="AWSSDK.Core" Version="4.0.6" />
+        <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.18" />
+        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.35" />
         <PackageReference Include="FluentValidation" Version="12.1.1" />
+        <PackageReference Include="dotenv.net" Version="4.0.2" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />        
     </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="CreateOrder.Tests" />
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    </ItemGroup>
+    
     <ItemGroup>
       <ProjectReference Include="..\Ecommerce.Library\Ecommerce.Library.csproj" />
     </ItemGroup>
