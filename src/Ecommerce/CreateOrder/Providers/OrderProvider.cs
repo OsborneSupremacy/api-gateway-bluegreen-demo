@@ -49,7 +49,9 @@ internal sealed class OrderProvider : IOrderProvider
             }
         };
 
-        await _dynamoDbClient.PutItemAsync(request, cancellationToken);
+        await _dynamoDbClient
+            .PutItemAsync(request, cancellationToken)
+            .ConfigureAwait(false);
     }
 }
 
