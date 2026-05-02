@@ -8,10 +8,10 @@ internal sealed class OrderProvider : IOrderProvider
 
     private readonly string _tableName;
 
-    public OrderProvider(IAmazonDynamoDB dynamoDb, string tableName)
+    public OrderProvider(IAmazonDynamoDB dynamoDb)
     {
         _dynamoDbClient = dynamoDb ?? throw new ArgumentNullException(nameof(dynamoDb));
-        _tableName = EnvReader.GetStringValue("TABLE_NAME");
+        _tableName = EnvReader.GetStringValue("ORDERS_TABLE_NAME");
     }
 
     public async Task SaveAsync(Order order, CancellationToken cancellationToken)

@@ -2,6 +2,7 @@ using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.Extensions.NETCore.Setup;
 using Ecommerce.Library.Services;
+using Ecommerce.Library.Utility;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CreateOrder.Services;
@@ -12,6 +13,7 @@ internal static class ServiceProviderBuilder
         new ServiceCollection()
             .AddUtilities()
             .AddVendorServices()
+            .AddBusinessServices()
             .BuildServiceProvider();
 
     extension(IServiceCollection services)
@@ -33,7 +35,8 @@ internal static class ServiceProviderBuilder
 
         internal IServiceCollection AddBusinessServices() =>
             services
-                .AddSingleton<OrderProvider>()
+                .AddSingleton<ApiGatewayAdapter>()
+                .AddSingleton<IOrderProvider, OrderProvider>()
                 .AddSingleton<AbstractValidator<CreateOrderRequest>, CreateOrderRequestValidator>()
                 .AddSingleton<OrderService>();
     }
