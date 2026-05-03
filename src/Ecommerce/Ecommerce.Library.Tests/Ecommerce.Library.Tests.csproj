@@ -5,18 +5,19 @@
     <Nullable>enable</Nullable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.3" />
-    <PackageReference Include="Amazon.Lambda.Core" Version="2.8.1" />
-    <PackageReference Include="Amazon.Lambda.TestUtilities" Version="3.0.1" />
+    <PackageReference Include="FluentAssertions" Version="8.8.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\CreateOrder\CreateOrder.csproj" />
+    <ProjectReference Include="..\Ecommerce.Library\Ecommerce.Library.csproj" />
   </ItemGroup>
 </Project>

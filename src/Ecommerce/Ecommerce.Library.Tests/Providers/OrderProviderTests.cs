@@ -1,12 +1,12 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using CreateOrder.Providers;
 using Ecommerce.Library.Models;
+using Ecommerce.Library.Providers;
 using FluentAssertions;
 using Moq;
 using Xunit;
 
-namespace CreateOrder.Tests.Providers;
+namespace Ecommerce.Library.Tests.Providers;
 
 public sealed class OrderProviderTests
 {

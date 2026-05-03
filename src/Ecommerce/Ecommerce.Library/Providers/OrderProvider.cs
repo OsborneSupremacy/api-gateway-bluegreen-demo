@@ -1,8 +1,12 @@
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
+using dotenv.net.Utilities;
+using Ecommerce.Library.Abstractions;
+using Ecommerce.Library.Models;
 
-namespace CreateOrder.Providers;
+namespace Ecommerce.Library.Providers;
 
-internal sealed class OrderProvider : IOrderProvider
+public sealed class OrderProvider : IOrderProvider
 {
     private readonly IAmazonDynamoDB _dynamoDbClient;
 
@@ -54,4 +58,3 @@ internal sealed class OrderProvider : IOrderProvider
             .ConfigureAwait(false);
     }
 }
-
