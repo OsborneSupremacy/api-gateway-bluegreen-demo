@@ -1,8 +1,4 @@
-using Amazon;
-using Amazon.DynamoDBv2;
-using Amazon.Extensions.NETCore.Setup;
-using Ecommerce.Library.Services;
-using Ecommerce.Library.Utility;
+using Ecommerce.Library.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CreateOrder.Services;
@@ -13,30 +9,15 @@ internal static class ServiceProviderBuilder
         new ServiceCollection()
             .AddUtilities()
             .AddVendorServices()
+            .AddProviders()
             .AddBusinessServices()
             .BuildServiceProvider();
 
     extension(IServiceCollection services)
     {
-        private IServiceCollection AddVendorServices()
-        {
-            var region = RegionEndpoint.GetBySystemName(EnvReader.GetStringValue("AWS_REGION"));
-            return services
-                .AddDefaultAWSOptions(new AWSOptions { Region = region })
-                .AddAWSService<IAmazonDynamoDB>();
-        }
-
         // ReSharper disable once MemberCanBePrivate.Global
-        // No, it can't be made private. Stop confidently asserting what you don't know.
-        internal IServiceCollection AddUtilities() =>
-            services
-                .AddLogging(builder => builder.AddLambdaLogger())
-                .AddSingleton<JsonService>();
-
         internal IServiceCollection AddBusinessServices() =>
             services
-                .AddSingleton<ApiGatewayAdapter>()
-                .AddSingleton<IOrderProvider, OrderProvider>()
                 .AddSingleton<AbstractValidator<CreateOrderRequest>, CreateOrderRequestValidator>()
                 .AddSingleton<OrderService>();
     }
