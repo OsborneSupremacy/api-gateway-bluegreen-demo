@@ -89,7 +89,7 @@ public sealed class OrderProvider : IOrderProvider
             .GetItemAsync(request, cancellationToken)
             .ConfigureAwait(false);
 
-        return response.Item.Count == 0 ? Orders.Empty : MapOrder(response.Item);
+        return (response?.Item?.Count ?? 0) == 0 ? Orders.Empty : MapOrder(response!.Item!);
     }
 
     public async Task UpdateOrderAsync(Order order, CancellationToken cancellationToken)
