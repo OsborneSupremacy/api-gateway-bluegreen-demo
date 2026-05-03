@@ -25,8 +25,8 @@ internal class OrderService : IApiGatewayHandler
     {
         var getOrderRequest = new GetOrderRequest
         {
-            OrderId = Guid.TryParse(request.PathParameters["orderid"], out var orderid) ? orderid : Guid.Empty,
-            CustomerId = request.PathParameters["customerid"] ?? string.Empty
+            OrderId = Guid.TryParse(request.PathParameters["orderId"], out var orderid) ? orderid : Guid.Empty,
+            CustomerId = request.PathParameters["customerId"] ?? string.Empty
         };
 
         return _adapter

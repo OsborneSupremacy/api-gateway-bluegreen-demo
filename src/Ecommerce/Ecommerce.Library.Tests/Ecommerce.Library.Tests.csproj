@@ -20,4 +20,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Ecommerce.Library\Ecommerce.Library.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Providers\" />
+  </ItemGroup>
 </Project>

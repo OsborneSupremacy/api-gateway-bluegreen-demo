@@ -8,12 +8,18 @@ namespace Ecommerce.Library.Providers;
 
 public sealed class OrderProvider : IOrderProvider
 {
+    private readonly ILogger<OrderProvider> _logger;
+
     private readonly IAmazonDynamoDB _dynamoDbClient;
 
     private readonly string _tableName;
 
-    public OrderProvider(IAmazonDynamoDB dynamoDb)
+    public OrderProvider(
+        ILogger<OrderProvider> logger,
+        IAmazonDynamoDB dynamoDb
+        )
     {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dynamoDbClient = dynamoDb ?? throw new ArgumentNullException(nameof(dynamoDb));
         _tableName = EnvReader.GetStringValue("ORDERS_TABLE_NAME");
     }
@@ -60,13 +66,16 @@ public sealed class OrderProvider : IOrderProvider
 
     public async Task<Order> GetOrderAsync(string customerId, Guid orderId, CancellationToken cancellationToken)
     {
+        var pk = BuildPartitionKey(customerId);
+        var sk = BuildSortKey(orderId);
+
         var request = new GetItemRequest
         {
             TableName = _tableName,
             Key = new Dictionary<string, AttributeValue>
             {
-                ["PK"] = new() { S = BuildPartitionKey(customerId) },
-                ["SK"] = new() { S = BuildSortKey(orderId) }
+                ["PK"] = new() { S = pk },
+                ["SK"] = new() { S = sk }
             }
         };
 
