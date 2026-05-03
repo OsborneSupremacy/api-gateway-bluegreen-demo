@@ -2,13 +2,9 @@
 
 ## Building and Deploying
 
-### Build the .NET Lambda function
+### Build the .NET Lambda functions
 
 ```bash
-cd src/Ecommerce/CreateOrder
-dotnet publish -o bin/publish -c Release --framework "net10.0" /p:GenerateRuntimeConfigurationFiles=true --runtime linux-arm64 --self-contained false
-cd bin/publish
-zip -r ../CreateOrder.zip .
-cd -
+cd scripts
+./build-lambdas.sh
 ```
-

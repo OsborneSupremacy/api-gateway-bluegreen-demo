@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Get Order Response",
+  "description": "Response schema for GetOrderResponse",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "orderId",
+    "customerId",
+    "currency",
+    "shippingAddress",
+    "items",
+    "totalAmount",
+    "createdAtUtc"
+  ],
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the order"
+    },
+    "customerId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Customer identifier"
+    },
+    "currency": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Order currency code"
+    },
+    "shippingAddress": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Shipping address"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 0,
+      "description": "Order line items",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sku", "name", "quantity", "unitPrice", "lineTotal"],
+        "properties": {
+          "sku": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stock keeping unit"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Item name"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Item quantity"
+          },
+          "unitPrice": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Unit price"
+          },
+          "lineTotal": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Line total"
+          }
+        }
+      }
+    },
+    "totalAmount": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Total order amount"
+    },
+    "createdAtUtc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Order creation timestamp in UTC"
+    }
+  }
+}

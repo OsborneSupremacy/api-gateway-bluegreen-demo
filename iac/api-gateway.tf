@@ -32,17 +32,18 @@ resource "aws_api_gateway_deployment" "ecommerce_deployment" {
     create_before_destroy = true
   }
   depends_on = [
-    module.create_order_lambda
+    module.create_order_lambda,
+    module.get_order_lambda
   ]
 }
 
 resource "aws_api_gateway_stage" "blue_stage" {
   stage_name    = "blue"
-  description = "Blue (production-serving) stage for the ecommerce API Gateway"
+  description   = "Blue (production-serving) stage for the ecommerce API Gateway"
   rest_api_id   = aws_api_gateway_rest_api.ecommerce_gateway.id
   deployment_id = aws_api_gateway_deployment.ecommerce_deployment.id
   lifecycle {
-    ignore_changes = [ deployment_id ] # Don't trigger a new deployment when the deployment_id changes, since that would cause downtime. We'll manage deployments in the CI/CD pipeline.
+    ignore_changes = [deployment_id] # Don't trigger a new deployment when the deployment_id changes, since that would cause downtime. We'll manage deployments in the CI/CD pipeline.
   }
   variables = {
     "alias" = "blue"
@@ -51,11 +52,11 @@ resource "aws_api_gateway_stage" "blue_stage" {
 
 resource "aws_api_gateway_stage" "green_stage" {
   stage_name    = "green"
-  description = "Green (candidate/incoming) stage for the ecommerce API Gateway"
+  description   = "Green (candidate/incoming) stage for the ecommerce API Gateway"
   rest_api_id   = aws_api_gateway_rest_api.ecommerce_gateway.id
   deployment_id = aws_api_gateway_deployment.ecommerce_deployment.id
   lifecycle {
-    ignore_changes = [ deployment_id ] # Don't trigger a new deployment when the deployment_id changes, since that would cause downtime. We'll manage deployments in the CI/CD pipeline.
+    ignore_changes = [deployment_id] # Don't trigger a new deployment when the deployment_id changes, since that would cause downtime. We'll manage deployments in the CI/CD pipeline.
   }
   variables = {
     "alias" = "green"
