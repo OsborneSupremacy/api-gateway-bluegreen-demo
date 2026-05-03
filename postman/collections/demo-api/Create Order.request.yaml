@@ -4,9 +4,9 @@ url: "{{domain}}/v1/order"
 method: POST
 body:
   type: json
-  content: |-
+  content: >-
     {
-      "customerId": "{{$randomUUID}}",
+      "customerId": "{{CustomerId}}",
       "currency": "{{$randomCurrencyCode}}",
       "shippingAddress": "{{$randomStreetAddress}}",
       "items": [
@@ -30,4 +30,4 @@ scripts:
           pm.environment.set("OrderId", orderId);
       }
     language: text/javascript
-order: 1777411285741
+order: 638712352979
