@@ -17,6 +17,20 @@ public sealed record Order
     public required DateTimeOffset CreatedAtUtc { get; init; }
 }
 
+public static class Orders
+{
+    public static Order Empty => new()
+    {
+        OrderId = Guid.Empty,
+        CustomerId = string.Empty,
+        Currency = string.Empty,
+        ShippingAddress = string.Empty,
+        Items = [],
+        TotalAmount = 0m,
+        CreatedAtUtc = DateTimeOffset.MinValue
+    };
+}
+
 public sealed record OrderLine
 {
     public required string Sku { get; init; }

@@ -57,4 +57,148 @@ public sealed class OrderProvider : IOrderProvider
             .PutItemAsync(request, cancellationToken)
             .ConfigureAwait(false);
     }
+
+    public async Task<Order> GetOrder(string customerId, Guid orderId, CancellationToken cancellationToken)
+    {
+        var request = new GetItemRequest
+        {
+            TableName = _tableName,
+            Key = new Dictionary<string, AttributeValue>
+            {
+                ["PK"] = new() { S = BuildPartitionKey(customerId) },
+                ["SK"] = new() { S = BuildSortKey(orderId) }
+            }
+        };
+
+        var response = await _dynamoDbClient
+            .GetItemAsync(request, cancellationToken)
+            .ConfigureAwait(false);
+
+        return response.Item.Count == 0 ? Orders.Empty : MapOrder(response.Item);
+    }
+
+    public async Task UpdateOrder(Order order, CancellationToken cancellationToken)
+    {
+        var request = new UpdateItemRequest
+        {
+            TableName = _tableName,
+            Key = new Dictionary<string, AttributeValue>
+            {
+                ["PK"] = new() { S = BuildPartitionKey(order.CustomerId) },
+                ["SK"] = new() { S = BuildSortKey(order.OrderId) }
+            },
+            UpdateExpression = "SET OrderId = :orderId, CustomerId = :customerId, Currency = :currency, ShippingAddress = :shippingAddress, TotalAmount = :totalAmount, CreatedAtUtc = :createdAtUtc, Items = :items",
+            ConditionExpression = "attribute_exists(PK) AND attribute_exists(SK)",
+            ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+            {
+                [":orderId"] = new() { S = order.OrderId.ToString() },
+                [":customerId"] = new() { S = order.CustomerId },
+                [":currency"] = new() { S = order.Currency },
+                [":shippingAddress"] = new() { S = order.ShippingAddress },
+                [":totalAmount"] = new() { N = order.TotalAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
+                [":createdAtUtc"] = new() { S = order.CreatedAtUtc.ToString("O") },
+                [":items"] = new()
+                {
+                    L =
+                    [
+                        .. order.Items.Select(item => new AttributeValue
+                        {
+                            M = new Dictionary<string, AttributeValue>
+                            {
+                                ["Sku"] = new() { S = item.Sku },
+                                ["Name"] = new() { S = item.Name },
+                                ["Quantity"] = new() { N = item.Quantity.ToString(System.Globalization.CultureInfo.InvariantCulture) },
+                                ["UnitPrice"] = new() { N = item.UnitPrice.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
+                                ["LineTotal"] = new() { N = item.LineTotal.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) }
+                            }
+                        })
+                    ]
+                }
+            }
+        };
+
+        await _dynamoDbClient
+            .UpdateItemAsync(request, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task DeleteOrder(string customerId, Guid orderId, CancellationToken cancellationToken)
+    {
+        var request = new DeleteItemRequest
+        {
+            TableName = _tableName,
+            Key = new Dictionary<string, AttributeValue>
+            {
+                ["PK"] = new() { S = BuildPartitionKey(customerId) },
+                ["SK"] = new() { S = BuildSortKey(orderId) }
+            }
+        };
+
+        await _dynamoDbClient
+            .DeleteItemAsync(request, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private static string BuildPartitionKey(string customerId) =>
+        $"CUSTOMER#{customerId}#ORDER";
+
+    private static string BuildSortKey(Guid orderId) =>
+        $"ORDER#{orderId}";
+
+    private static Order MapOrder(Dictionary<string, AttributeValue> item)
+    {
+        var orderId = Guid.Parse(GetRequiredString(item, "OrderId"));
+        var customerId = GetRequiredString(item, "CustomerId");
+        var currency = GetRequiredString(item, "Currency");
+        var shippingAddress = GetRequiredString(item, "ShippingAddress");
+        var totalAmount = decimal.Parse(GetRequiredNumber(item, "TotalAmount"), System.Globalization.CultureInfo.InvariantCulture);
+        var createdAtUtc = DateTimeOffset.Parse(GetRequiredString(item, "CreatedAtUtc"), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind);
+
+        var orderLines = GetRequiredList(item, "Items")
+            .Select(orderLine => orderLine.M)
+            .Select(orderLineMap => new OrderLine
+            {
+                Sku = GetRequiredString(orderLineMap, "Sku"),
+                Name = GetRequiredString(orderLineMap, "Name"),
+                Quantity = int.Parse(GetRequiredNumber(orderLineMap, "Quantity"), System.Globalization.CultureInfo.InvariantCulture),
+                UnitPrice = decimal.Parse(GetRequiredNumber(orderLineMap, "UnitPrice"), System.Globalization.CultureInfo.InvariantCulture),
+                LineTotal = decimal.Parse(GetRequiredNumber(orderLineMap, "LineTotal"), System.Globalization.CultureInfo.InvariantCulture)
+            })
+            .ToImmutableList();
+
+        return new Order
+        {
+            OrderId = orderId,
+            CustomerId = customerId,
+            Currency = currency,
+            ShippingAddress = shippingAddress,
+            TotalAmount = totalAmount,
+            CreatedAtUtc = createdAtUtc,
+            Items = orderLines
+        };
+    }
+
+    private static string GetRequiredString(Dictionary<string, AttributeValue> item, string key)
+    {
+        if (!item.TryGetValue(key, out var value) || string.IsNullOrWhiteSpace(value.S))
+            throw new InvalidOperationException($"Missing or invalid string attribute '{key}'.");
+
+        return value.S;
+    }
+
+    private static string GetRequiredNumber(Dictionary<string, AttributeValue> item, string key)
+    {
+        if (!item.TryGetValue(key, out var value) || string.IsNullOrWhiteSpace(value.N))
+            throw new InvalidOperationException($"Missing or invalid number attribute '{key}'.");
+
+        return value.N;
+    }
+
+    private static List<AttributeValue> GetRequiredList(Dictionary<string, AttributeValue> item, string key)
+    {
+        if (!item.TryGetValue(key, out var value) || value.L is null)
+            throw new InvalidOperationException($"Missing or invalid list attribute '{key}'.");
+
+        return value.L;
+    }
 }
