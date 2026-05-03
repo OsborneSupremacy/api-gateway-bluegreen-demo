@@ -18,7 +18,7 @@ public sealed class OrderProvider : IOrderProvider
         _tableName = EnvReader.GetStringValue("ORDERS_TABLE_NAME");
     }
 
-    public async Task SaveAsync(Order order, CancellationToken cancellationToken)
+    public async Task CreateAsync(Order order, CancellationToken cancellationToken)
     {
         var request = new PutItemRequest
         {

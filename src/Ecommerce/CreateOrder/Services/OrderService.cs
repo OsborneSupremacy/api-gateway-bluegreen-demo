@@ -42,7 +42,7 @@ internal class OrderService : IApiGatewayHandler
         var order = BuildOrder(request);
 
         await _orderProvider
-            .SaveAsync(order, CancellationToken.None)
+            .CreateAsync(order, CancellationToken.None)
             .ConfigureAwait(false);
 
         return new Result<CreateOrderResponse>(new CreateOrderResponse { OrderId = order.OrderId }, HttpStatusCode.Created);

@@ -2,6 +2,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Ecommerce.Library.Models;
 using Ecommerce.Library.Providers;
+using Ecommerce.Library.Tests.Utility;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -11,7 +12,7 @@ namespace Ecommerce.Library.Tests.Providers;
 public sealed class OrderProviderTests
 {
     [Fact]
-    public async Task SaveAsync_ShouldSendExpectedPutItemRequest()
+    public async Task CreateAsync_ShouldSendExpectedPutItemRequest()
     {
         // Arrange
         using var envScope = new EnvironmentVariableScope("ORDERS_TABLE_NAME", "orders-table");
@@ -65,7 +66,7 @@ public sealed class OrderProviderTests
         var cancellationToken = new CancellationTokenSource().Token;
 
         // Act
-        await provider.SaveAsync(order, cancellationToken);
+        await provider.CreateAsync(order, cancellationToken);
 
         // Assert
         capturedRequest.Should().NotBeNull();
@@ -95,21 +96,5 @@ public sealed class OrderProviderTests
         capturedRequest.Item["Items"].L[1].M["LineTotal"].N.Should().Be("7.50");
 
         dynamoDbMock.Verify(client => client.PutItemAsync(It.IsAny<PutItemRequest>(), It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    private sealed class EnvironmentVariableScope : IDisposable
-    {
-        private readonly string _name;
-        private readonly string? _originalValue;
-
-        public EnvironmentVariableScope(string name, string? value)
-        {
-            _name = name;
-            _originalValue = Environment.GetEnvironmentVariable(name);
-            Environment.SetEnvironmentVariable(name, value);
-        }
-
-        public void Dispose() =>
-            Environment.SetEnvironmentVariable(_name, _originalValue);
     }
 }

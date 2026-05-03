@@ -4,5 +4,5 @@ namespace Ecommerce.Library.Abstractions;
 
 public interface IOrderProvider
 {
-    Task SaveAsync(Order order, CancellationToken cancellationToken);
+    Task CreateAsync(Order order, CancellationToken cancellationToken);
 }
