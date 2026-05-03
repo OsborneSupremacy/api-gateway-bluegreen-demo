@@ -21,6 +21,7 @@
         <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.35" />
         <PackageReference Include="FluentValidation" Version="12.1.1" />
         <PackageReference Include="dotenv.net" Version="4.0.2" />
+        <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />        
     </ItemGroup>

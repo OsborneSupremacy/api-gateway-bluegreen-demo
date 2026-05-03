@@ -1,5 +1,6 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -20,13 +21,12 @@ public class Function
         return _serviceProvider ??= ServiceProviderBuilder.Build();
     }
 
+    [UsedImplicitly]
     public async Task<APIGatewayProxyResponse> FunctionHandler(
         APIGatewayProxyRequest request,
         ILambdaContext _
-        )
-    {
-        return await GetServiceProvider()
+        ) =>
+        await GetServiceProvider()
             .GetRequiredService<OrderService>()
             .FunctionHandler(request);
-    }
 }

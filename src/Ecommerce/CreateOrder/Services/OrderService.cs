@@ -1,5 +1,4 @@
 using Amazon.Lambda.APIGatewayEvents;
-using Ecommerce.Library.Abstractions;
 using Ecommerce.Library.Utility;
 
 namespace CreateOrder.Services;
