@@ -1,0 +1,9 @@
+global using System.Collections.Immutable;
+global using System.Net;
+global using GetOrder.Models;
+global using GetOrder.Services;
+global using GetOrder.Validators;
+global using Ecommerce.Library.Abstractions;
+global using Ecommerce.Library.Models;
+global using FluentValidation;
+global using Microsoft.Extensions.Logging;

@@ -58,7 +58,7 @@ public sealed class OrderProvider : IOrderProvider
             .ConfigureAwait(false);
     }
 
-    public async Task<Order> GetOrder(string customerId, Guid orderId, CancellationToken cancellationToken)
+    public async Task<Order> GetOrderAsync(string customerId, Guid orderId, CancellationToken cancellationToken)
     {
         var request = new GetItemRequest
         {
@@ -77,7 +77,7 @@ public sealed class OrderProvider : IOrderProvider
         return response.Item.Count == 0 ? Orders.Empty : MapOrder(response.Item);
     }
 
-    public async Task UpdateOrder(Order order, CancellationToken cancellationToken)
+    public async Task UpdateOrderAsync(Order order, CancellationToken cancellationToken)
     {
         var request = new UpdateItemRequest
         {
@@ -122,7 +122,7 @@ public sealed class OrderProvider : IOrderProvider
             .ConfigureAwait(false);
     }
 
-    public async Task DeleteOrder(string customerId, Guid orderId, CancellationToken cancellationToken)
+    public async Task DeleteOrderAsync(string customerId, Guid orderId, CancellationToken cancellationToken)
     {
         var request = new DeleteItemRequest
         {

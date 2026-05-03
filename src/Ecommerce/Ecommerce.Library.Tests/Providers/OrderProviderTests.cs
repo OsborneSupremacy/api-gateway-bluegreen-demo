@@ -144,7 +144,7 @@ public sealed class OrderProviderTests
         var provider = new OrderProvider(dynamoDbMock.Object);
 
         // Act
-        var result = await provider.GetOrder("cust-123", orderId, CancellationToken.None);
+        var result = await provider.GetOrderAsync("cust-123", orderId, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -201,7 +201,7 @@ public sealed class OrderProviderTests
         var provider = new OrderProvider(dynamoDbMock.Object);
 
         // Act
-        await provider.UpdateOrder(order, CancellationToken.None);
+        await provider.UpdateOrderAsync(order, CancellationToken.None);
 
         // Assert
         capturedRequest.Should().NotBeNull();
@@ -234,7 +234,7 @@ public sealed class OrderProviderTests
         var provider = new OrderProvider(dynamoDbMock.Object);
 
         // Act
-        await provider.DeleteOrder("cust-123", orderId, CancellationToken.None);
+        await provider.DeleteOrderAsync("cust-123", orderId, CancellationToken.None);
 
         // Assert
         capturedRequest.Should().NotBeNull();
