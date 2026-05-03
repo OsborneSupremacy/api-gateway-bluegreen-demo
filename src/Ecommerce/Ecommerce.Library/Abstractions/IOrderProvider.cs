@@ -4,7 +4,7 @@ namespace Ecommerce.Library.Abstractions;
 
 public interface IOrderProvider
 {
-    Task CreateAsync(Order order, CancellationToken cancellationToken);
+    Task CreateOrderAsync(Order order, CancellationToken cancellationToken);
 
     Task<Order> GetOrderAsync(string customerId, Guid orderId, CancellationToken cancellationToken);
 

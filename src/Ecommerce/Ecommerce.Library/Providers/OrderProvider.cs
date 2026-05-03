@@ -24,8 +24,13 @@ public sealed class OrderProvider : IOrderProvider
         _tableName = EnvReader.GetStringValue("ORDERS_TABLE_NAME");
     }
 
-    public async Task CreateAsync(Order order, CancellationToken cancellationToken)
+    public async Task CreateOrderAsync(Order order, CancellationToken cancellationToken)
     {
+        var ttl = order.CreatedAtUtc
+            .AddDays(1)
+            .ToUnixTimeSeconds()
+            .ToString(System.Globalization.CultureInfo.InvariantCulture);
+
         var request = new PutItemRequest
         {
             TableName = _tableName,
@@ -39,6 +44,7 @@ public sealed class OrderProvider : IOrderProvider
                 ["ShippingAddress"] = new() { S = order.ShippingAddress },
                 ["TotalAmount"] = new() { N = order.TotalAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
                 ["CreatedAtUtc"] = new() { S = order.CreatedAtUtc.ToString("O") },
+                ["ttl"] = new() { N = ttl },
                 ["Items"] = new()
                 {
                     L =
