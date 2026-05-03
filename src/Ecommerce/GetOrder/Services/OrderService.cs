@@ -21,9 +21,17 @@ internal class OrderService : IApiGatewayHandler
         _orderProvider = orderProvider ?? throw new ArgumentNullException(nameof(orderProvider));
     }
 
-    public Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request) =>
-        _adapter
-            .AdaptAsync<GetOrderRequest, GetOrderResponse>(request, GetOrderAsync);
+    public Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request)
+    {
+        var getOrderRequest = new GetOrderRequest
+        {
+            OrderId = Guid.TryParse(request.PathParameters["orderid"], out var orderid) ? orderid : Guid.Empty,
+            CustomerId = request.PathParameters["customerid"] ?? string.Empty
+        };
+
+        return _adapter
+            .AdaptAsync(getOrderRequest, GetOrderAsync);
+    }
 
     internal async Task<Result<GetOrderResponse>> GetOrderAsync(GetOrderRequest request)
     {
@@ -32,22 +40,20 @@ internal class OrderService : IApiGatewayHandler
             .ConfigureAwait(false);
 
         if (!validationResult.IsValid)
-        {
             return new Result<GetOrderResponse>(
-                new InvalidOperationException(string.Join(" ", validationResult.Errors)),
-                HttpStatusCode.BadRequest);
-        }
+                new ValidationException(string.Join(" ", validationResult.Errors)),
+                HttpStatusCode.BadRequest
+            );
 
         var order = await _orderProvider
             .GetOrderAsync(request.CustomerId.Trim(), request.OrderId, CancellationToken.None)
             .ConfigureAwait(false);
 
-        if (order.OrderId == Guid.Empty)
-        {
+        if (order == Orders.Empty)
             return new Result<GetOrderResponse>(
                 new InvalidOperationException("Order not found."),
-                HttpStatusCode.NotFound);
-        }
+                HttpStatusCode.NotFound
+            );
 
         return new Result<GetOrderResponse>(MapResponse(order), HttpStatusCode.OK);
     }

@@ -34,7 +34,7 @@ internal class OrderService : IApiGatewayHandler
 
         if (!validationResult.IsValid)
             return new Result<CreateOrderResponse>(
-                new InvalidOperationException(string.Join(" ", validationResult.Errors)),
+                new ValidationException(string.Join(" ", validationResult.Errors)),
                 HttpStatusCode.BadRequest
             );
 
