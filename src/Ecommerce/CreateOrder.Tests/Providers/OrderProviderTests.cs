@@ -11,26 +11,10 @@ namespace CreateOrder.Tests.Providers;
 public sealed class OrderProviderTests
 {
     [Fact]
-    public void Ctor_ShouldThrow_WhenDynamoDbClientIsNull()
-    {
-        // Arrange
-        using var envScope = new EnvironmentVariableScope("TABLE_NAME", "orders-table");
-
-        // Act
-        Action action = () => _ = new OrderProvider(null!, "ignored");
-
-        // Assert
-        action
-            .Should()
-            .Throw<ArgumentNullException>()
-            .WithParameterName("dynamoDb");
-    }
-
-    [Fact]
     public async Task SaveAsync_ShouldSendExpectedPutItemRequest()
     {
         // Arrange
-        using var envScope = new EnvironmentVariableScope("TABLE_NAME", "orders-table");
+        using var envScope = new EnvironmentVariableScope("ORDERS_TABLE_NAME", "orders-table");
 
         var orderId = Guid.Parse("11111111-2222-3333-4444-555555555555");
         var createdAtUtc = DateTimeOffset.Parse("2026-05-01T12:34:56.0000000+00:00", null, System.Globalization.DateTimeStyles.RoundtripKind);
@@ -65,7 +49,7 @@ public sealed class OrderProviderTests
         };
 
         PutItemRequest? capturedRequest = null;
-        CancellationToken capturedCancellationToken = default;
+        CancellationToken capturedCancellationToken = CancellationToken.None;
 
         var dynamoDbMock = new Mock<IAmazonDynamoDB>(MockBehavior.Strict);
         dynamoDbMock
@@ -77,7 +61,7 @@ public sealed class OrderProviderTests
             })
             .ReturnsAsync(new PutItemResponse());
 
-        var provider = new OrderProvider(dynamoDbMock.Object, "ignored-by-provider");
+        var provider = new OrderProvider(dynamoDbMock.Object);
         var cancellationToken = new CancellationTokenSource().Token;
 
         // Act
