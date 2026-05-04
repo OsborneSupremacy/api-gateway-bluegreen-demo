@@ -51,9 +51,17 @@ jobs:
           echo "Green stage updated successfully."
 
       - name: Run Postman collection against green environment
+        id: postman_run
         uses: postmanlabs/postman-cli-action@v1
         with:
           command: >
             collection run postman/ecommerce.postman_collection.json
             --environment postman/environments/green.environment.json
             --env-var "ApiToken=${{ secrets.API_TOKEN }}"
+
+      - name: Fail workflow when Postman run fails
+        if: ${{ steps.postman_run.outputs['exit-code'] != '0' }}
+        shell: bash
+        run: |
+          echo "Postman CLI returned exit code ${{ steps.postman_run.outputs['exit-code'] }}"
+          exit 1

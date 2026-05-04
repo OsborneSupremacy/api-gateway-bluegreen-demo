@@ -2,6 +2,11 @@
   "name": "green",
   "values": [
     {
+      "key": "baseUrl",
+      "value": "https://green-api.ecommerce.osbornesupremacy.com",
+      "enabled": true
+    },
+    {
       "key": "domain",
       "value": "https://green-api.ecommerce.osbornesupremacy.com",
       "enabled": true

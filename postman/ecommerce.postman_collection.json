@@ -37,7 +37,20 @@
           },
           "raw": "{\n  \"customerId\": \"{{$randomUUID}}\",\n  \"currency\": \"{{$randomCurrencyCode}}\",\n  \"shippingAddress\": \"{{$randomStreetAddress}}\",\n  \"items\": [\n    {\n      \"sku\": \"SKU-{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}\",\n      \"name\": \"{{$randomProductName}}\",\n      \"quantity\": {{$randomInt}},\n      \"unitPrice\": {{$randomPrice}}\n    }\n  ]\n}"
         }
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Create Order returns success status', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});"
+            ]
+          }
+        }
+      ]
     }
   ]
 }
