@@ -1,0 +1,53 @@
+name: Deploy API To Green Stage
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_gateway_name:
+        description: "Name of the API Gateway REST API"
+        required: false
+        default: "ecommerce-gateway"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-green:
+    name: Deploy Green
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Deploy API Gateway to green stage
+        shell: bash
+        run: |
+          gateway_id=$(aws apigateway get-rest-apis \
+            --query "items[?name=='${{ inputs.api_gateway_name }}'].id | [0]" \
+            --output text)
+
+          if [[ -z "$gateway_id" || "$gateway_id" == "None" ]]; then
+            echo "ERROR: Could not find API Gateway with name '${{ inputs.api_gateway_name }}'" >&2
+            exit 1
+          fi
+          echo "Found gateway with id: $gateway_id"
+
+          deployment_id=$(aws apigateway create-deployment \
+            --rest-api-id "$gateway_id" \
+            --stage-name green \
+            --description "GitHub Actions run ${{ github.run_id }}" \
+            --query id \
+            --output text)
+          echo "Created deployment with id: $deployment_id"
+
+          echo "Updating green stage to deployment $deployment_id..."
+          aws apigateway update-stage \
+            --rest-api-id "$gateway_id" \
+            --stage-name green \
+            --patch-operations op=replace,path=/deploymentId,value="$deployment_id"
+          echo "Green stage updated successfully."
