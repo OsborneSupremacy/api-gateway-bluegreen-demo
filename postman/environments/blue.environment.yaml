@@ -4,4 +4,6 @@ values:
     value: 'https://api.ecommerce.osbornesupremacy.com'
   - key: CustomerId
     value: ''
+  - key: ApiToken
+    value: ''
 color: 240

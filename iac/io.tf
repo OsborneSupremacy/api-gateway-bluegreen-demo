@@ -25,10 +25,10 @@ variable "root_domain_name" {
 }
 
 variable "api_token" {
-  description = "Static bearer token accepted by the API authorizer."
+  description = "Static bearer token accepted by the API authorizer. Omit to have a random token generated. This is only used for demonstration purposes - in a real application, you'd want a more robust authentication and authorization solution."
   type        = string
   sensitive   = true
-  default     = "conference-demo-token-change-me"
+  default     = ""
 }
 
 output "ecommerce_domain_name" {

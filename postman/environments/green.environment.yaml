@@ -6,4 +6,6 @@ values:
     value: ''
   - key: CustomerId
     value: ''
+  - key: ApiToken
+    value: ''
 color: 120

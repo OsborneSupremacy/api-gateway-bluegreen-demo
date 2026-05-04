@@ -1,2 +1,8 @@
 $kind: collection
 name: demo-api
+auth:
+  - id: 58eccc75-388c-461b-90c8-5d4e8932ed76
+    type: bearer
+    name: Bearer Token
+    credentials:
+      token: "{{ApiToken}}"
