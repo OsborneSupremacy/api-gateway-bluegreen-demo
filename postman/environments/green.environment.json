@@ -1,0 +1,25 @@
+{
+  "name": "green",
+  "values": [
+    {
+      "key": "domain",
+      "value": "https://green-api.ecommerce.osbornesupremacy.com",
+      "enabled": true
+    },
+    {
+      "key": "OrderId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "CustomerId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "ApiToken",
+      "value": "",
+      "enabled": true
+    }
+  ]
+}
