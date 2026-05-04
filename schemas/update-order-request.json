@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Update Order Request",
+  "description": "Request schema for UpdateOrderRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["currency", "shippingAddress", "items"],
+  "properties": {
+    "currency": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Order currency code"
+    },
+    "shippingAddress": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Shipping address"
+    },
+    "items": {
+      "type": "array",
+      "description": "Order line items",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sku", "name", "quantity", "unitPrice"],
+        "properties": {
+          "sku": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stock keeping unit"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Item name"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Item quantity"
+          },
+          "unitPrice": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Item unit price"
+          }
+        }
+      }
+    }
+  }
+}

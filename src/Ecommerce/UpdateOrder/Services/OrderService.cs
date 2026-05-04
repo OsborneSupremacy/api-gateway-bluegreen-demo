@@ -1,5 +1,7 @@
 using Amazon.Lambda.APIGatewayEvents;
 using Ecommerce.Library.Extensions;
+using Ecommerce.Library.Messaging;
+using Ecommerce.Library.Builders;
 using Ecommerce.Library.Utility;
 using Ecommerce.Library.Services;
 
@@ -28,17 +30,17 @@ internal class OrderService : IApiGatewayHandler
     }
 
     public Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request) =>
-        _adapter.AdaptAsync<UpdateOrderRequest, UpdateOrderResponse>(request, UpdateOrderAsync);
+        _adapter.AdaptAsync<UpdateOrderRequest, StatusCodeOnlyResponse>(request, UpdateOrderAsync);
 
     // ReSharper disable once MemberCanBePrivate.Global
-    internal async Task<Result<UpdateOrderResponse>> UpdateOrderAsync(UpdateOrderRequest request)
+    internal async Task<Result<StatusCodeOnlyResponse>> UpdateOrderAsync(UpdateOrderRequest request)
     {
         var validationResult = await _validator
             .ValidateAsync(request, CancellationToken.None)
             .ConfigureAwait(false);
 
         if (!validationResult.IsValid)
-            return new Result<UpdateOrderResponse>(
+            return new Result<StatusCodeOnlyResponse>(
                 new ValidationException(string.Join(" ", validationResult.Errors)),
                 HttpStatusCode.BadRequest
             );
@@ -48,7 +50,7 @@ internal class OrderService : IApiGatewayHandler
             .ConfigureAwait(false);
 
         if (existing == Orders.Empty)
-            return new Result<UpdateOrderResponse>(
+            return new Result<StatusCodeOnlyResponse>(
                 new InvalidOperationException("Order not found."),
                 HttpStatusCode.NotFound
             );
@@ -59,7 +61,10 @@ internal class OrderService : IApiGatewayHandler
             .UpdateOrderAsync(updatedOrder, CancellationToken.None)
             .ConfigureAwait(false);
 
-        return new Result<UpdateOrderResponse>(MapResponse(updatedOrder), HttpStatusCode.OK);
+        return new Result<StatusCodeOnlyResponse>(
+            new StatusCodeOnlyResponse { StatusCode = HttpStatusCode.OK },
+            HttpStatusCode.OK
+        );
     }
 
     private static Order BuildOrder(UpdateOrderRequest request, Order existing)
@@ -85,25 +90,4 @@ internal class OrderService : IApiGatewayHandler
             TotalAmount = totalAmount
         };
     }
-
-    private static UpdateOrderResponse MapResponse(Order order) =>
-        new()
-        {
-            OrderId = order.OrderId,
-            CustomerId = order.CustomerId,
-            Currency = order.Currency,
-            ShippingAddress = order.ShippingAddress,
-            TotalAmount = order.TotalAmount,
-            CreatedAtUtc = order.CreatedAtUtc,
-            Items = order.Items
-                .Select(item => new UpdateOrderItemResponse
-                {
-                    Sku = item.Sku,
-                    Name = item.Name,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice,
-                    LineTotal = item.LineTotal
-                })
-                .ToImmutableList()
-        };
 }

@@ -34,7 +34,9 @@ build_lambda() {
 
 build_lambda "${REPO_ROOT}/src/Ecommerce/CreateOrder" "CreateOrder.zip"
 build_lambda "${REPO_ROOT}/src/Ecommerce/GetOrder" "GetOrder.zip"
+build_lambda "${REPO_ROOT}/src/Ecommerce/UpdateOrder" "UpdateOrder.zip"
 
 echo "Done. Lambda packages created:"
 echo "- src/Ecommerce/CreateOrder/bin/CreateOrder.zip"
 echo "- src/Ecommerce/GetOrder/bin/GetOrder.zip"
+echo "- src/Ecommerce/UpdateOrder/bin/UpdateOrder.zip"
