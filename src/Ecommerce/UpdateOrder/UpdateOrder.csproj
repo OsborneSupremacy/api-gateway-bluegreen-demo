@@ -5,9 +5,7 @@
         <Nullable>enable</Nullable>
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
         <AWSProjectType>Lambda</AWSProjectType>
-        <!-- This property makes the build directory similar to a publish directory and helps the AWS .NET Lambda Mock Test Tool find project dependencies. -->
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <!-- Generate ready to run images during publishing to improve cold start time. -->
         <PublishReadyToRun>true</PublishReadyToRun>
         <LangVersion>14</LangVersion>
     </PropertyGroup>
@@ -18,10 +16,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="CreateOrder.Tests" />
+        <InternalsVisibleTo Include="UpdateOrder.Tests" />
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
     </ItemGroup>
-    
+
     <ItemGroup>
       <ProjectReference Include="..\Ecommerce.Library\Ecommerce.Library.csproj" />
     </ItemGroup>

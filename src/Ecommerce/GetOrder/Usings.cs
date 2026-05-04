@@ -6,4 +6,3 @@ global using GetOrder.Validators;
 global using Ecommerce.Library.Abstractions;
 global using Ecommerce.Library.Models;
 global using FluentValidation;
-global using Microsoft.Extensions.Logging;
