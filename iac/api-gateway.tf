@@ -1,6 +1,7 @@
 resource "aws_api_gateway_rest_api" "ecommerce_gateway" {
-  name        = "${var.application_name}-gateway"
-  description = "API Gateway for the ecommerce application"
+  name                         = "${var.application_name}-gateway"
+  disable_execute_api_endpoint = true
+  description                  = "API Gateway for the ecommerce application"
   endpoint_configuration {
     types = ["REGIONAL"]
   }
