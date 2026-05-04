@@ -19,6 +19,11 @@ body:
       ]
     }
 scripts:
+  - type: beforeRequest
+    code: |-
+      const customerId = require('uuid').v4();
+      pm.environment.set("CustomerId", customerId);
+    language: text/javascript
   - type: afterResponse
     code: |-
       pm.test("Status code is 201", function () {
