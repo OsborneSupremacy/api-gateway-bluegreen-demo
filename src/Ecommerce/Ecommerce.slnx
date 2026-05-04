@@ -4,5 +4,6 @@
   <Project Path="Ecommerce.Library/Ecommerce.Library.csproj" />
   <Project Path="Ecommerce.Library.Tests/Ecommerce.Library.Tests.csproj" />
   <Project Path="GetOrder/GetOrder.csproj" />
+  <Project Path="DeleteOrder/DeleteOrder.csproj" />
   <Project Path="UpdateOrder/UpdateOrder.csproj" />
 </Solution>
