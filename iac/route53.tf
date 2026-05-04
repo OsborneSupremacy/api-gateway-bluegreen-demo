@@ -33,8 +33,8 @@ resource "aws_route53_record" "api_blue_alias" {
   type    = "A"
 
   alias {
-    name                   = aws_api_gateway_domain_name.api_blue.regional_domain_name
-    zone_id                = aws_api_gateway_domain_name.api_blue.regional_zone_id
+    name                   = aws_cloudfront_distribution.ecommerce_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.ecommerce_distribution.hosted_zone_id
     evaluate_target_health = false
   }
 }
@@ -45,8 +45,8 @@ resource "aws_route53_record" "api_green_alias" {
   type    = "A"
 
   alias {
-    name                   = aws_api_gateway_domain_name.api_green.regional_domain_name
-    zone_id                = aws_api_gateway_domain_name.api_green.regional_zone_id
+    name                   = aws_cloudfront_distribution.ecommerce_distribution_green.domain_name
+    zone_id                = aws_cloudfront_distribution.ecommerce_distribution_green.hosted_zone_id
     evaluate_target_health = false
   }
 }

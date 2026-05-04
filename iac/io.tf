@@ -31,6 +31,18 @@ variable "api_token" {
   default     = ""
 }
 
+variable "blue_cloudfront_web_acl_name" {
+  description = "Optional Web ACL name to attach to the blue CloudFront distribution. Set to an empty string to create the distribution without a WAF association."
+  type        = string
+  default     = "CreatedByCloudFront-37462c05"
+}
+
+variable "green_cloudfront_web_acl_name" {
+  description = "Optional Web ACL name to attach to the green CloudFront distribution. Set to an empty string to create the distribution without a WAF association."
+  type        = string
+  default     = "CreatedByCloudFront-ff8ff432"
+}
+
 output "ecommerce_domain_name" {
   description = "The delegated ecommerce subdomain used for API DNS records."
   value       = aws_route53_zone.ecommerce_subdomain.name
