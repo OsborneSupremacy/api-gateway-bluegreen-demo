@@ -1,0 +1,29 @@
+$kind: http-request
+name: Update Order
+url: "{{domain}}/v1/order"
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+        "customerId": "{{CustomerId}}",
+        "orderId": "{{OrderId}}",
+        "currency": "{{$randomCurrencyCode}}",
+        "shippingAddress": "{{$randomStreetAddress}}",
+        "items": [
+            {
+                "sku": "SKU-{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}",
+                "name": "{{$randomProductName}}",
+                "quantity": {{$randomInt}},
+                "unitPrice": {{$randomPrice}}
+            }
+        ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 978451236704

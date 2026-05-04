@@ -4,8 +4,18 @@
   "description": "Request schema for UpdateOrderRequest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["currency", "shippingAddress", "items"],
+  "required": ["customerId", "orderId", "currency", "shippingAddress", "items"],
   "properties": {
+    "customerId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Customer identifier"
+    },
+    "orderId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Order identifier"
+    },
     "currency": {
       "type": "string",
       "minLength": 1,
