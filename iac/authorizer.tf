@@ -3,7 +3,7 @@ module "authorizer_lambda" {
 
   function_name       = "${var.application_name}-authorizer"
   description         = "Lambda authorizer for the ecommerce API."
-  lambda_handler      = "Ecommerce.Authorizer::DemoAuthorizer.Function::FunctionHandler"
+  lambda_handler      = "Ecommerce.Authorizer::Ecommerce.Authorizer.Function::FunctionHandler"
   lambda_package_path = "../src/Ecommerce/Ecommerce.Authorizer/bin/Authorizer.zip"
   versioning_strategy = ""
 

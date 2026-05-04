@@ -1,4 +1,4 @@
-name: Build & Deploy Green API Gateway and Lambda Functions
+name: Build & Deploy API Gateway and Lambda Functions
 
 on:
   workflow_dispatch:
