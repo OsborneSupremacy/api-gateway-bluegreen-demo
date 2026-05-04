@@ -43,8 +43,8 @@ internal class OrderService : IApiGatewayHandler
 
         if (existing == Orders.Empty)
             return new Result<StatusCodeOnlyResponse>(
-                new InvalidOperationException("Order not found."),
-                HttpStatusCode.NotFound
+                new StatusCodeOnlyResponse { StatusCode = HttpStatusCode.OK },
+                HttpStatusCode.NoContent
             );
 
         await _orderProvider
@@ -53,7 +53,7 @@ internal class OrderService : IApiGatewayHandler
 
         return new Result<StatusCodeOnlyResponse>(
             new StatusCodeOnlyResponse { StatusCode = HttpStatusCode.OK },
-            HttpStatusCode.OK
+            HttpStatusCode.NoContent
         );
     }
 }

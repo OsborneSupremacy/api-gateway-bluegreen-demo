@@ -46,6 +46,11 @@ variable "lambda_function_arn" {
   type        = string
 }
 
+variable "include_204_response" {
+  type    = bool
+  default = false
+}
+
 variable "include_404_response" {
   type    = bool
   default = false

@@ -1,3 +1,20 @@
+resource "aws_api_gateway_method_response" "no_content_204_response" {
+  rest_api_id = var.gateway_rest_api_id
+  resource_id = var.gateway_resource_id
+  http_method = var.gateway_http_method
+  status_code = "204"
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+  count = var.include_204_response ? 1 : 0
+
+  depends_on = [
+    aws_api_gateway_method.gateway_operation_method
+  ]
+}
+
 resource "aws_api_gateway_method_response" "get_404_response" {
   rest_api_id = var.gateway_rest_api_id
   resource_id = var.gateway_resource_id

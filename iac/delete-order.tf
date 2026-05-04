@@ -28,7 +28,8 @@ module "delete_order_api_gateway_integration" {
   gateway_method_request_model_description          = "Model schema for the Delete Order API request body"
   lambda_invoke_arn                                 = module.delete_order_lambda.latest_invoke_arn
   lambda_function_arn                               = module.delete_order_lambda.latest_arn
-  include_404_response                              = true
+  include_204_response                              = true
+  include_404_response                              = false
   include_409_response                              = false
   good_response_model_name                          = ""
   good_response_model_description                   = ""
