@@ -102,8 +102,18 @@ public sealed class OrderProvider : IOrderProvider
                 ["PK"] = new() { S = BuildPartitionKey(order.CustomerId) },
                 ["SK"] = new() { S = BuildSortKey(order.OrderId) }
             },
-            UpdateExpression = "SET OrderId = :orderId, CustomerId = :customerId, Currency = :currency, ShippingAddress = :shippingAddress, TotalAmount = :totalAmount, CreatedAtUtc = :createdAtUtc, Items = :items",
+            UpdateExpression = "SET #orderId = :orderId, #customerId = :customerId, #currency = :currency, #shippingAddress = :shippingAddress, #totalAmount = :totalAmount, #createdAtUtc = :createdAtUtc, #items = :items",
             ConditionExpression = "attribute_exists(PK) AND attribute_exists(SK)",
+            ExpressionAttributeNames = new Dictionary<string, string>
+            {
+                ["#orderId"] = "OrderId",
+                ["#customerId"] = "CustomerId",
+                ["#currency"] = "Currency",
+                ["#shippingAddress"] = "ShippingAddress",
+                ["#totalAmount"] = "TotalAmount",
+                ["#createdAtUtc"] = "CreatedAtUtc",
+                ["#items"] = "Items"
+            },
             ExpressionAttributeValues = new Dictionary<string, AttributeValue>
             {
                 [":orderId"] = new() { S = order.OrderId.ToString() },
