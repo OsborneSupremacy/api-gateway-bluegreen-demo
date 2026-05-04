@@ -1,7 +1,7 @@
 name: blue
 values:
   - key: domain
-    value: ''
+    value: 'https://api.ecommerce.osbornesupremacy.com'
   - key: CustomerId
     value: ''
 color: 240

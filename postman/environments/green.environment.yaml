@@ -1,7 +1,7 @@
 name: green
 values:
   - key: domain
-    value: ''
+    value: 'https://green-api.ecommerce.osbornesupremacy.com'
   - key: OrderId
     value: ''
   - key: CustomerId

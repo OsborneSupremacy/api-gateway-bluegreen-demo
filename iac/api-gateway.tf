@@ -4,25 +4,6 @@ resource "aws_api_gateway_rest_api" "ecommerce_gateway" {
   endpoint_configuration {
     types = ["REGIONAL"]
   }
-  # since this is a demo, we'll only allow access from the current IP address
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Effect" : "Allow",
-        "Principal" : {
-          "AWS" : "*"
-        }
-        "Action" : "execute-api:Invoke",
-        "Resource" : "arn:aws:execute-api:us-east-1:${data.aws_caller_identity.current.account_id}:*/*/*"
-        "Condition" : {
-          "IpAddress" : {
-            "aws:SourceIp" : data.http.ipify.response_body
-          }
-        }
-      }
-    ]
-  })
 }
 
 resource "aws_api_gateway_deployment" "ecommerce_deployment" {
@@ -32,8 +13,12 @@ resource "aws_api_gateway_deployment" "ecommerce_deployment" {
     create_before_destroy = true
   }
   depends_on = [
-    module.create_order_lambda,
-    module.get_order_lambda
+    module.authorizer_lambda,
+    aws_api_gateway_authorizer.ecommerce_authorizer,
+    module.create_order_api_gateway_integration,
+    module.get_order_api_gateway_integration,
+    module.update_order_api_gateway_integration,
+    module.delete_order_api_gateway_integration
   ]
 }
 

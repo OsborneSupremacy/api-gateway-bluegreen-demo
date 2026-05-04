@@ -24,6 +24,13 @@ variable "root_domain_name" {
   default     = "osbornesupremacy.com"
 }
 
+variable "api_token" {
+  description = "Static bearer token accepted by the API authorizer."
+  type        = string
+  sensitive   = true
+  default     = "conference-demo-token-change-me"
+}
+
 output "ecommerce_domain_name" {
   description = "The delegated ecommerce subdomain used for API DNS records."
   value       = aws_route53_zone.ecommerce_subdomain.name

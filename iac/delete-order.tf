@@ -33,5 +33,6 @@ module "delete_order_api_gateway_integration" {
   good_response_model_name                          = ""
   good_response_model_description                   = ""
   good_response_model_schema_file_location          = ""
+  authorizer_id                                     = aws_api_gateway_authorizer.ecommerce_authorizer.id
   request_validator_id                              = aws_api_gateway_request_validator.request_body_validator.id
 }

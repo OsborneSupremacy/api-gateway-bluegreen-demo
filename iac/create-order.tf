@@ -32,5 +32,6 @@ module "create_order_api_gateway_integration" {
   good_response_model_name                          = "CreateOrderResponseModel"
   good_response_model_description                   = "Model schema for the Create Order API response body"
   good_response_model_schema_file_location          = "../schemas/create-order-response.json"
+  authorizer_id                                     = aws_api_gateway_authorizer.ecommerce_authorizer.id
   request_validator_id                              = aws_api_gateway_request_validator.request_body_validator.id
 }
