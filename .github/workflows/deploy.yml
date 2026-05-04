@@ -21,16 +21,8 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Install Amazon.Lambda.Tools
-        run: dotnet tool install --global Amazon.Lambda.Tools
-
-      - name: Build & package Lambda
-        working-directory: src/Ecommerce/CreateOrder
-        run: |
-          dotnet lambda package \
-            --configuration Release \
-            --framework net10.0 \
-            --output-package bin/CreateOrder.zip
+      - name: Build & package Lambdas
+        run: bash scripts/build-lambdas.sh
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
