@@ -1,0 +1,19 @@
+$kind: http-request
+name: Delete Order
+url: "{{domain}}/v1/order"
+method: DELETE
+body:
+  type: json
+  content: |-
+    {
+        "customerId": "{{CustomerId}}",
+        "orderId": "{{OrderId}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 989104251337
