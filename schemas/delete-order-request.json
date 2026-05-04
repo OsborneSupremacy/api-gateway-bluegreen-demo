@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Delete Order Request",
+  "description": "Request schema for DeleteOrderRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["customerId", "orderId"],
+  "properties": {
+    "customerId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Customer identifier"
+    },
+    "orderId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Order identifier"
+    }
+  }
+}
