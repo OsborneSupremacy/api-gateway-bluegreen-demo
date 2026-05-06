@@ -4,7 +4,7 @@ using FluentAssertions;
 
 namespace Ecommerce.Library.Api.Tests;
 
-public class ApiTests(CreateOrderRequestFixture fixture) : IClassFixture<CreateOrderRequestFixture>
+public class CreateOrderTests(ApiTestsFixture fixture) : IClassFixture<ApiTestsFixture>
 {
     [Fact]
     public void CreateOrder_GivenValidPayload_ReturnsSuccess()
@@ -17,10 +17,7 @@ public class ApiTests(CreateOrderRequestFixture fixture) : IClassFixture<CreateO
         // write request to console:
         Debug.WriteLine(request);
 
-
         // assert
         request.Should().NotBeNull();
-
-
     }
 }

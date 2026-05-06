@@ -5,16 +5,16 @@ using Ecommerce.Order.Create.Models;
 namespace Ecommerce.Library.Api.Tests.Fixtures;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public sealed class CreateOrderRequestFixture
+public sealed class ApiTestsFixture
 {
     private readonly Faker _faker = new();
+
     private readonly Randomizer _randomizer = new();
 
-    public CreateOrderRequest GenerateRandomOrder(int? itemCount = null)
+    public CreateOrderRequest GenerateRandomOrder()
     {
-        var count = itemCount ?? _randomizer.Int(1, 10);
 
-        var items = Enumerable.Range(0, count)
+        var items = Enumerable.Range(0, _randomizer.Int(1, 10))
             .Select(_ => new CreateOrderItemRequest
             {
                 Sku = _faker.Commerce.Ean13(),
