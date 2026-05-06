@@ -1,23 +1,21 @@
-﻿using System.Diagnostics;
-using Ecommerce.Library.Api.Tests.Fixtures;
-using FluentAssertions;
-
-namespace Ecommerce.Library.Api.Tests;
+﻿namespace Ecommerce.Library.Api.Tests;
 
 public class CreateOrderTests(ApiTestsFixture fixture) : IClassFixture<ApiTestsFixture>
 {
     [Fact]
-    public void CreateOrder_GivenValidPayload_ReturnsSuccess()
+    public async Task CreateOrder_GivenValidPayload_ReturnsSuccess()
     {
         // arrange
         var request = fixture.GenerateRandomOrder();
+        var httpClient = fixture.GetHttpClient();
 
         // act
-
-        // write request to console:
-        Debug.WriteLine(request);
+        var response = await httpClient.PostAsJsonAsync("v1/order", request);
+        var responseBody = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
 
         // assert
-        request.Should().NotBeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        responseBody.Should().NotBeNull();
+        responseBody.OrderId.Should().NotBe(Guid.Empty);
     }
 }

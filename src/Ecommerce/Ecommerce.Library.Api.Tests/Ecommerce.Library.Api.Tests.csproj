@@ -5,12 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <UserSecretsId>bbd4b4ca-6f49-42c1-9971-06ff134b7063</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Bogus" Version="35.6.5" />
         <PackageReference Include="coverlet.collector" Version="6.0.4"/>
         <PackageReference Include="FluentAssertions" Version="7.2.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.0-preview.3.25171.5" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
         <PackageReference Include="xunit" Version="2.9.3"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4"/>
@@ -23,6 +25,13 @@
     <ItemGroup>
       <ProjectReference Include="..\Ecommerce.Order.Create\Ecommerce.Order.Create.csproj" />
       <ProjectReference Include="..\Ecommerce.Library\Ecommerce.Library.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove=".env" />
+      <Content Include=".env">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>
