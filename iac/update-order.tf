@@ -3,8 +3,8 @@ module "update_order_lambda" {
 
   function_name       = "${var.application_name}-update-order"
   description         = "Lambda function for updating an order in the ecommerce application."
-  lambda_handler      = "UpdateOrder::UpdateOrder.Function::FunctionHandler"
-  lambda_package_path = "../src/Ecommerce/UpdateOrder/bin/UpdateOrder.zip"
+  lambda_handler      = "Ecommerce.Order.Update::Ecommerce.Order.Update.Function::FunctionHandler"
+  lambda_package_path = "../src/Ecommerce/Ecommerce.Order.Update/bin/UpdateOrder.zip"
   versioning_strategy = "blue_green"
 
   orders_table_name = aws_dynamodb_table.orders_table.name

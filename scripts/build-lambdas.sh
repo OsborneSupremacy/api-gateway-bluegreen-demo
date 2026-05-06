@@ -32,15 +32,15 @@ build_lambda() {
   popd >/dev/null
 }
 
-build_lambda "${REPO_ROOT}/src/Ecommerce/CreateOrder" "CreateOrder.zip"
-build_lambda "${REPO_ROOT}/src/Ecommerce/GetOrder" "GetOrder.zip"
-build_lambda "${REPO_ROOT}/src/Ecommerce/UpdateOrder" "UpdateOrder.zip"
-build_lambda "${REPO_ROOT}/src/Ecommerce/DeleteOrder" "DeleteOrder.zip"
+build_lambda "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Create" "CreateOrder.zip"
+build_lambda "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Get" "GetOrder.zip"
+build_lambda "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Update" "UpdateOrder.zip"
+build_lambda "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Delete" "DeleteOrder.zip"
 build_lambda "${REPO_ROOT}/src/Ecommerce/Ecommerce.Authorizer" "Authorizer.zip"
 
 echo "Done. Lambda packages created:"
-echo "- src/Ecommerce/CreateOrder/bin/CreateOrder.zip"
-echo "- src/Ecommerce/GetOrder/bin/GetOrder.zip"
-echo "- src/Ecommerce/UpdateOrder/bin/UpdateOrder.zip"
-echo "- src/Ecommerce/DeleteOrder/bin/DeleteOrder.zip"
+echo "- src/Ecommerce/Ecommerce.Order.Create/bin/CreateOrder.zip"
+echo "- src/Ecommerce/Ecommerce.Order.Get/bin/GetOrder.zip"
+echo "- src/Ecommerce/Ecommerce.Order.Update/bin/UpdateOrder.zip"
+echo "- src/Ecommerce/Ecommerce.Order.Delete/bin/DeleteOrder.zip"
 echo "- src/Ecommerce/Ecommerce.Authorizer/bin/Authorizer.zip"

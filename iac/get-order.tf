@@ -3,8 +3,8 @@ module "get_order_lambda" {
 
   function_name       = "${var.application_name}-get-order"
   description         = "Lambda function for getting an order in the ecommerce application."
-  lambda_handler      = "GetOrder::GetOrder.Function::FunctionHandler"
-  lambda_package_path = "../src/Ecommerce/GetOrder/bin/GetOrder.zip"
+  lambda_handler      = "Ecommerce.Order.Get::Ecommerce.Order.Get.Function::FunctionHandler"
+  lambda_package_path = "../src/Ecommerce/Ecommerce.Order.Get/bin/GetOrder.zip"
   versioning_strategy = "blue_green"
 
   orders_table_name = aws_dynamodb_table.orders_table.name

@@ -3,8 +3,8 @@ module "delete_order_lambda" {
 
   function_name       = "${var.application_name}-delete-order"
   description         = "Lambda function for deleting an order in the ecommerce application."
-  lambda_handler      = "DeleteOrder::DeleteOrder.Function::FunctionHandler"
-  lambda_package_path = "../src/Ecommerce/DeleteOrder/bin/DeleteOrder.zip"
+  lambda_handler      = "Ecommerce.Order.Delete::Ecommerce.Order.Delete.Function::FunctionHandler"
+  lambda_package_path = "../src/Ecommerce/Ecommerce.Order.Delete/bin/DeleteOrder.zip"
   versioning_strategy = "blue_green"
 
   orders_table_name = aws_dynamodb_table.orders_table.name

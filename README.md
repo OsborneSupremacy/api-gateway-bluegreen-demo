@@ -2,11 +2,10 @@
 
 ## Building and Deploying
 
-### Build the .NET Lambda functions
+### Build the .NET Lambda Functions Locally
 
 ```bash
-cd scripts
-./build-lambdas.sh
+./scripts/build-lambdas.sh
 ```
 
 ## Notes
@@ -15,6 +14,8 @@ cd scripts
 
 * [build-deploy.yml](.github/workflows/build-deploy.yml) builds and deploys the authorizer Lambda function.
     * Generally, you would want to do this in a separate workflow. API gateway cannot use stage variables for authorizer Lambda functions. Deploying it updates it on both blue and green stages immediately, with no opportunity to test before promotion.
+
+* [build-deploy.yml](.github/workflows/build-deploy.yml) does not have tests or a manual approval step before applying the Terraform. In real-world applications, Terraform changes should be reviewed before being applied.
 
 * [src/Ecommerce/Ecommerce.Library.Api.Tests](src/Ecommerce/Ecommerce.Library.Api.Tests) is a regular .NET unit test project. This represents _any_ test suite that confirm the functionality of the API.
     * I kept it the same framework as the API project for simplicity.
