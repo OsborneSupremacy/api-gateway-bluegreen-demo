@@ -25,7 +25,7 @@ public sealed class ApiTestsFixture : IDisposable
 #if DEBUG
         DotEnv.Load();
 #endif
-        var baseAddress = new Uri(EnvReader.GetStringValue("GREEN_STAGE_BASE_ADDRESS"));
+        var baseAddress = new Uri(EnvReader.GetStringValue("BASE_ADDRESS"));
 
         var client = new HttpClient();
         //client.DefaultRequestHeaders.Add("Content-Type", MediaTypeNames.Application.Json);

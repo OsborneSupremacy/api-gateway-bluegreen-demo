@@ -57,5 +57,5 @@ jobs:
         working-directory: src/Ecommerce
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
-          GREEN_STAGE_BASE_ADDRESS: ${{ vars.GREEN_STAGE_BASE_ADDRESS }}
+          BASE_ADDRESS: ${{ vars.GREEN_STAGE_BASE_ADDRESS }}
         run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release
