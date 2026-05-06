@@ -25,6 +25,9 @@
     <ItemGroup>
       <ProjectReference Include="..\Ecommerce.Order.Create\Ecommerce.Order.Create.csproj" />
       <ProjectReference Include="..\Ecommerce.Library\Ecommerce.Library.csproj" />
+      <ProjectReference Include="..\Ecommerce.Order.Delete\Ecommerce.Order.Delete.csproj" />
+      <ProjectReference Include="..\Ecommerce.Order.Get\Ecommerce.Order.Get.csproj" />
+      <ProjectReference Include="..\Ecommerce.Order.Update\Ecommerce.Order.Update.csproj" />
     </ItemGroup>
 
     <ItemGroup>
