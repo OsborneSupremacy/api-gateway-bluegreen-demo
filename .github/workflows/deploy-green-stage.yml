@@ -53,7 +53,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
 
-      - name: Run API tests
+      - name: Run API tests on green stage
         working-directory: src/Ecommerce
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
