@@ -1,10 +1,10 @@
 <Solution>
-  <Project Path="CreateOrder.Tests/CreateOrder.Tests.csproj" />
-  <Project Path="CreateOrder/CreateOrder.csproj" />
   <Project Path="Ecommerce.Library/Ecommerce.Library.csproj" />
   <Project Path="Ecommerce.Authorizer/Ecommerce.Authorizer.csproj" />
+  <Project Path="Ecommerce.Library.Api.Tests/Ecommerce.Library.Api.Tests.csproj" />
   <Project Path="Ecommerce.Library.Tests/Ecommerce.Library.Tests.csproj" />
-  <Project Path="GetOrder/GetOrder.csproj" />
-  <Project Path="DeleteOrder/DeleteOrder.csproj" />
-  <Project Path="UpdateOrder/UpdateOrder.csproj" />
+  <Project Path="Ecommerce.Order.Create\Ecommerce.Order.Create.csproj" />
+  <Project Path="Ecommerce.Order.Delete\Ecommerce.Order.Delete.csproj" />
+  <Project Path="Ecommerce.Order.Get\Ecommerce.Order.Get.csproj" />
+  <Project Path="Ecommerce.Order.Update\Ecommerce.Order.Update.csproj" />
 </Solution>

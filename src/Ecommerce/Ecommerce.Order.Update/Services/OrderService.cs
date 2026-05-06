@@ -1,11 +1,6 @@
 using Amazon.Lambda.APIGatewayEvents;
-using Ecommerce.Library.Extensions;
-using Ecommerce.Library.Messaging;
-using Ecommerce.Library.Builders;
-using Ecommerce.Library.Utility;
-using Ecommerce.Library.Services;
 
-namespace UpdateOrder.Services;
+namespace Ecommerce.Order.Update.Services;
 
 internal class OrderService : IApiGatewayHandler
 {
@@ -67,7 +62,7 @@ internal class OrderService : IApiGatewayHandler
         );
     }
 
-    private static Order BuildOrder(UpdateOrderRequest request, Order existing)
+    private static Library.Models.Order BuildOrder(UpdateOrderRequest request, Library.Models.Order existing)
     {
         var lines = request.Items
             .Select(item => new OrderLine

@@ -1,4 +1,4 @@
-namespace UpdateOrder.Validators;
+namespace Ecommerce.Order.Update.Validators;
 
 internal sealed class UpdateOrderRequestValidator : AbstractValidator<UpdateOrderRequest>
 {

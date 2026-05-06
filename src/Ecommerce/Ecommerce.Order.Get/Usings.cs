@@ -1,8 +1,11 @@
 global using System.Collections.Immutable;
 global using System.Net;
-global using GetOrder.Models;
-global using GetOrder.Services;
-global using GetOrder.Validators;
+global using Ecommerce.Order.Get.Models;
+global using Ecommerce.Order.Get.Services;
+global using Ecommerce.Order.Get.Validators;
 global using Ecommerce.Library.Abstractions;
+global using Ecommerce.Library.Extensions;
 global using Ecommerce.Library.Models;
+global using Ecommerce.Library.Utility;
 global using FluentValidation;
+global using JetBrains.Annotations;

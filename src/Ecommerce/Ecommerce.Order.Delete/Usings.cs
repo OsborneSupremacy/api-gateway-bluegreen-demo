@@ -1,7 +1,11 @@
 global using System.Net;
-global using DeleteOrder.Models;
-global using DeleteOrder.Services;
-global using DeleteOrder.Validators;
+global using Ecommerce.Order.Delete.Models;
+global using Ecommerce.Order.Delete.Services;
+global using Ecommerce.Order.Delete.Validators;
 global using Ecommerce.Library.Abstractions;
+global using Ecommerce.Library.Extensions;
+global using Ecommerce.Library.Messaging;
 global using Ecommerce.Library.Models;
+global using Ecommerce.Library.Utility;
 global using FluentValidation;
+global using JetBrains.Annotations;

@@ -1,7 +1,6 @@
 using Amazon.Lambda.APIGatewayEvents;
-using Ecommerce.Library.Utility;
 
-namespace GetOrder.Services;
+namespace Ecommerce.Order.Get.Services;
 
 internal class OrderService : IApiGatewayHandler
 {
@@ -58,7 +57,7 @@ internal class OrderService : IApiGatewayHandler
         return new Result<GetOrderResponse>(MapResponse(order), HttpStatusCode.OK);
     }
 
-    private static GetOrderResponse MapResponse(Order order) =>
+    private static GetOrderResponse MapResponse(Library.Models.Order order) =>
         new()
         {
             OrderId = order.OrderId,

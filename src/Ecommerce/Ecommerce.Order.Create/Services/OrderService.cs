@@ -1,7 +1,6 @@
 using Amazon.Lambda.APIGatewayEvents;
-using Ecommerce.Library.Utility;
 
-namespace CreateOrder.Services;
+namespace Ecommerce.Order.Create.Services;
 
 internal class OrderService : IApiGatewayHandler
 {
@@ -47,7 +46,7 @@ internal class OrderService : IApiGatewayHandler
         return new Result<CreateOrderResponse>(new CreateOrderResponse { OrderId = order.OrderId }, HttpStatusCode.Created);
     }
 
-    private static Order BuildOrder(CreateOrderRequest request)
+    private static Library.Models.Order BuildOrder(CreateOrderRequest request)
     {
         var lines = request.Items
             .Select(item => new OrderLine
@@ -64,7 +63,7 @@ internal class OrderService : IApiGatewayHandler
 
         var orderId = $"{Guid.CreateVersion7():N}";
 
-        return new Order
+        return new Library.Models.Order
         {
             OrderId = Guid.Parse(orderId),
             CustomerId = request.CustomerId.Trim(),

@@ -1,12 +1,11 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace CreateOrder;
+namespace Ecommerce.Order.Create;
 
 public class Function
 {

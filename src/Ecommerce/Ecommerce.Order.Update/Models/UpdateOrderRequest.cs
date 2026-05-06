@@ -1,4 +1,4 @@
-namespace UpdateOrder.Models;
+namespace Ecommerce.Order.Update.Models;
 
 public sealed record UpdateOrderRequest
 {

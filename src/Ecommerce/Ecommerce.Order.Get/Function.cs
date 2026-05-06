@@ -1,11 +1,10 @@
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace GetOrder;
+namespace Ecommerce.Order.Get;
 
 public class Function
 {

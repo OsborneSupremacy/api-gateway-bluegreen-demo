@@ -1,7 +1,6 @@
-using Ecommerce.Library.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GetOrder.Services;
+namespace Ecommerce.Order.Get.Services;
 
 internal static class ServiceProviderBuilder
 {

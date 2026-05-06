@@ -1,4 +1,4 @@
-namespace GetOrder.Models;
+namespace Ecommerce.Order.Get.Models;
 
 public sealed record GetOrderResponse
 {

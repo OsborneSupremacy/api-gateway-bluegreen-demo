@@ -1,4 +1,4 @@
-namespace GetOrder.Validators;
+namespace Ecommerce.Order.Get.Validators;
 
 internal sealed class GetOrderRequestValidator : AbstractValidator<GetOrderRequest>
 {

@@ -1,8 +1,13 @@
 global using System.Collections.Immutable;
 global using System.Net;
-global using UpdateOrder.Models;
-global using UpdateOrder.Services;
-global using UpdateOrder.Validators;
+global using Ecommerce.Order.Update.Models;
+global using Ecommerce.Order.Update.Services;
+global using Ecommerce.Order.Update.Validators;
 global using Ecommerce.Library.Abstractions;
+global using Ecommerce.Library.Extensions;
+global using Ecommerce.Library.Messaging;
 global using Ecommerce.Library.Models;
+global using Ecommerce.Library.Services;
+global using Ecommerce.Library.Utility;
 global using FluentValidation;
+global using JetBrains.Annotations;

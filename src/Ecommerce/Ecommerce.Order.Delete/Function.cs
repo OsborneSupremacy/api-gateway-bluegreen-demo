@@ -1,11 +1,10 @@
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace DeleteOrder;
+namespace Ecommerce.Order.Delete;
 
 public class Function
 {

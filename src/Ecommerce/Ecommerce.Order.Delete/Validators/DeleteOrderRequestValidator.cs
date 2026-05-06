@@ -1,4 +1,4 @@
-namespace DeleteOrder.Validators;
+namespace Ecommerce.Order.Delete.Validators;
 
 internal sealed class DeleteOrderRequestValidator : AbstractValidator<DeleteOrderRequest>
 {

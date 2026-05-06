@@ -1,8 +1,6 @@
 using Amazon.Lambda.APIGatewayEvents;
-using Ecommerce.Library.Messaging;
-using Ecommerce.Library.Utility;
 
-namespace DeleteOrder.Services;
+namespace Ecommerce.Order.Delete.Services;
 
 internal class OrderService : IApiGatewayHandler
 {

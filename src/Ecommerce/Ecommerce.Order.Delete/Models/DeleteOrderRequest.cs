@@ -1,4 +1,4 @@
-namespace DeleteOrder.Models;
+namespace Ecommerce.Order.Delete.Models;
 
 public sealed record DeleteOrderRequest
 {

@@ -11,9 +11,10 @@ public class Function
     private const string TokenEnvironmentVariable = "API_TOKEN";
 
     [UsedImplicitly]
-    public APIGatewayCustomAuthorizerResponse FunctionHandler(
+    public static APIGatewayCustomAuthorizerResponse FunctionHandler(
         APIGatewayCustomAuthorizerRequest request,
-        ILambdaContext _)
+        ILambdaContext _
+        )
     {
         var expectedToken = Environment.GetEnvironmentVariable(TokenEnvironmentVariable);
 
@@ -22,10 +23,9 @@ public class Function
 
         var providedToken = NormalizeBearerToken(request.AuthorizationToken);
 
-        if (!string.Equals(providedToken, expectedToken, StringComparison.Ordinal))
-            throw new Exception("Unauthorized");
-
-        return BuildAllowPolicy("demo-user", request.MethodArn);
+        return !string.Equals(providedToken, expectedToken, StringComparison.Ordinal)
+            ? throw new Exception("Unauthorized")
+            : BuildAllowPolicy("demo-user", request.MethodArn);
     }
 
     private static string NormalizeBearerToken(string? authorizationHeader)

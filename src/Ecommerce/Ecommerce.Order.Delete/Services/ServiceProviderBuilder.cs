@@ -1,7 +1,6 @@
-using Ecommerce.Library.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DeleteOrder.Services;
+namespace Ecommerce.Order.Delete.Services;
 
 internal static class ServiceProviderBuilder
 {

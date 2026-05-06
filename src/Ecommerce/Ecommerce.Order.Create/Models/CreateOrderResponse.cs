@@ -1,4 +1,4 @@
-namespace CreateOrder.Models;
+namespace Ecommerce.Order.Create.Models;
 
 public sealed record CreateOrderResponse
 {

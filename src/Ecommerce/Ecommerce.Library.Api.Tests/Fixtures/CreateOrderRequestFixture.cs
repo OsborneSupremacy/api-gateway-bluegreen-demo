@@ -4,6 +4,7 @@ using Ecommerce.Order.Create.Models;
 
 namespace Ecommerce.Library.Api.Tests.Fixtures;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public sealed class CreateOrderRequestFixture
 {
     private readonly Faker _faker = new();
