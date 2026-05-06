@@ -1,4 +1,6 @@
-namespace Ecommerce.Library.Api.Tests;
+using Ecommerce.Api.Tests.Fixtures;
+
+namespace Ecommerce.Api.Tests;
 
 public class DeleteOrderTests(ApiTestsFixture fixture) : IClassFixture<ApiTestsFixture>
 {

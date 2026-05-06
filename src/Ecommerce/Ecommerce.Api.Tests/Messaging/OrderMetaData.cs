@@ -1,4 +1,4 @@
-namespace Ecommerce.Library.Api.Tests.Messaging;
+namespace Ecommerce.Api.Tests.Messaging;
 
 public record OrderMetaData
 {

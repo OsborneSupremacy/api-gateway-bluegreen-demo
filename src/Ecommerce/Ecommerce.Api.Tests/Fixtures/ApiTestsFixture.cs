@@ -1,6 +1,7 @@
+using Ecommerce.Api.Tests.Messaging;
 using Microsoft.Extensions.Configuration;
 
-namespace Ecommerce.Library.Api.Tests.Fixtures;
+namespace Ecommerce.Api.Tests.Fixtures;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public sealed class ApiTestsFixture : IDisposable

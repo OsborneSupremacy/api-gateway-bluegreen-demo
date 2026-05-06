@@ -1,8 +1,7 @@
 <Solution>
   <Project Path="Ecommerce.Library/Ecommerce.Library.csproj" />
+  <Project Path="Ecommerce.Api.Tests\Ecommerce.Api.Tests.csproj" />
   <Project Path="Ecommerce.Authorizer/Ecommerce.Authorizer.csproj" />
-  <Project Path="Ecommerce.Library.Api.Tests/Ecommerce.Library.Api.Tests.csproj" />
-  <Project Path="Ecommerce.Library.Tests/Ecommerce.Library.Tests.csproj" />
   <Project Path="Ecommerce.Order.Create\Ecommerce.Order.Create.csproj" />
   <Project Path="Ecommerce.Order.Delete\Ecommerce.Order.Delete.csproj" />
   <Project Path="Ecommerce.Order.Get\Ecommerce.Order.Get.csproj" />
