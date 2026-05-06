@@ -11,8 +11,6 @@ jobs:
   deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
-    env:
-      TF_VAR_api_token: ${{ secrets.API_TOKEN }}
 
     steps:
       - name: Checkout
