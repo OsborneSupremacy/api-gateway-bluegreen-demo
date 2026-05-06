@@ -34,3 +34,12 @@ jobs:
           API_TOKEN: ${{ secrets.API_TOKEN }}
           BASE_ADDRESS: ${{ vars.GREEN_STAGE_BASE_ADDRESS }}
         run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release
+
+  deploy-blue:
+    name: Deploy Blue
+    needs: test-green
+    uses: ./.github/workflows/deploy-api-gateway-stage.yml
+    with:
+      stage-name: blue
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
