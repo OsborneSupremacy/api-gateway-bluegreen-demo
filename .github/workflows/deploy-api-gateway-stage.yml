@@ -1,28 +1,33 @@
-name: Deploy API To Green Stage
+name: Deploy API Gateway Stage
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      stage-name:
+        description: The API Gateway stage to deploy to
+        required: true
+        type: string
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  deploy-green:
-    name: Deploy Green
+  deploy-stage:
+    name: Deploy ${{ inputs.stage-name }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
-      - name: Deploy API Gateway to green stage
+      - name: Deploy API Gateway to ${{ inputs.stage-name }} stage
         shell: bash
         run: |
           gateway_id=$(aws apigateway get-rest-apis \
@@ -37,25 +42,15 @@ jobs:
 
           deployment_id=$(aws apigateway create-deployment \
             --rest-api-id "$gateway_id" \
-            --stage-name green \
+            --stage-name "${{ inputs.stage-name }}" \
             --description "Deployment for ecommerce API Gateway from GitHub Actions run ${{ github.run_id }}" \
             --query id \
             --output text)
           echo "Created deployment with id: $deployment_id"
 
-          echo "Updating green stage to deployment $deployment_id..."
+          echo "Updating ${{ inputs.stage-name }} stage to deployment $deployment_id..."
           aws apigateway update-stage \
             --rest-api-id "$gateway_id" \
-            --stage-name green \
+            --stage-name "${{ inputs.stage-name }}" \
             --patch-operations op=replace,path=/deploymentId,value="$deployment_id"
-          echo "Green stage updated successfully."
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-
-      - name: Run API tests on green stage
-        working-directory: src/Ecommerce
-        env:
-          API_TOKEN: ${{ secrets.API_TOKEN }}
-          BASE_ADDRESS: ${{ vars.GREEN_STAGE_BASE_ADDRESS }}
-        run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release
+          echo "${{ inputs.stage-name }} stage updated successfully."

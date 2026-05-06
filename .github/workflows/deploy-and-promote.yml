@@ -1,0 +1,36 @@
+name: Deploy and Promote API Gateway Stages and Lambda Functions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-green:
+    name: Deploy Green
+    uses: ./.github/workflows/deploy-api-gateway-stage.yml
+    with:
+      stage-name: green
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+
+  test-green:
+    name: Test Green
+    needs: deploy-green
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+
+      - name: Run API tests on green stage
+        working-directory: src/Ecommerce
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+          BASE_ADDRESS: ${{ vars.GREEN_STAGE_BASE_ADDRESS }}
+        run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release
