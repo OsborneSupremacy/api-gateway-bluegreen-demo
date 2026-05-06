@@ -50,3 +50,12 @@ jobs:
             --patch-operations op=replace,path=/deploymentId,value="$deployment_id"
           echo "Green stage updated successfully."
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+
+      - name: Run API tests
+        working-directory: src/Ecommerce
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+          GREEN_STAGE_BASE_ADDRESS: ${{ vars.GREEN_STAGE_BASE_ADDRESS }}
+        run: dotnet test Ecommerce.Library.Api.Tests/Ecommerce.Library.Api.Tests.csproj --configuration Release
