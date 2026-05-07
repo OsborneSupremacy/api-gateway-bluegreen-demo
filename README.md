@@ -8,6 +8,22 @@ Blue/green deployment is a release strategy that reduces risk by running two ide
 
 This project demonstrates how to implement that pattern on AWS using API Gateway and Lambda.
 
+## Goals of this Pattern
+
+### Breaking Changes
+
+| Change Type                            | Not Deployed to Blue | Zero Downtime on Blue |
+|----------------------------------------|----------------------|-----------------------|
+| Breaking Change to API                 | ✅                   | ✅                    |
+| Breaking Change to Lambda Function     | ✅                   | ✅                    |
+
+### Non-breaking Changes
+
+| Change Type                            | Deployed to Blue  | Zero Downtime on Blue  |
+|----------------------------------------|-------------------|------------------------|
+| Non-breaking Change to API             | ✅                | ✅                     |
+| Non-breaking Change to Lambda Function | ✅                | ✅                     |
+
 ### How It Works
 
 **Lambda versioning and aliases** are the core mechanism. Each Lambda function has three aliases:
@@ -22,14 +38,14 @@ This project demonstrates how to implement that pattern on AWS using API Gateway
 
 ### Project Structure
 
-| Path                                         | Description                                                                       |
-|----------------------------------------------|-----------------------------------------------------------------------------------|
-| `src/Ecommerce/`                             | .NET Lambda functions implementing a simple e-commerce orders API                 |
-| `src/Ecommerce/Ecommerce.Library.Api.Tests/` | Integration test suite that validates the API end-to-end                          |
-| `iac/`                                       | Terraform infrastructure — API Gateway, Lambda functions, DynamoDB, ACM, Route53  |
-| `schemas/`                                   | JSON schemas for API Gateway request/response validation                          |
-| `postman/`                                   | Postman collection and environments for manual testing                            |
-| `.github/workflows/`                         | GitHub Actions CI/CD pipelines                                                    |
+| Path                                         | Description                                                                      |
+|----------------------------------------------|----------------------------------------------------------------------------------|
+| `src/Ecommerce/`                             | .NET Lambda functions implementing a simple e-commerce orders API                |
+| `src/Ecommerce/Ecommerce.Library.Api.Tests/` | Integration test suite that validates the API end-to-end                         |
+| `iac/`                                       | Terraform infrastructure — API Gateway, Lambda functions, DynamoDB, ACM, Route53 |
+| `schemas/`                                   | JSON schemas for API Gateway request/response validation                         |
+| `postman/`                                   | Postman collection and environments for manual testing                           |
+| `.github/workflows/`                         | GitHub Actions CI/CD pipelines                                                   |
 
 ### API
 
