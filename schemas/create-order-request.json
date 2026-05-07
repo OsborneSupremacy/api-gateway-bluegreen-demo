@@ -8,7 +8,7 @@
   "properties": {
     "customerId": {
       "type": "string",
-      "minLength": 1,
+      "format": "uuid",
       "description": "Customer identifier"
     },
     "currency": {
