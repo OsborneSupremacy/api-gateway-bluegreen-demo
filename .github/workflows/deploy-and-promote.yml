@@ -35,6 +35,12 @@ jobs:
           BASE_ADDRESS: ${{ vars.GREEN_STAGE_BASE_ADDRESS }}
         run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-tests-build
+          path: src/Ecommerce/**/bin
+
   deploy-blue:
     name: Deploy Blue
     needs: test-green
@@ -59,3 +65,27 @@ jobs:
       function-name: ${{ matrix.function-name }}
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+
+  test-blue:
+    name: Test Blue
+    needs: promote-lambdas
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: api-tests-build
+
+      - name: Run API tests on blue stage
+        working-directory: src/Ecommerce
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+          BASE_ADDRESS: ${{ vars.BLUE_STAGE_BASE_ADDRESS }}
+        run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release --no-build
