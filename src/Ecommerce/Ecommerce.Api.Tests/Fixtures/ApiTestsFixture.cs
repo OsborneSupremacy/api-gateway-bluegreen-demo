@@ -74,7 +74,7 @@ public sealed class ApiTestsFixture : IDisposable
 
         return new CreateOrderRequest
         {
-            CustomerId = Guid.CreateVersion7().ToString(),
+            CustomerId = Guid.CreateVersion7(),
             Currency = "USD",
             ShippingAddress = _faker.Address.FullAddress(),
             Items = items

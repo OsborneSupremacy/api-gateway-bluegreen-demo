@@ -39,7 +39,7 @@ public sealed class OrderProvider : IOrderProvider
                 ["PK"] = new() { S = $"CUSTOMER#{order.CustomerId}#ORDER" },
                 ["SK"] = new() { S = $"ORDER#{order.OrderId}" },
                 ["OrderId"] = new() { S = order.OrderId.ToString() },
-                ["CustomerId"] = new() { S = order.CustomerId },
+                ["CustomerId"] = new() { S = order.CustomerId.ToString() },
                 ["Currency"] = new() { S = order.Currency },
                 ["ShippingAddress"] = new() { S = order.ShippingAddress },
                 ["TotalAmount"] = new() { N = order.TotalAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
@@ -70,7 +70,7 @@ public sealed class OrderProvider : IOrderProvider
             .ConfigureAwait(false);
     }
 
-    public async Task<Order> GetOrderAsync(string customerId, Guid orderId, CancellationToken cancellationToken)
+    public async Task<Order> GetOrderAsync(Guid customerId, Guid orderId, CancellationToken cancellationToken)
     {
         var pk = BuildPartitionKey(customerId);
         var sk = BuildSortKey(orderId);
@@ -117,7 +117,7 @@ public sealed class OrderProvider : IOrderProvider
             ExpressionAttributeValues = new Dictionary<string, AttributeValue>
             {
                 [":orderId"] = new() { S = order.OrderId.ToString() },
-                [":customerId"] = new() { S = order.CustomerId },
+                [":customerId"] = new() { S = order.CustomerId.ToString() },
                 [":currency"] = new() { S = order.Currency },
                 [":shippingAddress"] = new() { S = order.ShippingAddress },
                 [":totalAmount"] = new() { N = order.TotalAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
@@ -147,7 +147,7 @@ public sealed class OrderProvider : IOrderProvider
             .ConfigureAwait(false);
     }
 
-    public async Task DeleteOrderAsync(string customerId, Guid orderId, CancellationToken cancellationToken)
+    public async Task DeleteOrderAsync(Guid customerId, Guid orderId, CancellationToken cancellationToken)
     {
         var request = new DeleteItemRequest
         {
@@ -164,7 +164,7 @@ public sealed class OrderProvider : IOrderProvider
             .ConfigureAwait(false);
     }
 
-    private static string BuildPartitionKey(string customerId) =>
+    private static string BuildPartitionKey(Guid customerId) =>
         $"CUSTOMER#{customerId}#ORDER";
 
     private static string BuildSortKey(Guid orderId) =>
@@ -173,7 +173,7 @@ public sealed class OrderProvider : IOrderProvider
     private static Order MapOrder(Dictionary<string, AttributeValue> item)
     {
         var orderId = Guid.Parse(GetRequiredString(item, "OrderId"));
-        var customerId = GetRequiredString(item, "CustomerId");
+        var customerId = Guid.Parse(GetRequiredString(item, "CustomerId"));
         var currency = GetRequiredString(item, "Currency");
         var shippingAddress = GetRequiredString(item, "ShippingAddress");
         var totalAmount = decimal.Parse(GetRequiredNumber(item, "TotalAmount"), System.Globalization.CultureInfo.InvariantCulture);

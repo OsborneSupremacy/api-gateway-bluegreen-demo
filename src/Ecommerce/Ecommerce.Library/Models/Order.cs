@@ -4,7 +4,7 @@ public sealed record Order
 {
     public required Guid OrderId { get; init; }
 
-    public required string CustomerId { get; init; }
+    public required Guid CustomerId { get; init; }
 
     public required string Currency { get; init; }
 
@@ -22,7 +22,7 @@ public static class Orders
     public static Order Empty => new()
     {
         OrderId = Guid.Empty,
-        CustomerId = string.Empty,
+        CustomerId = Guid.Empty,
         Currency = string.Empty,
         ShippingAddress = string.Empty,
         Items = [],

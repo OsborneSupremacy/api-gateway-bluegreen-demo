@@ -66,7 +66,7 @@ internal class OrderService : IApiGatewayHandler
         return new Library.Models.Order
         {
             OrderId = Guid.Parse(orderId),
-            CustomerId = request.CustomerId.Trim(),
+            CustomerId = request.CustomerId,
             Currency = request.Currency.Trim().ToUpperInvariant(),
             ShippingAddress = request.ShippingAddress.Trim(),
             Items = lines,

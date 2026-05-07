@@ -49,8 +49,8 @@ public class UpdateOrderTests(ApiTestsFixture fixture) : IClassFixture<ApiTestsF
 
         var updateRequest = new UpdateOrderRequest
         {
-            CustomerId = Guid.CreateVersion7().ToString(),
-            OrderId = Guid.NewGuid(),
+            CustomerId = Guid.CreateVersion7(),
+            OrderId = Guid.CreateVersion7(),
             Currency = "USD",
             ShippingAddress = _faker.Address.FullAddress(),
             Items =

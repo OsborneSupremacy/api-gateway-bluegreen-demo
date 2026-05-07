@@ -2,7 +2,7 @@ namespace Ecommerce.Order.Update.Models;
 
 public sealed record UpdateOrderRequest
 {
-    public required string CustomerId { get; init; }
+    public required Guid CustomerId { get; init; }
 
     public required Guid OrderId { get; init; }
 

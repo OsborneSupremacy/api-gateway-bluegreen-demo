@@ -25,7 +25,7 @@ internal class OrderService : IApiGatewayHandler
         var getOrderRequest = new GetOrderRequest
         {
             OrderId = Guid.TryParse(request.PathParameters["orderId"], out var orderid) ? orderid : Guid.Empty,
-            CustomerId = request.PathParameters["customerId"] ?? string.Empty
+            CustomerId = Guid.TryParse(request.PathParameters["customerId"], out var customerId) ? customerId : Guid.Empty
         };
 
         return _adapter
@@ -45,7 +45,7 @@ internal class OrderService : IApiGatewayHandler
             );
 
         var order = await _orderProvider
-            .GetOrderAsync(request.CustomerId.Trim(), request.OrderId, CancellationToken.None)
+            .GetOrderAsync(request.CustomerId, request.OrderId, CancellationToken.None)
             .ConfigureAwait(false);
 
         if (order == Orders.Empty)

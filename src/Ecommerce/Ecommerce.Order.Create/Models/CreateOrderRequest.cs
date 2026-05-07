@@ -2,7 +2,7 @@ namespace Ecommerce.Order.Create.Models;
 
 public sealed record CreateOrderRequest
 {
-    public required string CustomerId { get; init; }
+    public required Guid CustomerId { get; init; }
 
     public required string Currency { get; init; }
 

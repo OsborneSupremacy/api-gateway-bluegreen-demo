@@ -36,8 +36,8 @@ public class DeleteOrderTests(ApiTestsFixture fixture) : IClassFixture<ApiTestsF
 
         var deleteRequest = new DeleteOrderRequest
         {
-            CustomerId = Guid.CreateVersion7().ToString(),
-            OrderId = Guid.NewGuid()
+            CustomerId = Guid.CreateVersion7(),
+            OrderId = Guid.CreateVersion7()
         };
 
         // act

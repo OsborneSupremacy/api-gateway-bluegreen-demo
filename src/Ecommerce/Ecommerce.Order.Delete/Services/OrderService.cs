@@ -36,7 +36,7 @@ internal class OrderService : IApiGatewayHandler
             );
 
         var existing = await _orderProvider
-            .GetOrderAsync(request.CustomerId.Trim(), request.OrderId, CancellationToken.None)
+            .GetOrderAsync(request.CustomerId, request.OrderId, CancellationToken.None)
             .ConfigureAwait(false);
 
         if (existing == Orders.Empty)
@@ -46,7 +46,7 @@ internal class OrderService : IApiGatewayHandler
             );
 
         await _orderProvider
-            .DeleteOrderAsync(request.CustomerId.Trim(), request.OrderId, CancellationToken.None)
+            .DeleteOrderAsync(request.CustomerId, request.OrderId, CancellationToken.None)
             .ConfigureAwait(false);
 
         return new Result<StatusCodeOnlyResponse>(
