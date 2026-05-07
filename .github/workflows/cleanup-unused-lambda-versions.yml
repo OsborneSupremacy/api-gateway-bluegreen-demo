@@ -51,13 +51,13 @@ jobs:
           for version in $all_versions; do
             if echo "$aliased_versions" | grep -qw "$version"; then
               echo "Skipping version $version (in use by an alias)."
-              ((skipped++))
+              skipped=$((skipped + 1))
             else
               echo "Deleting version $version..."
               aws lambda delete-function \
                 --function-name "$function_name" \
                 --qualifier "$version"
-              ((deleted++))
+              deleted=$((deleted + 1))
             fi
           done
 
