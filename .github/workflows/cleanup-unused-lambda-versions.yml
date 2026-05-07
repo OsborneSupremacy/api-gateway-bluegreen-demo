@@ -1,0 +1,64 @@
+name: Cleanup Unused Lambda Versions
+
+on:
+  workflow_call:
+    inputs:
+      function-name:
+        description: The name of the Lambda function to clean up
+        required: true
+        type: string
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  cleanup:
+    name: Cleanup ${{ inputs.function-name }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Delete unused Lambda versions
+        shell: bash
+        run: |
+          function_name="${{ inputs.function-name }}"
+
+          echo "Fetching versions aliased by $function_name..."
+          aliased_versions=$(aws lambda list-aliases \
+            --function-name "$function_name" \
+            --query 'Aliases[].FunctionVersion' \
+            --output text)
+          echo "Aliased versions: $aliased_versions"
+
+          echo "Fetching all published versions of $function_name..."
+          all_versions=$(aws lambda list-versions-by-function \
+            --function-name "$function_name" \
+            --query 'Versions[?Version!=`$LATEST`].Version' \
+            --output text)
+          echo "All published versions: $all_versions"
+
+          deleted=0
+          skipped=0
+          for version in $all_versions; do
+            if echo "$aliased_versions" | grep -qw "$version"; then
+              echo "Skipping version $version (in use by an alias)."
+              ((skipped++))
+            else
+              echo "Deleting version $version..."
+              aws lambda delete-function \
+                --function-name "$function_name" \
+                --qualifier "$version"
+              ((deleted++))
+            fi
+          done
+
+          echo "Done. Deleted $deleted version(s), skipped $skipped version(s)."

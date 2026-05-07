@@ -89,3 +89,19 @@ jobs:
           API_TOKEN: ${{ secrets.API_TOKEN }}
           BASE_ADDRESS: ${{ vars.BLUE_STAGE_BASE_ADDRESS }}
         run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release --no-build
+
+  cleanup-lambda-versions:
+    name: Cleanup ${{ matrix.function-name }}
+    needs: test-blue
+    strategy:
+      matrix:
+        function-name:
+          - ecommerce-create-order
+          - ecommerce-get-order
+          - ecommerce-update-order
+          - ecommerce-delete-order
+    uses: ./.github/workflows/cleanup-unused-lambda-versions.yml
+    with:
+      function-name: ${{ matrix.function-name }}
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
