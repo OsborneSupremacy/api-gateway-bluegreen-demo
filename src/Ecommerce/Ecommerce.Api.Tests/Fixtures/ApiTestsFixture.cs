@@ -1,4 +1,5 @@
 using Ecommerce.Api.Tests.Messaging;
+using Ecommerce.Api.Tests.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace Ecommerce.Api.Tests.Fixtures;

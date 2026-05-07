@@ -1,4 +1,5 @@
 ﻿using Ecommerce.Api.Tests.Fixtures;
+using Ecommerce.Api.Tests.Models;
 
 namespace Ecommerce.Api.Tests;
 
