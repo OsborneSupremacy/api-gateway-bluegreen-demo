@@ -1,0 +1,97 @@
+name: Promote Lambda Alias
+
+on:
+  workflow_call:
+    inputs:
+      function-name:
+        description: The name of the Lambda function to promote
+        required: true
+        type: string
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  promote:
+    name: Promote ${{ inputs.function-name }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Verify Lambda function exists
+        shell: bash
+        run: |
+          aws lambda get-function \
+            --function-name "${{ inputs.function-name }}" \
+            --query 'Configuration.FunctionName' \
+            --output text > /dev/null
+          echo "Lambda function '${{ inputs.function-name }}' found."
+
+      - name: Verify aliases and get versions
+        id: aliases
+        shell: bash
+        run: |
+          get_alias_version() {
+            local alias_name="$1"
+            local version
+            version=$(aws lambda get-alias \
+              --function-name "${{ inputs.function-name }}" \
+              --name "$alias_name" \
+              --query 'FunctionVersion' \
+              --output text 2>&1)
+            if [[ $? -ne 0 ]]; then
+              echo "ERROR: Alias '$alias_name' not found on function '${{ inputs.function-name }}'." >&2
+              exit 1
+            fi
+            echo "$version"
+          }
+
+          previous_version=$(get_alias_version "previous")
+          blue_version=$(get_alias_version "blue")
+          green_version=$(get_alias_version "green")
+
+          echo "Alias 'previous' -> version $previous_version"
+          echo "Alias 'blue'     -> version $blue_version"
+          echo "Alias 'green'    -> version $green_version"
+
+          echo "blue_version=$blue_version" >> "$GITHUB_OUTPUT"
+          echo "green_version=$green_version" >> "$GITHUB_OUTPUT"
+
+      - name: Check if promotion is needed
+        id: check
+        shell: bash
+        run: |
+          if [[ "${{ steps.aliases.outputs.blue_version }}" == "${{ steps.aliases.outputs.green_version }}" ]]; then
+            echo "Blue and green both point to version ${{ steps.aliases.outputs.blue_version }}. No promotion needed."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Blue points to version ${{ steps.aliases.outputs.blue_version }}, green points to version ${{ steps.aliases.outputs.green_version }}. Promotion required."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Promote aliases
+        if: steps.check.outputs.skip == 'false'
+        shell: bash
+        run: |
+          echo "Pointing 'previous' to version ${{ steps.aliases.outputs.blue_version }} (was blue)..."
+          aws lambda update-alias \
+            --function-name "${{ inputs.function-name }}" \
+            --name previous \
+            --function-version "${{ steps.aliases.outputs.blue_version }}"
+
+          echo "Pointing 'blue' to version ${{ steps.aliases.outputs.green_version }} (was green)..."
+          aws lambda update-alias \
+            --function-name "${{ inputs.function-name }}" \
+            --name blue \
+            --function-version "${{ steps.aliases.outputs.green_version }}"
+
+          echo "Promotion complete."

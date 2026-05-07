@@ -43,3 +43,19 @@ jobs:
       stage-name: blue
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+
+  promote-lambdas:
+    name: Promote ${{ matrix.function-name }}
+    needs: deploy-blue
+    strategy:
+      matrix:
+        function-name:
+          - ecommerce-create-order
+          - ecommerce-get-order
+          - ecommerce-update-order
+          - ecommerce-delete-order
+    uses: ./.github/workflows/promote-lambda-alias.yml
+    with:
+      function-name: ${{ matrix.function-name }}
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
