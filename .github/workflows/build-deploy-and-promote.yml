@@ -36,17 +36,11 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Run API tests on green stage
-        working-directory: src/Ecommerce
+        working-directory: test/Ecommerce.Api.Tests
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
           BASE_ADDRESS: ${{ vars.GREEN_STAGE_BASE_ADDRESS }}
         run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: api-tests-build
-          path: src/Ecommerce/**/bin
 
   deploy-blue:
     name: Deploy Blue
