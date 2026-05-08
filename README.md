@@ -25,7 +25,7 @@ This project demonstrates how to implement that pattern on AWS using API Gateway
 | Path                                 | Description                                                                      |
 |--------------------------------------|----------------------------------------------------------------------------------|
 | `src/Ecommerce/`                     | .NET Lambda functions implementing a simple e-commerce orders API                |
-| `src/Ecommerce/Ecommerce.Api.Tests/` | Integration test suite that validates the API end-to-end                         |
+| `test/Ecommerce.Api.Tests/`.         | Integration test suite that validates the API end-to-end                         |
 | `iac/`                               | Terraform infrastructure — API Gateway, Lambda functions, DynamoDB, ACM, Route53 |
 | `schemas/`                           | JSON schemas for API Gateway request/response validation                         |
 | `postman/`                           | Postman collection and environments for manual testing                           |
@@ -68,7 +68,7 @@ This project uses one GitHub Actions workflow to demonstrate the full promotion 
 
 - [src/Ecommerce/Ecommerce.Library.Api.Tests](src/Ecommerce/Ecommerce.Library.Api.Tests) is a regular .NET unit test project. This represents _any_ test suite that excercises and validates the functionality of the API.
     - I kept it the same framework as the API project for simplicity.
-    - The test project deliberately has its own copies of the request/response models and JSON schemas, to ensure the tests are independent of the API implementation.
+    - The test project deliberately is in a different solution than the API project and has its own copies of the request/response models and JSON schemas to ensure the tests are independent of the API implementation.
 
 - [The custom authorizer Lambda function](/src/Ecommerce/Ecommerce.Authorizer) is a naive implementation of an API Gateway custom authorizer.
     - It is not intended for production use.
