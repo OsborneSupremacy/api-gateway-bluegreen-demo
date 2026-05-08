@@ -1,0 +1,110 @@
+name: Rollback Lambda Alias
+
+on:
+  workflow_dispatch:
+    inputs:
+      function-name:
+        description: The name of the Lambda function to rollback
+        required: true
+        type: string
+      stage:
+        description: The alias/stage to rollback
+        required: true
+        type: choice
+        options:
+          - blue
+          - green
+      rollback-to:
+        description: The alias whose version will be applied to the stage
+        required: false
+        default: previous
+        type: choice
+        options:
+          - previous
+          - blue
+          - green
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  rollback:
+    name: Rollback ${{ inputs.function-name }} (${{ inputs.stage }} -> ${{ inputs.rollback-to }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate inputs
+        shell: bash
+        run: |
+          if [[ "${{ inputs.stage }}" == "${{ inputs.rollback-to }}" ]]; then
+            echo "ERROR: 'stage' and 'rollback-to' cannot be the same alias ('${{ inputs.stage }}')."
+            exit 1
+          fi
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Verify Lambda function exists
+        shell: bash
+        run: |
+          aws lambda get-function \
+            --function-name "${{ inputs.function-name }}" \
+            --query 'Configuration.FunctionName' \
+            --output text > /dev/null
+          echo "Lambda function '${{ inputs.function-name }}' found."
+
+      - name: Get alias versions
+        id: aliases
+        shell: bash
+        run: |
+          get_alias_version() {
+            local alias_name="$1"
+            local version
+            version=$(aws lambda get-alias \
+              --function-name "${{ inputs.function-name }}" \
+              --name "$alias_name" \
+              --query 'FunctionVersion' \
+              --output text 2>&1)
+            if [[ $? -ne 0 ]]; then
+              echo "ERROR: Alias '$alias_name' not found on function '${{ inputs.function-name }}'." >&2
+              exit 1
+            fi
+            echo "$version"
+          }
+
+          stage_version=$(get_alias_version "${{ inputs.stage }}")
+          target_version=$(get_alias_version "${{ inputs.rollback-to }}")
+
+          echo "Alias '${{ inputs.stage }}'       -> version $stage_version"
+          echo "Alias '${{ inputs.rollback-to }}' -> version $target_version"
+
+          echo "stage_version=$stage_version" >> "$GITHUB_OUTPUT"
+          echo "target_version=$target_version" >> "$GITHUB_OUTPUT"
+
+      - name: Check if rollback is needed
+        id: check
+        shell: bash
+        run: |
+          if [[ "${{ steps.aliases.outputs.stage_version }}" == "${{ steps.aliases.outputs.target_version }}" ]]; then
+            echo "Alias '${{ inputs.stage }}' already points to version ${{ steps.aliases.outputs.target_version }}, which is the same as '${{ inputs.rollback-to }}'. No rollback needed."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Alias '${{ inputs.stage }}' points to version ${{ steps.aliases.outputs.stage_version }}. Rolling back to version ${{ steps.aliases.outputs.target_version }} (from '${{ inputs.rollback-to }}')."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Rollback alias
+        if: steps.check.outputs.skip == 'false'
+        shell: bash
+        run: |
+          echo "Pointing '${{ inputs.stage }}' to version ${{ steps.aliases.outputs.target_version }} (from '${{ inputs.rollback-to }}')..."
+          aws lambda update-alias \
+            --function-name "${{ inputs.function-name }}" \
+            --name "${{ inputs.stage }}" \
+            --function-version "${{ steps.aliases.outputs.target_version }}"
+
+          echo "Rollback complete: '${{ inputs.function-name }}' alias '${{ inputs.stage }}' now points to version ${{ steps.aliases.outputs.target_version }}."
