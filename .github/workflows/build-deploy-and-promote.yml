@@ -72,7 +72,7 @@ jobs:
 
   cleanup-lambda-versions:
     name: Cleanup ${{ matrix.function-name }}
-    needs: deploy-blue
+    needs: promote-lambdas
     strategy:
       matrix:
         function-name:
