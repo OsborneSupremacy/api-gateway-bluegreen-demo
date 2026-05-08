@@ -25,7 +25,7 @@ This project demonstrates how to implement that pattern on AWS using API Gateway
 | Path                                 | Description                                                                      |
 |--------------------------------------|----------------------------------------------------------------------------------|
 | `src/Ecommerce/`                     | .NET Lambda functions implementing a simple e-commerce orders API                |
-| `test/Ecommerce.Api.Tests/`.         | Integration test suite that validates the API end-to-end                         |
+| `test/Ecommerce.Api.Tests/`          | Integration test suite that validates the API end-to-end                         |
 | `iac/`                               | Terraform infrastructure — API Gateway, Lambda functions, DynamoDB, ACM, Route53 |
 | `schemas/`                           | JSON schemas for API Gateway request/response validation                         |
 | `postman/`                           | Postman collection and environments for manual testing                           |
