@@ -21,7 +21,7 @@ on:
           - green
       rollback-to:
         description: The alias whose version will be applied to the stage
-        required: false
+        required: true
         default: previous
         type: choice
         options:
