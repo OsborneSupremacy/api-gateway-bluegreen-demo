@@ -15,6 +15,8 @@ public sealed record Order
     public required decimal TotalAmount { get; init; }
 
     public required DateTimeOffset CreatedAtUtc { get; init; }
+
+    public required string CouponCode { get; set; }
 }
 
 public static class Orders
@@ -27,7 +29,8 @@ public static class Orders
         ShippingAddress = string.Empty,
         Items = [],
         TotalAmount = 0m,
-        CreatedAtUtc = DateTimeOffset.MinValue
+        CreatedAtUtc = DateTimeOffset.MinValue,
+        CouponCode = string.Empty,
     };
 }
 

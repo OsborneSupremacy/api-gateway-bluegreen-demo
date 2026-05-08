@@ -68,6 +68,7 @@ internal class OrderService : IApiGatewayHandler
             OrderId = Guid.Parse(orderId),
             CustomerId = request.CustomerId,
             Currency = request.Currency.Trim().ToUpperInvariant(),
+            CouponCode = request.CouponCode.Trim().ToUpperInvariant(),
             ShippingAddress = request.ShippingAddress.Trim(),
             Items = lines,
             TotalAmount = totalAmount,
