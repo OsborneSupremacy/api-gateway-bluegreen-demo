@@ -96,7 +96,6 @@ Orchestrates the full promotion pipeline:
 - [src/Ecommerce/Ecommerce.Library.Api.Tests](src/Ecommerce/Ecommerce.Library.Api.Tests) is a regular .NET unit test project. This represents _any_ test suite that excercises and validates the functionality of the API.
     - I kept it the same framework as the API project for simplicity.
     - The test project deliberately has its own copies of the request/response models and JSON schemas, to ensure the tests are independent of the API implementation.
-    - Instead of / in addition to automated tests, you could do manual testing of the green stage, with something like a [Manual Workflow Approval](https://github.com/marketplace/actions/manual-workflow-approval) as a gate before promotion.
 
 - [The custom authorizer Lambda function](/src/Ecommerce/Ecommerce.Authorizer) is a naive implementation of an API Gateway custom authorizer.
     - It is not intended for production use.
