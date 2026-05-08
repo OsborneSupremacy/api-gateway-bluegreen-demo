@@ -1,4 +1,4 @@
-name: Deploy and Promote API Gateway Stages and Lambda Functions
+name: Build, Deploy and Promote API Gateway Stages and Lambda Functions
 
 on:
   workflow_dispatch:
@@ -8,9 +8,15 @@ permissions:
   contents: read
 
 jobs:
+  build-infrastructure:
+    name: Build Infrastructure
+    uses: ./.github/workflows/.reusable-build-deploy-infrastructure.yml
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+
   deploy-green:
     name: Deploy Green
-    uses: ./.github/workflows/.reusable-build-deploy.yml
+    uses: ./.github/workflows/.reusable-deploy-api-gateway-stage.yml
     with:
       stage-name: green
     secrets:
@@ -44,7 +50,7 @@ jobs:
   deploy-blue:
     name: Deploy Blue
     needs: test-green
-    uses: ./.github/workflows/.reusable-build-deploy.yml
+    uses: ./.github/workflows/.reusable-deploy-api-gateway-stage.yml
     with:
       stage-name: blue
     secrets:

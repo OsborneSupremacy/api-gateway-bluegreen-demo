@@ -1,4 +1,4 @@
-name: Terraform Apply
+name: _ build lambda functions and apply terraform
 
 on:
   workflow_call:

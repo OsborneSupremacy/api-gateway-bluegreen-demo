@@ -1,4 +1,4 @@
-name: Promote Lambda Alias
+name: _ promote lambda alias
 
 on:
   workflow_call:

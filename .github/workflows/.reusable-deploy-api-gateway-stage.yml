@@ -1,4 +1,4 @@
-name: Build & Deploy API Gateway Stage
+name: _ deploy api gateway stage
 
 on:
   workflow_call:

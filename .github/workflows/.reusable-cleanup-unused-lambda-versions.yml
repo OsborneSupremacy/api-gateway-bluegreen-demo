@@ -1,4 +1,4 @@
-name: Cleanup Unused Lambda Versions
+name: _ cleanup unused lambda versions
 
 on:
   workflow_call:
