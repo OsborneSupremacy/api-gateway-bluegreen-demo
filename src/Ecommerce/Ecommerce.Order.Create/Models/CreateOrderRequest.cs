@@ -8,6 +8,13 @@ public sealed record CreateOrderRequest
 
     public required string ShippingAddress { get; init; }
 
+    /// <summary>
+    /// This new field represents a deliberate breaking change to a model that underlies
+    /// the Create Order API contract. Making it required should cause tests to fail before
+    /// the Lambda function is promoted to the blue environment.
+    /// </summary>
+    public required string CouponCode { get; init; }
+
     public required ImmutableList<CreateOrderItemRequest> Items { get; init; }
 }
 

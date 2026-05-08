@@ -45,6 +45,7 @@ public sealed class OrderProvider : IOrderProvider
                 ["TotalAmount"] = new() { N = order.TotalAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
                 ["CreatedAtUtc"] = new() { S = order.CreatedAtUtc.ToString("O") },
                 ["ttl"] = new() { N = ttl },
+                ["CouponCode"] = new() { S = order.CouponCode },
                 ["Items"] = new()
                 {
                     L =
@@ -102,7 +103,7 @@ public sealed class OrderProvider : IOrderProvider
                 ["PK"] = new() { S = BuildPartitionKey(order.CustomerId) },
                 ["SK"] = new() { S = BuildSortKey(order.OrderId) }
             },
-            UpdateExpression = "SET #orderId = :orderId, #customerId = :customerId, #currency = :currency, #shippingAddress = :shippingAddress, #totalAmount = :totalAmount, #createdAtUtc = :createdAtUtc, #items = :items",
+            UpdateExpression = "SET #orderId = :orderId, #customerId = :customerId, #currency = :currency, #shippingAddress = :shippingAddress, #totalAmount = :totalAmount, #createdAtUtc = :createdAtUtc, #items = :items, #couponCode = :couponCode",
             ConditionExpression = "attribute_exists(PK) AND attribute_exists(SK)",
             ExpressionAttributeNames = new Dictionary<string, string>
             {
@@ -112,7 +113,8 @@ public sealed class OrderProvider : IOrderProvider
                 ["#shippingAddress"] = "ShippingAddress",
                 ["#totalAmount"] = "TotalAmount",
                 ["#createdAtUtc"] = "CreatedAtUtc",
-                ["#items"] = "Items"
+                ["#items"] = "Items",
+                ["#couponCode"] = "CouponCode"
             },
             ExpressionAttributeValues = new Dictionary<string, AttributeValue>
             {
@@ -122,6 +124,7 @@ public sealed class OrderProvider : IOrderProvider
                 [":shippingAddress"] = new() { S = order.ShippingAddress },
                 [":totalAmount"] = new() { N = order.TotalAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
                 [":createdAtUtc"] = new() { S = order.CreatedAtUtc.ToString("O") },
+                [":couponCode"] = order.CouponCode is not null ? new() { S = order.CouponCode } : new() { NULL = true },
                 [":items"] = new()
                 {
                     L =
@@ -178,6 +181,7 @@ public sealed class OrderProvider : IOrderProvider
         var shippingAddress = GetRequiredString(item, "ShippingAddress");
         var totalAmount = decimal.Parse(GetRequiredNumber(item, "TotalAmount"), System.Globalization.CultureInfo.InvariantCulture);
         var createdAtUtc = DateTimeOffset.Parse(GetRequiredString(item, "CreatedAtUtc"), System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.RoundtripKind);
+        var couponCode = GetOptionalString(item, "CouponCode", string.Empty);
 
         var orderLines = GetRequiredList(item, "Items")
             .Select(orderLine => orderLine.M)
@@ -199,7 +203,8 @@ public sealed class OrderProvider : IOrderProvider
             ShippingAddress = shippingAddress,
             TotalAmount = totalAmount,
             CreatedAtUtc = createdAtUtc,
-            Items = orderLines
+            Items = orderLines,
+            CouponCode = couponCode
         };
     }
 
@@ -208,6 +213,13 @@ public sealed class OrderProvider : IOrderProvider
         if (!item.TryGetValue(key, out var value) || string.IsNullOrWhiteSpace(value.S))
             throw new InvalidOperationException($"Missing or invalid string attribute '{key}'.");
 
+        return value.S;
+    }
+
+    private static string GetOptionalString(Dictionary<string, AttributeValue> item, string key, string defaultValue)
+    {
+        if (!item.TryGetValue(key, out var value) || string.IsNullOrWhiteSpace(value.S))
+            return defaultValue;
         return value.S;
     }
 

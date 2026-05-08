@@ -4,7 +4,7 @@
   "description": "Request schema for CreateOrderRequest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["customerId", "currency", "shippingAddress", "items", "couponCode"],
+  "required": ["customerId", "currency", "shippingAddress", "items"],
   "properties": {
     "couponCode": {
       "type": "string",
