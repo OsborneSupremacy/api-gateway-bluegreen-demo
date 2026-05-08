@@ -86,6 +86,10 @@ public sealed class ApiTestsFixture : IDisposable
         var request = GenerateRandomOrder();
         var client = GetHttpClient();
         var response =  await client.PostAsJsonAsync("v1/order", request);
+
+        if(response.StatusCode != HttpStatusCode.Created)
+            throw new AggregateException("Failed to create order");
+
         var responseBody = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
         return new OrderMetaData
         {

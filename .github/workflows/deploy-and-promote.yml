@@ -10,7 +10,7 @@ permissions:
 jobs:
   deploy-green:
     name: Deploy Green
-    uses: ./.github/workflows/deploy-api-gateway-stage.yml
+    uses: ./.github/workflows/.reusable-build-deploy.yml
     with:
       stage-name: green
     secrets:
@@ -44,7 +44,7 @@ jobs:
   deploy-blue:
     name: Deploy Blue
     needs: test-green
-    uses: ./.github/workflows/deploy-api-gateway-stage.yml
+    uses: ./.github/workflows/.reusable-build-deploy.yml
     with:
       stage-name: blue
     secrets:
@@ -60,7 +60,7 @@ jobs:
           - ecommerce-get-order
           - ecommerce-update-order
           - ecommerce-delete-order
-    uses: ./.github/workflows/promote-lambda-alias.yml
+    uses: ./.github/workflows/.reusable-promote-lambda-alias.yml
     with:
       function-name: ${{ matrix.function-name }}
     secrets:
@@ -100,7 +100,7 @@ jobs:
           - ecommerce-get-order
           - ecommerce-update-order
           - ecommerce-delete-order
-    uses: ./.github/workflows/cleanup-unused-lambda-versions.yml
+    uses: ./.github/workflows/.reusable-cleanup-unused-lambda-versions.yml
     with:
       function-name: ${{ matrix.function-name }}
     secrets:

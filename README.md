@@ -10,6 +10,11 @@ This project demonstrates how to implement that pattern on AWS using API Gateway
 
 ## Goals of this Pattern
 
+### Breaking API Gateway Changes Not Deployed to Blue
+
+
+
+
 ### Breaking Changes
 
 | Change Type                            | Not Deployed to Blue | Zero Downtime on Blue |
@@ -60,7 +65,7 @@ All endpoints are protected by a custom Lambda authorizer.
 
 ### CI/CD Pipelines
 
-Organizations and teams have different standards for CI/CD pipelines. This project has two GitHub Actions workflows that represent the key concepts of this blue/green deployment strategy. Teams will need to adapt these to fit their own standards and requirements.
+Organizations and teams have different standards for CI/CD pipelines. This project uses one GitHub Actions workflow to demonstrate the full promotion pipeline. In a real-world application, you would likely want to break this into multiple workflows for better separation of concerns.
 
 #### Key Concepts
 
@@ -69,9 +74,11 @@ Organizations and teams have different standards for CI/CD pipelines. This proje
 - Promote green to blue only after tests pass.
 - Promotion is a control-plane operation, not a data-plane operation.
 
-#### [build-deploy.yml](.github/workflows/build-deploy.yml) — Build & Deploy
+#### [build-deploy.yml](.github/workflows/build-deploy.yml) — Build & Deploy API Gateway Stage
 
-Builds the .NET Lambda packages and applies Terraform. This deploys new Lambda versions (pointed to by the `green` alias) and updates API Gateway configuration, but does **not** affect the `blue` stage or its Lambda aliases. Blue traffic is untouched until explicit promotion.
+Deploys a specific API Gateway stage (`green` or `blue`) by creating a new deployment snapshot and associating it with the stage. Accepts `stage-name` as an input.
+
+Can be run as a standalone `workflow_dispatch` (with a dropdown for `stage-name`) or called from another workflow via `workflow_call`. Used by `deploy-and-promote.yml` for both the green and blue stage deployments.
 
 > **Note:** This workflow builds and deploys the authorizer Lambda function. Generally, you would want to do this in a separate workflow — API Gateway cannot use stage variables for authorizer Lambda functions, so deploying it updates both stages immediately with no opportunity to test before promotion.
 

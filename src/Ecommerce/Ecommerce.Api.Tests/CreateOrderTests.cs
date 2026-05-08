@@ -14,10 +14,10 @@ public class CreateOrderTests(ApiTestsFixture fixture) : IClassFixture<ApiTestsF
 
         // act
         var response = await httpClient.PostAsJsonAsync("v1/order", request);
-        var responseBody = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
-
         // assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        var responseBody = await response.Content.ReadFromJsonAsync<CreateOrderResponse>();
         responseBody.Should().NotBeNull();
         responseBody.OrderId.Should().NotBe(Guid.Empty);
     }

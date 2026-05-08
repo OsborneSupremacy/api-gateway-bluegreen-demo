@@ -1,14 +1,17 @@
-name: Build & Deploy API Gateway and Lambda Functions
+name: Terraform Apply
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  deploy:
+  apply:
     name: Build & Deploy
     runs-on: ubuntu-latest
 
