@@ -16,6 +16,7 @@ jobs:
 
   deploy-green:
     name: Deploy Green
+    needs: build-infrastructure
     uses: ./.github/workflows/.reusable-deploy-api-gateway-stage.yml
     with:
       stage-name: green
