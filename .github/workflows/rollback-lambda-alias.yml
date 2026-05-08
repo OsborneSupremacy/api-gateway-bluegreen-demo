@@ -6,7 +6,12 @@ on:
       function-name:
         description: The name of the Lambda function to rollback
         required: true
-        type: string
+        type: choice
+        options:
+          - ecommerce-create-order
+          - ecommerce-get-order
+          - ecommerce-update-order
+          - ecommerce-delete-order
       stage:
         description: The alias/stage to rollback
         required: true
