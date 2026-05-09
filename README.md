@@ -1,4 +1,4 @@
-# AWS API Gateway + Lambda Blue/Green Deployment Example
+# AWS API Gateway + Lambda Blue/Green Deployment Reference Implementation
 
 A reference implementation of a blue/green deployment strategy using **AWS API Gateway stages** and **Lambda function aliases**, built as a companion to a conference talk for [AWS Midwest Community Day 2026](https://www.midwestcommunityday.com).
 
@@ -44,7 +44,7 @@ All endpoints are protected by a custom Lambda authorizer.
 
 ## CI/CD Pipelines
 
-This project uses one GitHub Actions workflow to demonstrate the full promotion pipeline. In a real-world application, you would likely want to break this into multiple workflows for better separation of concerns.
+This project has two public-facing GitHub Actions workflows. In a real-world application, you would likely want to break these into additional workflows for better separation of concerns.
 
 ### Key Concepts
 
@@ -53,23 +53,27 @@ This project uses one GitHub Actions workflow to demonstrate the full promotion 
 - Promote green to blue only after tests pass.
 - Promotion is a control-plane operation, not a data-plane operation.
 
-### Pipeline Flow
+### [build-deploy-and-promote.yml](.github/workflows/build-deploy-and-promote.yml) — Build, Deploy and Promote
 
-1. Builds the infrastructure using Terraform. This creates new Lambda versions (referenced by the `green` alias) and updates the API Gateway configuration
-2. Deploys the API Gateway `green` stage
+1. Builds the infrastructure using Terraform — creates new Lambda versions (referenced by the `green` alias) and updates the API Gateway configuration
+2. Deploys the API Gateway `green` stage and waits 60 seconds for the deployment to propagate
 3. Runs the integration test suite against `green` — if any test fails, the pipeline stops here
-4. Deploys the API Gateway `blue` stage
+4. Deploys the API Gateway `blue` stage and waits 60 seconds for the deployment to propagate
 5. Promotes each Lambda function's aliases: `blue` → version `green` points to, `previous` → version `blue` pointed to
-6. Runs the integration test suite again against `blue` to confirm the promotion succeeded
+6. Cleans up unused Lambda versions
+
+### [rollback-lambda-alias.yml](.github/workflows/rollback-lambda-alias.yml) — Rollback Lambda Alias
+
+Manually re-points a Lambda alias (`blue` or `green`) to the version currently referenced by another alias (defaulting to `previous`). Used to recover quickly if a promotion introduces a regression. Validates that the rollback is not already the current state before making any changes.
 
 ## Notes
 
 - The Lambda functions in this project are written in .NET, but the concepts are applicable to any language supported by Lambda.
 
-- [src/Ecommerce/Ecommerce.Library.Api.Tests](src/Ecommerce/Ecommerce.Library.Api.Tests) is a regular .NET unit test project. This represents _any_ test suite that excercises and validates the functionality of the API.
+- [test/Ecommerce.Api.Tests](test/Ecommerce.Api.Tests) is a regular .NET unit test project. This represents _any_ test suite that exercises and validates the functionality of the API.
     - I kept it the same framework as the API project for simplicity.
     - The test project deliberately is in a different solution than the API project and has its own copies of the request/response models and JSON schemas to ensure the tests are independent of the API implementation.
 
-- [The custom authorizer Lambda function](/src/Ecommerce/Ecommerce.Authorizer) is a naive implementation of an API Gateway custom authorizer.
+- [The custom authorizer Lambda function](src/Ecommerce/Ecommerce.Authorizer) is a naive implementation of an API Gateway custom authorizer.
     - It is not intended for production use.
     - It is included because this API Gateway is exposed to the public internet, and the authorizer offers some protection against unauthorized access.
