@@ -30,6 +30,7 @@ public sealed class ApiTestsFixture : IDisposable
 
         var client = new HttpClient();
         //client.DefaultRequestHeaders.Add("Content-Type", MediaTypeNames.Application.Json);
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; ApiTests/1.0)");
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {GetApiToken()}");
         client.BaseAddress = baseAddress;
         return _httpClient ?? client;
