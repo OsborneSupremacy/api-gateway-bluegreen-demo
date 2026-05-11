@@ -71,9 +71,9 @@ Manually re-points a Lambda alias (`blue` or `green`) to the version currently r
 - The Lambda functions in this project are written in .NET, but the concepts are applicable to any language supported by Lambda.
 
 - [test/Ecommerce.Api.Tests](test/Ecommerce.Api.Tests) is a regular .NET unit test project. This represents _any_ test suite that exercises and validates the functionality of the API.
-    - I kept it the same framework as the API project for simplicity.
-    - The test project deliberately is in a different solution than the API project and has its own copies of the request/response models and JSON schemas to ensure the tests are independent of the API implementation.
+  - I kept it the same framework as the API project for simplicity.
+  - The test project deliberately is in a different solution than the API project and has its own copies of the request/response models and JSON schemas to ensure the tests are independent of the API implementation.
 
 - [The custom authorizer Lambda function](src/Ecommerce/Ecommerce.Authorizer) is a naive implementation of an API Gateway custom authorizer.
-    - It is not intended for production use.
-    - It is included because this API Gateway is exposed to the public internet, and the authorizer offers some protection against unauthorized access.
+  - It is not intended for production use.
+  - It is included because this API Gateway is exposed to the public internet, and the authorizer offers some protection against unauthorized access.
