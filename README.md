@@ -46,6 +46,9 @@ All endpoints are protected by a custom Lambda authorizer.
 
 This project has two public-facing GitHub Actions workflows. In a real-world application, you would likely want to break these into additional workflows for better separation of concerns.
 
+> [!WARNING]
+> The Build & Deploy GitHub action automatically deploys Terraform without any manual approval step. This is intentional for demonstration purposes, but in a production environment, you should implement an approval step before deploying infrastructure changes.
+
 ### Key Concepts
 
 - IAC tool updates green, not blue.
