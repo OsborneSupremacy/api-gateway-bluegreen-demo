@@ -3,6 +3,10 @@ name: Build, Deploy and Promote API Gateway Stages and Lambda Functions
 on:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 permissions:
   id-token: write
   contents: read
@@ -67,12 +71,34 @@ jobs:
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
 
-# Tests _could_ be run against the blue stage here. How much value would that provide?
-# Teams need to make their own decision on whether the additional confidence is worth the extra time it would add to the workflow.
+  # Whether testing on blue provides enough value for the time it takes to run the tests is a decision
+  # that teams will have to make. The chances of the tests failing on blue when they passed on green are very low.
+
+  # I am opting to run them in this reference implementation, since this deployment strategy is about about
+  # being confident in the changes we are promoting to production, and testing on blue adds an extra layer of confidence.
+
+  test-blue:
+    name: Test Blue
+    needs: promote-lambdas
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+
+      - name: Run API tests on blue stage
+        working-directory: test/Ecommerce.Api.Tests
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+          BASE_ADDRESS: ${{ vars.BLUE_STAGE_BASE_ADDRESS }}
+        run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release
 
   cleanup-lambda-versions:
     name: Cleanup ${{ matrix.function-name }}
-    needs: promote-lambdas
+    needs: test-blue
     strategy:
       matrix:
         function-name:
