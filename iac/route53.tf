@@ -1,3 +1,12 @@
+/*
+
+Using custom subdomains for both blue and green API gateway stages.
+
+AWS-generated URIs can be used, but custom domains provide a more user-friendly and branded experience for customers accessing the API.
+
+They also allow for easier management of SSL/TLS certificates and can improve SEO by providing a consistent domain name.
+
+*/
 
 resource "aws_route53_zone" "ecommerce_subdomain" {
   name = local.ecommerce_domain_name
