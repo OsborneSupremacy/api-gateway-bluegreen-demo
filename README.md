@@ -71,9 +71,19 @@ This project has two public-facing GitHub Actions workflows. In a real-world app
 6. Runs the integration test suite against `blue` to validate the promotion.
 7. Cleans up unused Lambda versions.
 
-### [rollback-lambda-alias.yml](.github/workflows/rollback-lambda-alias.yml) — Rollback Lambda Alias
+#### Branches that Demonstrate Different Scenarios
 
-Manually re-points a Lambda alias (`blue` or `green`) to the version currently referenced by another alias (defaulting to `previous`). Used to recover quickly if a promotion introduces a regression. Validates that the rollback is not already the current state before making any changes.
+#### [`main`](https://github.com/OsborneSupremacy/api-gateway-bluegreen-demo/tree/main)
+
+The main branch with the reference implementation. Deploying this branch will follow the standard blue/green deployment process and will succeed.
+
+#### [`breaking-change-lambda`](https://github.com/OsborneSupremacy/api-gateway-bluegreen-demo/tree/breaking-change-lambda)
+
+Simulates a breaking change in a Lambda function, causing the integration tests to fail. Deploying this branch will demonstrate the pipeline stopping at the test failure step, preventing promotion of a faulty version.
+
+#### [`breaking-change-api-gateway`](https://github.com/OsborneSupremacy/api-gateway-bluegreen-demo/tree/breaking-change-api-gateway)
+
+Simulates a breaking change in the API Gateway configuration, causing the integration tests to fail. Deploying this branch will demonstrate the pipeline stopping at the test failure step, preventing promotion of a faulty version.
 
 ## Notes
 
