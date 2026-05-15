@@ -31,6 +31,9 @@ This project demonstrates how to implement that pattern on AWS using API Gateway
 | `postman/`                           | Postman collection and environments for manual testing                           |
 | `.github/workflows/`                 | GitHub Actions CI/CD pipelines                                                   |
 
+> [!IMPORTANT]
+> If you are going to run this project yourself, make sure to update the input variables in [`iac/terraform.tfvars`](iac/terraform.tfvars), and the configuration values in [`iac/config.tf`](iac/config.tf) with values that are appropriate for your AWS account and environment.
+
 ## API
 
 The API is a simple CRUD orders service with four Lambda functions:

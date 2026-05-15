@@ -10,7 +10,7 @@ resource "aws_api_gateway_integration" "lambda_integration" {
 }
 
 # keep the permission on the unqualified function so that there's no downtime when first opting-into blue-green deployment
-# will not be needed in the long-term, but it doesn't hurt to have it there.
+# will not be needed in the long-term, but it doesn't hurt.
 resource "aws_lambda_permission" "api_gateway_invoke" {
   statement_id  = "AllowAPIGatewayInvoke-${var.gateway_http_method}-${var.gateway_rest_api_id}"
   action        = "lambda:InvokeFunction"

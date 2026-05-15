@@ -9,19 +9,16 @@ locals {
 variable "application_name" {
   description = "The name of the application. This will be used as a prefix for various resources, and part of the subdomain."
   type        = string
-  default     = "ecommerce"
 }
 
 variable "orders_table_name" {
   description = "The name of the DynamoDB table for orders. The application name will be prepended to this value to create the full table name."
   type        = string
-  default     = "orders"
 }
 
 variable "root_domain_name" {
   description = "The existing Route 53 hosted zone domain name that owns the ecommerce subdomain. This should be a domain you control and have set up in Route53."
   type        = string
-  default     = "osbornesupremacy.com"
 }
 
 variable "api_token" {
@@ -34,13 +31,11 @@ variable "api_token" {
 variable "blue_cloudfront_web_acl_name" {
   description = "Optional Web ACL name to attach to the blue CloudFront distribution. Set to an empty string to create the distribution without a WAF association."
   type        = string
-  default     = "CreatedByCloudFront-37462c05"
 }
 
 variable "green_cloudfront_web_acl_name" {
   description = "Optional Web ACL name to attach to the green CloudFront distribution. Set to an empty string to create the distribution without a WAF association."
   type        = string
-  default     = "CreatedByCloudFront-ff8ff432"
 }
 
 output "ecommerce_domain_name" {

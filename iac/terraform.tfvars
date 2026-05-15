@@ -1,0 +1,5 @@
+application_name              = "ecommerce"
+orders_table_name             = "orders"
+root_domain_name              = "osbornesupremacy.com"
+blue_cloudfront_web_acl_name  = "CreatedByCloudFront-37462c05"
+green_cloudfront_web_acl_name = "CreatedByCloudFront-ff8ff432"
