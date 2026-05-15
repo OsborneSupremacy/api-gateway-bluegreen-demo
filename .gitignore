@@ -428,3 +428,6 @@ FodyWeavers.xsd
 
 # Terraform working directory
 .terraform/
+
+# C# dev kit cache files or whatever these are
+*.lscache
