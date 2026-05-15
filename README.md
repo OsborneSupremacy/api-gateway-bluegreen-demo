@@ -52,23 +52,24 @@ All endpoints are protected by a custom Lambda authorizer.
 This project has two public-facing GitHub Actions workflows. In a real-world application, you would likely want to break these into additional workflows for better separation of concerns.
 
 > [!WARNING]
-> The Build & Deploy GitHub action automatically deploys Terraform without any manual approval step. This is intentional for demonstration purposes, but in a production environment, you should implement an approval step before deploying infrastructure changes.
+> The Build & Deploy GitHub action automatically deploys Terraform without any manual approval step. This is intentional for demonstration purposes, but in a production environment you should implement an approval step before deploying infrastructure changes.
 
 ### Key Concepts
 
-- IAC tool updates green, not blue.
+- IAC updates green, not blue.
 - Tests run against green before promotion.
 - Promote green to blue only after tests pass.
 - Promotion is a control-plane operation, not a data-plane operation.
 
 ### [build-deploy-and-promote.yml](.github/workflows/build-deploy-and-promote.yml) — Build, Deploy and Promote
 
-1. Builds the infrastructure using Terraform — creates new Lambda versions (referenced by the `green` alias) and updates the API Gateway configuration
-2. Deploys the API Gateway `green` stage and waits 60 seconds for the deployment to propagate
-3. Runs the integration test suite against `green` — if any test fails, the pipeline stops here
-4. Deploys the API Gateway `blue` stage and waits 60 seconds for the deployment to propagate
-5. Promotes each Lambda function's aliases: `blue` → version `green` points to, `previous` → version `blue` pointed to
-6. Cleans up unused Lambda versions
+1. Builds the infrastructure using Terraform — creates new Lambda versions (referenced by the `green` alias) and updates the API Gateway configuration.
+2. Deploys the API Gateway `green` stage and waits 60 seconds for the deployment to propagate.
+3. Runs the integration test suite against `green` — if any test fails, the pipeline stops here.
+4. Deploys the API Gateway `blue` stage and waits 60 seconds for the deployment to propagate.
+5. Promotes each Lambda function's aliases: `blue` → version `green` points to, `previous` → version `blue` pointed to.
+6. Runs the integration test suite against `blue` to validate the promotion.
+7. Cleans up unused Lambda versions.
 
 ### [rollback-lambda-alias.yml](.github/workflows/rollback-lambda-alias.yml) — Rollback Lambda Alias
 
