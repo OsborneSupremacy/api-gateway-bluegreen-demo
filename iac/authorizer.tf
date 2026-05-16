@@ -1,15 +1,11 @@
 module "authorizer_lambda" {
-  source = "./modules/lambda-function"
-
+  source              = "./modules/lambda-function"
   function_name       = "${var.application_name}-authorizer"
   description         = "Lambda authorizer for the ecommerce API."
   lambda_handler      = "Ecommerce.Authorizer::Ecommerce.Authorizer.Function::FunctionHandler"
   lambda_package_path = "../src/Ecommerce/Ecommerce.Authorizer/bin/Authorizer.zip"
   versioning_strategy = ""
-
-  orders_table_name = aws_dynamodb_table.orders_table.name
-  orders_table_arn  = aws_dynamodb_table.orders_table.arn
-
+  orders_table_arn    = aws_dynamodb_table.orders_table.arn
   environment_variables = {
     API_TOKEN = var.api_token == "" ? random_password.api_token.result : var.api_token
   }

@@ -1,15 +1,11 @@
 module "update_order_lambda" {
-  source = "./modules/lambda-function"
-
+  source              = "./modules/lambda-function"
   function_name       = "${var.application_name}-update-order"
   description         = "Lambda function for updating an order in the ecommerce application."
   lambda_handler      = "Ecommerce.Order.Update::Ecommerce.Order.Update.Function::FunctionHandler"
   lambda_package_path = "../src/Ecommerce/Ecommerce.Order.Update/bin/UpdateOrder.zip"
   versioning_strategy = "blue_green"
-
-  orders_table_name = aws_dynamodb_table.orders_table.name
-  orders_table_arn  = aws_dynamodb_table.orders_table.arn
-
+  orders_table_arn    = aws_dynamodb_table.orders_table.arn
   environment_variables = {
     ORDERS_TABLE_NAME = aws_dynamodb_table.orders_table.name
   }

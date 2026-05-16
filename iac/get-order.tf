@@ -1,15 +1,11 @@
 module "get_order_lambda" {
-  source = "./modules/lambda-function"
-
+  source              = "./modules/lambda-function"
   function_name       = "${var.application_name}-get-order"
   description         = "Lambda function for getting an order in the ecommerce application."
   lambda_handler      = "Ecommerce.Order.Get::Ecommerce.Order.Get.Function::FunctionHandler"
   lambda_package_path = "../src/Ecommerce/Ecommerce.Order.Get/bin/GetOrder.zip"
   versioning_strategy = "blue_green"
-
-  orders_table_name = aws_dynamodb_table.orders_table.name
-  orders_table_arn  = aws_dynamodb_table.orders_table.arn
-
+  orders_table_arn    = aws_dynamodb_table.orders_table.arn
   environment_variables = {
     ORDERS_TABLE_NAME = aws_dynamodb_table.orders_table.name
   }
@@ -38,6 +34,6 @@ module "get_order_api_gateway_integration" {
   good_response_model_description          = "Model schema for the Get Order API response body"
   good_response_model_schema_file_location = "../schemas/get-order-response.json"
 
-  authorizer_id = aws_api_gateway_authorizer.ecommerce_authorizer.id
+  authorizer_id        = aws_api_gateway_authorizer.ecommerce_authorizer.id
   request_validator_id = aws_api_gateway_request_validator.request_parameters_validator.id
 }

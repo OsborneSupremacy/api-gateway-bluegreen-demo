@@ -30,11 +30,6 @@ variable "environment_variables" {
   type        = map(string)
 }
 
-variable "orders_table_name" {
-  description = "The name of the DynamoDB table for orders."
-  type        = string
-}
-
 variable "orders_table_arn" {
   description = "The ARN of the DynamoDB table for orders."
   type        = string
