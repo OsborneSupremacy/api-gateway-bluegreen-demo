@@ -32,5 +32,5 @@ module "delete_order_api_gateway_integration" {
   authorizer_id                                     = aws_api_gateway_authorizer.ecommerce_authorizer.id
   request_validator_id                              = aws_api_gateway_request_validator.request_body_validator.id
   aws_account_id                                    = data.aws_caller_identity.current.account_id
-  aws_region                                        = data.aws_region.current.name
+  aws_region                                        = data.aws_region.current.region
 }
