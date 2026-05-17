@@ -60,8 +60,8 @@ resource "aws_cloudfront_distribution" "ecommerce_distribution" {
 
   restrictions {
     geo_restriction {
-      restriction_type = "whitelist"
-      locations        = ["US", "CA"]
+      restriction_type = length(var.cloudfront_geo_whitelist) > 0 ? "whitelist" : "none"
+      locations        = var.cloudfront_geo_whitelist
     }
   }
 
@@ -109,8 +109,8 @@ resource "aws_cloudfront_distribution" "ecommerce_distribution_green" {
 
   restrictions {
     geo_restriction {
-      restriction_type = "whitelist"
-      locations        = ["US", "CA"]
+      restriction_type = length(var.cloudfront_geo_whitelist) > 0 ? "whitelist" : "none"
+      locations        = var.cloudfront_geo_whitelist
     }
   }
 

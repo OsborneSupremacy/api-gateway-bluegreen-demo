@@ -38,6 +38,12 @@ variable "green_cloudfront_web_acl_name" {
   type        = string
 }
 
+variable "cloudfront_geo_whitelist" {
+  description = "List of ISO 3166-1 alpha-2 country codes to whitelist for CloudFront geo restriction."
+  type        = list(string)
+  default     = []
+}
+
 output "ecommerce_domain_name" {
   description = "The delegated ecommerce subdomain used for API DNS records."
   value       = aws_route53_zone.ecommerce_subdomain.name
