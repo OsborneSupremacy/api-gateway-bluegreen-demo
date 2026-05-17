@@ -47,7 +47,7 @@ variable "cloudfront_geo_whitelist" {
 variable "cloudfront_price_class" {
   description = "CloudFront price class for all distributions. Valid values: PriceClass_All, PriceClass_200, PriceClass_100."
   type        = string
-  default     = "PriceClass_100"
+  default     = "PriceClass_All"
 
   validation {
     condition     = contains(["PriceClass_All", "PriceClass_200", "PriceClass_100"], var.cloudfront_price_class)
