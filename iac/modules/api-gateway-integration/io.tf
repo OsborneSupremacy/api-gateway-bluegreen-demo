@@ -83,3 +83,13 @@ variable "request_validator_id" {
   description = "The ID of the API Gateway request validator to use for this method"
   type        = string
 }
+
+variable "aws_account_id" {
+  description = "The AWS account ID. Used to construct ARNs within the module."
+  type        = string
+}
+
+variable "aws_region" {
+  description = "The AWS region. Used to construct ARNs within the module."
+  type        = string
+}
