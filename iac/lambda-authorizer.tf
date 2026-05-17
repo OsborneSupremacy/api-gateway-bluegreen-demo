@@ -4,8 +4,7 @@ module "authorizer_lambda" {
   description         = "Lambda authorizer for the ecommerce API."
   lambda_handler      = "Ecommerce.Authorizer::Ecommerce.Authorizer.Function::FunctionHandler"
   lambda_package_path = "../src/Ecommerce/Ecommerce.Authorizer/bin/Authorizer.zip"
-  versioning_strategy = ""
-  orders_table_arn    = aws_dynamodb_table.orders_table.arn
+  versioning_strategy = "" # authorizer cannot be used with stage variables, so this blue-green deployment approach is not compatible with the authorizer.
   environment_variables = {
     API_TOKEN = var.api_token == "" ? random_password.api_token.result : var.api_token
   }

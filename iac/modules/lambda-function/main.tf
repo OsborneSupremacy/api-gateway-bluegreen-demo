@@ -37,8 +37,9 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
 }
 
 resource "aws_iam_role_policy" "dynamo_db_access" {
-  name = "${var.function_name}-dynamodb-access"
-  role = aws_iam_role.lambda_execution_role.id
+  count = var.orders_table_arn != "" ? 1 : 0
+  name  = "${var.function_name}-dynamodb-access"
+  role  = aws_iam_role.lambda_execution_role.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [

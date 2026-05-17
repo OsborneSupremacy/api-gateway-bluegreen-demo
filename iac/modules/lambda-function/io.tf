@@ -32,6 +32,7 @@ variable "environment_variables" {
 variable "orders_table_arn" {
   description = "The ARN of the DynamoDB table for orders."
   type        = string
+  default     = ""
 }
 
 variable "versioning_strategy" {
