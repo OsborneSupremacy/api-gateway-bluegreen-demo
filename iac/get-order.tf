@@ -12,8 +12,7 @@ module "get_order_lambda" {
 }
 
 module "get_order_api_gateway_integration" {
-  source = "./modules/api-gateway-integration"
-
+  source                      = "./modules/api-gateway-integration"
   gateway_rest_api_id         = aws_api_gateway_rest_api.ecommerce_gateway.id
   gateway_resource_id         = aws_api_gateway_resource.order_customer_id_order_id.id
   gateway_http_method         = "GET"
@@ -27,13 +26,11 @@ module "get_order_api_gateway_integration" {
   gateway_method_request_model_description          = ""
   lambda_invoke_arn                                 = module.get_order_lambda.latest_invoke_arn
   lambda_function_arn                               = module.get_order_lambda.latest_arn
-
-  include_404_response                     = true
-  include_409_response                     = false
-  good_response_model_name                 = "GetOrderResponseModel"
-  good_response_model_description          = "Model schema for the Get Order API response body"
-  good_response_model_schema_file_location = "../schemas/get-order-response.json"
-
-  authorizer_id        = aws_api_gateway_authorizer.ecommerce_authorizer.id
-  request_validator_id = aws_api_gateway_request_validator.request_parameters_validator.id
+  include_404_response                              = true
+  include_409_response                              = false
+  good_response_model_name                          = "GetOrderResponseModel"
+  good_response_model_description                   = "Model schema for the Get Order API response body"
+  good_response_model_schema_file_location          = "../schemas/get-order-response.json"
+  authorizer_id                                     = aws_api_gateway_authorizer.ecommerce_authorizer.id
+  request_validator_id                              = aws_api_gateway_request_validator.request_parameters_validator.id
 }

@@ -6,7 +6,6 @@ resource "aws_api_gateway_method" "gateway_operation_method" {
   authorizer_id        = var.authorizer_id != "" ? var.authorizer_id : null
   operation_name       = var.gateway_http_operation_name
   request_validator_id = var.request_validator_id
-
   request_parameters   = var.gateway_method_request_parameters
   request_models = {
     "application/json" = var.gateway_method_request_model_name != "" ? var.gateway_method_request_model_name : null

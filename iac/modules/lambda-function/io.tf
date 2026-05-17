@@ -3,7 +3,6 @@ locals {
   publish_version = var.versioning_strategy != ""
 }
 
-
 variable "function_name" {
   description = "The name of the Lambda function."
   type        = string

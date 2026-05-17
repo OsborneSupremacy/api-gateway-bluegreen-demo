@@ -17,7 +17,6 @@ resource "aws_lambda_function" "lambda_function" {
 
 resource "aws_iam_role" "lambda_execution_role" {
   name = "${var.function_name}-execution-role"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -40,7 +39,6 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
 resource "aws_iam_role_policy" "dynamo_db_access" {
   name = "${var.function_name}-dynamodb-access"
   role = aws_iam_role.lambda_execution_role.id
-
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -61,5 +59,4 @@ resource "aws_iam_role_policy" "dynamo_db_access" {
       }
     ]
   })
-
 }

@@ -9,7 +9,6 @@ resource "aws_api_gateway_method_response" "no_content_204_response" {
     "method.response.header.Access-Control-Allow-Origin"  = true
   }
   count = var.include_204_response ? 1 : 0
-
   depends_on = [
     aws_api_gateway_method.gateway_operation_method
   ]
@@ -26,7 +25,6 @@ resource "aws_api_gateway_method_response" "get_404_response" {
     "method.response.header.Access-Control-Allow-Origin"  = true
   }
   count = var.include_404_response ? 1 : 0
-
   depends_on = [
     aws_api_gateway_method.gateway_operation_method
   ]
@@ -46,7 +44,6 @@ resource "aws_api_gateway_method_response" "conflict_409_response" {
     "method.response.header.Access-Control-Allow-Origin"  = true
   }
   count = var.include_409_response ? 1 : 0
-
   depends_on = [
     aws_api_gateway_method.gateway_operation_method
   ]
@@ -66,7 +63,6 @@ resource "aws_api_gateway_method_response" "get_200_response" {
     "method.response.header.Access-Control-Allow-Origin"  = true
   }
   count = var.good_response_model_name != "" ? 1 : 0
-
   depends_on = [
     aws_api_gateway_method.gateway_operation_method,
     aws_api_gateway_model.good_response_model
