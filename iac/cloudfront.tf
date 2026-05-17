@@ -41,7 +41,7 @@ resource "aws_cloudfront_distribution" "ecommerce_distribution" {
   enabled         = true
   is_ipv6_enabled = true
   http_version    = "http2"
-  price_class     = "PriceClass_All"
+  price_class     = var.cloudfront_price_class
   web_acl_id      = var.blue_cloudfront_web_acl_name != "" ? data.aws_wafv2_web_acl.cloudfront_managed_blue[0].arn : null
 
   aliases = [
@@ -90,7 +90,7 @@ resource "aws_cloudfront_distribution" "ecommerce_distribution_green" {
   enabled         = true
   is_ipv6_enabled = true
   http_version    = "http2"
-  price_class     = "PriceClass_All"
+  price_class     = var.cloudfront_price_class
   web_acl_id      = var.green_cloudfront_web_acl_name != "" ? data.aws_wafv2_web_acl.cloudfront_managed_green[0].arn : null
 
   aliases = [

@@ -44,6 +44,17 @@ variable "cloudfront_geo_whitelist" {
   default     = []
 }
 
+variable "cloudfront_price_class" {
+  description = "CloudFront price class for all distributions. Valid values: PriceClass_All, PriceClass_200, PriceClass_100."
+  type        = string
+  default     = "PriceClass_100"
+
+  validation {
+    condition     = contains(["PriceClass_All", "PriceClass_200", "PriceClass_100"], var.cloudfront_price_class)
+    error_message = "cloudfront_price_class must be one of: PriceClass_All, PriceClass_200, PriceClass_100."
+  }
+}
+
 output "ecommerce_domain_name" {
   description = "The delegated ecommerce subdomain used for API DNS records."
   value       = aws_route53_zone.ecommerce_subdomain.name
