@@ -24,27 +24,27 @@ resource "aws_api_gateway_deployment" "ecommerce_deployment" {
 }
 
 resource "aws_api_gateway_stage" "blue_stage" {
-  stage_name    = "blue"
-  description   = "Blue (production-serving) stage for the ecommerce API Gateway"
+  stage_name    = var.blue_stage_name
+  description   = "${var.blue_stage_name} (production-serving) stage for the ecommerce API Gateway"
   rest_api_id   = aws_api_gateway_rest_api.ecommerce_gateway.id
   deployment_id = aws_api_gateway_deployment.ecommerce_deployment.id
   lifecycle {
     ignore_changes = [deployment_id]
   }
   variables = {
-    "alias" = "blue"
+    "alias" = var.blue_stage_name
   }
 }
 
 resource "aws_api_gateway_stage" "green_stage" {
-  stage_name    = "green"
-  description   = "Green (candidate/incoming) stage for the ecommerce API Gateway"
+  stage_name    = var.green_stage_name
+  description   = "${var.green_stage_name} (candidate/incoming) stage for the ecommerce API Gateway"
   rest_api_id   = aws_api_gateway_rest_api.ecommerce_gateway.id
   deployment_id = aws_api_gateway_deployment.ecommerce_deployment.id
   lifecycle {
     ignore_changes = [deployment_id]
   }
   variables = {
-    "alias" = "green"
+    "alias" = var.green_stage_name
   }
 }

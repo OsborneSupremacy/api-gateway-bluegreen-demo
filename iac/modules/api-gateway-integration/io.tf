@@ -1,4 +1,14 @@
 # inputs
+variable "blue_stage_name" {
+  description = "The name of the API Gateway stage for the blue environment (production-serving)."
+  type        = string
+}
+
+variable "green_stage_name" {
+  description = "The name of the API Gateway stage for the green environment (incomding / candidate)."
+  type        = string
+}
+
 variable "gateway_rest_api_id" {
   type = string
 }

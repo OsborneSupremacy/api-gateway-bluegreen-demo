@@ -25,7 +25,7 @@ resource "aws_lambda_permission" "api_gateway_invoke_blue" {
   function_name = var.lambda_function_arn
   principal     = "apigateway.amazonaws.com"
   source_arn    = "arn:aws:execute-api:${var.aws_region}:${var.aws_account_id}:${var.gateway_rest_api_id}/*/*"
-  qualifier     = "blue"
+  qualifier     = var.blue_stage_name
 }
 
 resource "aws_lambda_permission" "api_gateway_invoke_green" {
@@ -34,5 +34,5 @@ resource "aws_lambda_permission" "api_gateway_invoke_green" {
   function_name = var.lambda_function_arn
   principal     = "apigateway.amazonaws.com"
   source_arn    = "arn:aws:execute-api:${var.aws_region}:${var.aws_account_id}:${var.gateway_rest_api_id}/*/*"
-  qualifier     = "green"
+  qualifier     = var.green_stage_name
 }

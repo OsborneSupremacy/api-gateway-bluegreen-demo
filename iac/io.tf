@@ -1,7 +1,7 @@
 locals {
   ecommerce_domain_name = "${var.application_name}.${var.root_domain_name}"
   api_domain_name       = "api.${local.ecommerce_domain_name}"
-  green_api_domain_name = "green-api.${local.ecommerce_domain_name}"
+  green_api_domain_name = "${var.green_stage_name}-api.${local.ecommerce_domain_name}"
 }
 
 # Inputs
@@ -26,6 +26,16 @@ variable "api_token" {
   type        = string
   sensitive   = true
   default     = ""
+}
+
+variable "blue_stage_name" {
+  description = "The name of the API Gateway stage for the blue environment (production-serving)."
+  type        = string
+}
+
+variable "green_stage_name" {
+  description = "The name of the API Gateway stage for the green environment (incomding / candidate)."
+  type        = string
 }
 
 variable "blue_cloudfront_web_acl_name" {

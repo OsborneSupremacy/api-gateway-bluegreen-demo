@@ -13,6 +13,8 @@ module "delete_order_lambda" {
 
 module "delete_order_api_gateway_integration" {
   source                                            = "./modules/api-gateway-integration"
+  blue_stage_name                                   = var.blue_stage_name
+  green_stage_name                                  = var.green_stage_name
   gateway_rest_api_id                               = aws_api_gateway_rest_api.ecommerce_gateway.id
   gateway_resource_id                               = aws_api_gateway_resource.order.id
   gateway_http_method                               = "DELETE"

@@ -35,9 +35,6 @@ resource "aws_api_gateway_method_response" "conflict_409_response" {
   resource_id = var.gateway_resource_id
   http_method = var.gateway_http_method
   status_code = "409"
-  response_models = {
-    "application/json" = "BadRequestOrConflictResponse"
-  }
   response_parameters = {
     "method.response.header.Access-Control-Allow-Methods" = true
     "method.response.header.Access-Control-Allow-Headers" = true
