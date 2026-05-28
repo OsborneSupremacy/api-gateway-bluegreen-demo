@@ -7,10 +7,9 @@ internal static class ServiceProviderBuilder
 {
     public static IServiceProvider Build() =>
         new ServiceCollection()
-            .AddUtilities(
-                LibraryJsonTypeInfoResolver.Default,
-                OrderCreateJsonSerializerContext.Default
-            )
+            .AddJsonTypeResolver(LibraryJsonTypeInfoResolver.Default)
+            .AddJsonTypeResolver(OrderCreateJsonSerializerContext.Default)
+            .AddUtilities()
             .AddVendorServices()
             .AddProviders()
             .AddBusinessServices()

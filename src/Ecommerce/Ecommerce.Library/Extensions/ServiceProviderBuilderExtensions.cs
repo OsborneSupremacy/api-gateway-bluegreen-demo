@@ -20,24 +20,15 @@ public static class ServiceProviderBuilderExtensions
                 .AddAWSService<IAmazonDynamoDB>();
         }
 
-        public IServiceCollection AddUtilities(params IJsonTypeInfoResolver?[] jsonTypeInfoResolvers)
-        {
-            ArgumentNullException.ThrowIfNull(jsonTypeInfoResolvers);
-
-            if (jsonTypeInfoResolvers.Length == 0)
-                throw new ArgumentException("At least one JSON type resolver must be provided.", nameof(jsonTypeInfoResolvers));
-
+        public IServiceCollection AddUtilities() =>
             services
                 .AddLogging(builder => builder.AddLambdaLogger())
-                .AddSingleton<ApiGatewayAdapter>();
+                .AddSingleton<ApiGatewayAdapter>()
+                .AddSingleton<JsonService>();
 
-            foreach (var jsonTypeInfoResolver in jsonTypeInfoResolvers)
-            {
-                ArgumentNullException.ThrowIfNull(jsonTypeInfoResolver);
-                services.AddSingleton<IJsonTypeInfoResolver>(_ => jsonTypeInfoResolver);
-            }
-
-            services.AddSingleton<JsonService>();
+        public IServiceCollection AddJsonTypeResolver(IJsonTypeInfoResolver jsonTypeInfoResolver)
+        {
+            services.AddSingleton<IJsonTypeInfoResolver>(_ => jsonTypeInfoResolver);
             return services;
         }
 
