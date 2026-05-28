@@ -1,8 +1,6 @@
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.Extensions.NETCore.Setup;
-using dotenv.net.Utilities;
-using Ecommerce.Library.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization.Metadata;
 
@@ -26,9 +24,15 @@ public static class ServiceProviderBuilderExtensions
                 .AddSingleton<ApiGatewayAdapter>()
                 .AddSingleton<JsonService>();
 
-        public IServiceCollection AddJsonTypeResolver(IJsonTypeInfoResolver jsonTypeInfoResolver)
+        public IServiceCollection AddJsonOptions(IJsonTypeInfoResolver[] jsonTypeInfoResolvers)
         {
-            services.AddSingleton<IJsonTypeInfoResolver>(_ => jsonTypeInfoResolver);
+            JsonSerializerOptions options = new()
+            {
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                TypeInfoResolver = JsonTypeInfoResolver.Combine(jsonTypeInfoResolvers)
+            };
+            services.AddSingleton(options);
             return services;
         }
 

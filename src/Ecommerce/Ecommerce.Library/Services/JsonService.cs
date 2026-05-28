@@ -6,21 +6,9 @@ public class JsonService
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-    public JsonService(IEnumerable<IJsonTypeInfoResolver> jsonTypeInfoResolvers)
+    public JsonService(JsonSerializerOptions jsonSerializerOptions)
     {
-        ArgumentNullException.ThrowIfNull(jsonTypeInfoResolvers);
-
-        var resolvers = jsonTypeInfoResolvers.ToArray();
-
-        if (resolvers.Length == 0)
-            throw new InvalidOperationException("At least one IJsonTypeInfoResolver must be registered.");
-
-        _jsonSerializerOptions = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            TypeInfoResolver = JsonTypeInfoResolver.Combine(resolvers)
-        };
+        _jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
     }
 
     public string SerializeDefault<T>(T value) =>

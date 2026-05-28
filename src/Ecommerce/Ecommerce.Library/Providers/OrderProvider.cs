@@ -1,8 +1,5 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using dotenv.net.Utilities;
-using Ecommerce.Library.Abstractions;
-using Ecommerce.Library.Models;
 
 namespace Ecommerce.Library.Providers;
 

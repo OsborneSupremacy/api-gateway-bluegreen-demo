@@ -1,5 +1,3 @@
-using Ecommerce.Library.Models;
-
 namespace Ecommerce.Library.Abstractions;
 
 public interface IOrderProvider
