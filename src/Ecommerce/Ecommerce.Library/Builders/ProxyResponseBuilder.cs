@@ -2,6 +2,9 @@
 
 namespace Ecommerce.Library.Builders;
 
+/// <summary>
+/// Provides methods to build APIGatewayProxyResponse objects with appropriate status codes, headers, and optional body content.
+/// </summary>
 public static class ProxyResponseBuilder
 {
     public static APIGatewayProxyResponse Build(HttpStatusCode statusCode) =>

@@ -1,7 +1,7 @@
 ﻿namespace Ecommerce.Library.Messaging;
 
 /// <summary>
-/// A simple error record consistent t with API Gateway's default error response structure.
+/// A simple error record consistent with API Gateway's default error response structure.
 /// </summary>
 internal record ErrorResponse
 {
