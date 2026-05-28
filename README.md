@@ -90,9 +90,32 @@ Simulates a breaking change in the API Gateway configuration, causing the integr
 - The Lambda functions in this project are written in .NET, but the concepts are applicable to any language supported by Lambda.
 
 - [test/Ecommerce.Api.Tests](test/Ecommerce.Api.Tests) is a regular .NET unit test project. This represents _any_ test suite that exercises and validates the functionality of the API.
-  - I kept it the same framework as the API project for simplicity.
-  - The test project deliberately is in a different solution than the API project and has its own copies of the request/response models and JSON schemas to ensure the tests are independent of the API implementation.
+    - I kept it the same framework as the API project for simplicity.
+    - The test project deliberately is in a different solution than the API project and has its own copies of the request/response models and JSON schemas to ensure the tests are independent of the API implementation.
 
 - [The custom authorizer Lambda function](src/Ecommerce/Ecommerce.Authorizer) is a naive implementation of an API Gateway custom authorizer.
-  - It is not intended for production use.
-  - It is included because this API Gateway is exposed to the public internet, and the authorizer offers some protection against unauthorized access.
+    - It is not intended for production use.
+    - It is included because this API Gateway is exposed to the public internet, and the authorizer offers some protection against unauthorized access.
+
+## Q&A
+
+### There's nothing novel about this approach. Why is a reference implementation useful?
+
+Developers probably know that a blue/green deployment strategy is possible with API Gateway and Lambda. But like most new patterns, someone has to be the first to implement it and share the details. Without someone doing that, a theoretical good idea may not be adopted for a long time, if ever.
+
+### Is this needed if I have one or more lower environments before production?
+
+Even when changes are tested in lower environments, there is still risk when deploying to production. The power of this approach is to be able to deploy to production and test before affecting live traffic, with production release being a low-risk, control-plane operation.
+
+### Is this needed if my API Gateway uses versioning, e.g. leave `/v1/order` as it is and create `/v2/order` for new changes?
+
+If you never update existing API Gateway Lambda integration functions, always deploying new versions to new API Gateway resources, then you woudn't need this approach.
+
+However, that would mean that you never update existing Lambda functions -- no new features, bug fixes, security patches, etc.. You would have to create a new Lambda function and a new API Gateway resource for every change, notifying consumers to update to the new API endpoint, and then deprecating the old one.
+
+## What about API Gateway canaries and Lambda weighted aliases?
+
+Those features are generally more sophisticated than the blue/green approach demonstrated here. They can be used for more granular traffic shifting, but they also add complexity.
+
+If a team is not doing any kind of blue/green deployment strategy today, this reference implementation is a simple way to get started with the concept, and then they can iterate and add more sophistication over time if needed.
+
