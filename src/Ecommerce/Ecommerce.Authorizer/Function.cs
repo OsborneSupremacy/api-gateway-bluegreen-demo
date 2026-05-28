@@ -1,8 +1,9 @@
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.Lambda.Serialization.SystemTextJson;
 using JetBrains.Annotations;
 
-[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
+[assembly: LambdaSerializer(typeof(SourceGeneratorLambdaJsonSerializer<Ecommerce.Authorizer.AuthorizerJsonSerializerContext>))]
 
 namespace Ecommerce.Authorizer;
 

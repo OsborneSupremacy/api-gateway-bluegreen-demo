@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json.Serialization.Metadata;
+using Ecommerce.Library.Services;
 
 namespace Ecommerce.Order.Delete.Services;
 
@@ -6,7 +8,12 @@ internal static class ServiceProviderBuilder
 {
     public static IServiceProvider Build() =>
         new ServiceCollection()
-            .AddUtilities()
+            .AddUtilities(
+                JsonTypeInfoResolver.Combine(
+                    LibraryJsonTypeInfoResolver.Default,
+                    OrderDeleteJsonSerializerContext.Default
+                )
+            )
             .AddVendorServices()
             .AddProviders()
             .AddBusinessServices()

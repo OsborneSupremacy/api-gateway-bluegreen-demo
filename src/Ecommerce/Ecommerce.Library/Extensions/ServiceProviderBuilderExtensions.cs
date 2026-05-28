@@ -4,6 +4,7 @@ using Amazon.Extensions.NETCore.Setup;
 using dotenv.net.Utilities;
 using Ecommerce.Library.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Ecommerce.Library.Extensions;
 
@@ -19,11 +20,11 @@ public static class ServiceProviderBuilderExtensions
                 .AddAWSService<IAmazonDynamoDB>();
         }
 
-        public IServiceCollection AddUtilities() =>
+        public IServiceCollection AddUtilities(IJsonTypeInfoResolver jsonTypeInfoResolver) =>
             services
                 .AddLogging(builder => builder.AddLambdaLogger())
                 .AddSingleton<ApiGatewayAdapter>()
-                .AddSingleton<JsonService>();
+                .AddSingleton(_ => new JsonService(jsonTypeInfoResolver));
 
         public IServiceCollection AddProviders() =>
             services

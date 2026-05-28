@@ -1,17 +1,20 @@
+using System.Text.Json.Serialization.Metadata;
+
 namespace Ecommerce.Library.Services;
 
 public class JsonService
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-    // ReSharper disable once ConvertConstructorToMemberInitializers
-    // Do not agree that member initializers would make this more readable.
-    public JsonService()
+    public JsonService(IJsonTypeInfoResolver jsonTypeInfoResolver)
     {
+        ArgumentNullException.ThrowIfNull(jsonTypeInfoResolver);
+
         _jsonSerializerOptions = new()
         {
             PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            TypeInfoResolver = jsonTypeInfoResolver
         };
     }
 
