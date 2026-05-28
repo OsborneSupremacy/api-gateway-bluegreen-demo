@@ -113,7 +113,7 @@ If you never update existing API Gateway Lambda integration functions, always de
 
 However, that would mean that you never update existing Lambda functions -- no new features, bug fixes, security patches, etc.. You would have to create a new Lambda function and a new API Gateway resource for every change, notifying consumers to update to the new API endpoint, and then deprecating the old one.
 
-## What about API Gateway canaries and Lambda weighted aliases?
+### What about API Gateway canaries and Lambda weighted aliases?
 
 Those features are generally more sophisticated than the blue/green approach demonstrated here. They can be used for more granular traffic shifting, but they also add complexity.
 
