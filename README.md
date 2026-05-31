@@ -103,15 +103,19 @@ Simulates a breaking change in the API Gateway configuration, causing the integr
 
 Teams probably know that a blue/green deployment strategy is possible with API Gateway and Lambda. But like most new patterns, someone has to be the first to implement it and share the details. Without someone doing that, a theoretical good idea may not be adopted for a long time, if ever.
 
-### Is this needed if I have one or more lower environments before production?
+### Is this strategy needed if I have one or more lower environments before production?
 
 Even when changes are tested in lower environments, there is still risk when deploying to production. The power of this approach is to be able to deploy to production and test before affecting live traffic, with production release being a low-risk, control plane operation.
 
-### Is this needed if my API Gateway uses versioning, e.g. leave `/v1/order` as it is and create `/v2/order` for new changes?
+### Is this strategy needed if my API Gateway uses versioning, e.g. leave `/v1/order` as it is and create `/v2/order` for new changes?
 
 If you never update existing API Gateway Lambda integration functions, always deploying new versions to new API Gateway resources, then you woudn't need this approach.
 
 However, that would mean that you never update existing Lambda functions -- no new features, bug fixes, security patches, etc.. You would have to create a new Lambda function and a new API Gateway resource for every change, notifying consumers to update to the new API endpoint, and then deprecating the old one.
+
+### Is this strategy needed if I use feature flags in my Lambda functions?
+
+With feature flags, code that's behind a feature flag is not invoked until the flag is enabled. Once it's enabled, all traffic to that Lambda function is hitting the new code, and if there are any issues with it, then all traffic is affected. Given that, feature flags alone do not provide the same level of risk mitigation as a blue/green deployment strategy like this one.
 
 ### What about API Gateway canaries and Lambda weighted aliases?
 

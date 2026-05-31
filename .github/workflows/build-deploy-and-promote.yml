@@ -15,6 +15,9 @@ jobs:
   build-infrastructure:
     name: Build Infrastructure
     uses: ./.github/workflows/.reusable-build-deploy-infrastructure.yml
+    with:
+      tfstate_bucket: bro-tfstate
+      tfstate_key: ecommerce
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
 
@@ -24,6 +27,8 @@ jobs:
     uses: ./.github/workflows/.reusable-deploy-api-gateway-stage.yml
     with:
       stage-name: green
+      api-gateway-name: ecommerce-gateway
+      wait-for-propagation: true
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
 
@@ -52,6 +57,8 @@ jobs:
     uses: ./.github/workflows/.reusable-deploy-api-gateway-stage.yml
     with:
       stage-name: blue
+      api-gateway-name: ecommerce-gateway
+      wait-for-propagation: true
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
 
