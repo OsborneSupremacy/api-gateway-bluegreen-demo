@@ -79,30 +79,30 @@ output "version" {
 
 output "blue_alias_arn" {
   description = "The ARN of the blue alias. Available only with blue_green versioning strategy."
-  value       = local.use_blue_green ? aws_lambda_alias.blue_alias[0].arn : null
+  value       = local.use_blue_green ? one(aws_lambda_alias.blue_alias).arn : null
 }
 
 output "blue_alias_invoke_arn" {
   description = "The invoke ARN of the blue alias. Available only with blue_green versioning strategy."
-  value       = local.use_blue_green ? aws_lambda_alias.blue_alias[0].invoke_arn : null
+  value       = local.use_blue_green ? one(aws_lambda_alias.blue_alias).invoke_arn : null
 }
 
 output "green_alias_arn" {
   description = "The ARN of the green alias. Available only with blue_green versioning strategy."
-  value       = local.use_blue_green ? aws_lambda_alias.green_alias[0].arn : null
+  value       = local.use_blue_green ? one(aws_lambda_alias.green_alias).arn : null
 }
 
 output "green_alias_invoke_arn" {
   description = "The invoke ARN of the green alias. Available only with blue_green versioning strategy."
-  value       = local.use_blue_green ? aws_lambda_alias.green_alias[0].invoke_arn : null
+  value       = local.use_blue_green ? one(aws_lambda_alias.green_alias).invoke_arn : null
 }
 
 output "previous_alias_arn" {
   description = "The ARN of the previous alias. Available only with blue_green versioning strategy."
-  value       = local.use_blue_green ? aws_lambda_alias.previous_alias[0].arn : null
+  value       = local.use_blue_green ? one(aws_lambda_alias.previous_alias).arn : null
 }
 
 output "previous_alias_invoke_arn" {
   description = "The invoke ARN of the previous alias. Available only with blue_green versioning strategy."
-  value       = local.use_blue_green ? aws_lambda_alias.previous_alias[0].invoke_arn : null
+  value       = local.use_blue_green ? one(aws_lambda_alias.previous_alias).invoke_arn : null
 }

@@ -42,7 +42,7 @@ resource "aws_cloudfront_distribution" "ecommerce_distribution" {
   is_ipv6_enabled = true
   http_version    = "http2"
   price_class     = var.cloudfront_price_class
-  web_acl_id      = var.blue_cloudfront_web_acl_name != "" ? data.aws_wafv2_web_acl.cloudfront_managed_blue[0].arn : null
+  web_acl_id      = var.blue_cloudfront_web_acl_name != "" ? one(data.aws_wafv2_web_acl.cloudfront_managed_blue).arn : null
 
   aliases = [
     local.api_domain_name
