@@ -4,9 +4,8 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   http_method             = var.gateway_http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${var.lambda_function_arn}:$${stageVariables.alias}/invocations"
-  # uri                     = var.lambda_invoke_arn # standard convention, but can't use it here becaause it doesn't support stage variable substitution
-  content_handling = "CONVERT_TO_TEXT"
+  uri                     = var.blue_green_stage_variable_invoke_arn
+  content_handling        = "CONVERT_TO_TEXT"
 }
 
 # Keep the permission on the unqualified function so that there's no downtime when first opting-into blue-green deployment.

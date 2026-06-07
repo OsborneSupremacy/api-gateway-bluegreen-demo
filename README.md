@@ -22,6 +22,70 @@ This project demonstrates how to implement that pattern on AWS using API Gateway
 
 **API Gateway stages** map directly to these aliases. The `green` stage invokes the `green` alias; the `blue` stage invokes the `blue` alias. Promotion is a control-plane operation: updating which Lambda version an alias points to, with no redeployment required.
 
+## Key Components
+
+If you attended the talk, these are the steps that I walked through. If you didn't attend, these are the key components to understand how the blue/green deployment strategy is implemented in this project.
+
+If you are updating an existing API Gateway + Lambda application that uses something like in-place deployments, follow these steps to implement the blue/green deployment strategy.
+
+### API Gateway Stages
+
+Your API Gateway may only have one stage today. With this approach, two API Gateway stages are needed, `blue` and `green`, each with a stage variable named `alias` that is the same as the stage name.
+
+The API Gateway stages should have lifecycle rules configured to prevent automatic deployment on API changes, so that deployments are only triggered by the CI/CD pipeline after the new version is ready.
+
+[api-gateway.tf](iac/api-gateway.tf) contains the API Gateway configuration, including the stage variables and lifecycle rules.
+
+### Lambda Versioning
+
+This is a simple opt-in (set `publish = true` on the Lambda function resource in Terraform) to enable versioning for each Lambda function. This allows us to create immutable versions of the Lambda functions that can be referenced by aliases.
+
+[lambda-function/main.tf](iac/modules/lambda-function/main.tf) contains the Lambda function configuration, including versioning.
+
+### Lambda Aliases
+
+Three Lambda function aliases are needed with this approach: `blue`, `green`, and `previous`. The `blue` alias points to the currently live version, the `green` alias points to the latest deployed version for testing, and the `previous` alias points to the last live version before the current one.
+
+`blue` and `previous` should have lifecycle rules configured to prevent being updated by Terraform, since they should only be updated by the CI/CD pipeline during promotion. `green` should be updated by Terraform during deployments.
+
+> [!NOTE]
+> The `previous` alias is optional, but it provides a quick rollback mechanism in case of issues with the new version.
+
+[lambda-function/alias.tf](iac/modules/lambda-function/alias.tf) contains the Lambda alias configuration, including the `blue`, `green`, and `previous` aliases.
+
+### API Gateway Integration
+
+The API Gateway integration for each Lambda function should reference the `alias` stage variable in the Lambda function ARN, so that it dynamically invokes the correct version based on the stage.
+
+For this demo, that invoke ARN has been added to the output of the Lambda function module, so that it can be easily referenced in the API Gateway integration configuration.
+
+#### Lambda Permissions for API Gateway
+
+The API Gateway needs permission to invoke the Lambda functions using the aliases. This is done by adding a permission resource for each alias.
+
+Keep a permission for the `$LATEST` version. It doesn't do any harm, and prevents your API from temporarily breaking when first implementing this strategy.
+
+[api-gateway-integration/gateway-integration.tf](iac/modules/api-gateway-integration/gateway-integration.tf) contains the API Gateway integration configuration, including the Lambda permissions for the aliases.
+
+### CI/CD Pipeline
+
+#### Deploying the Green Environment
+
+The CI/CD pipeline should deploy the new version to the `green` environment first, and then run tests against it. If the tests fail, the pipeline should stop.
+
+> [!NOTE]
+> If you only have manual tests, add a manual approval step in the pipeline after deploying to `green`, and only proceed to testing and promotion after approval.
+
+[build-deploy-and-promote.yml](.github/workflows/build-deploy-and-promote.yml) contains the GitHub Actions workflow for building, deploying, and promoting the new version.
+
+#### Promoting to Blue
+
+If the tests against `green` pass, the pipeline should deploy the new version to the `blue` environment, and then update the `blue` Lambda aliases to reference the versions referenced by `green`, and update the `previous` aliases to reference the versions that `blue` referenced before the update.
+
+#### Cleaning Up Old Versions
+
+After promotion, the pipeline should clean up any old Lambda versions that are no longer referenced by any aliases
+
 ## Project Structure
 
 | Path                                 | Description                                                                      |

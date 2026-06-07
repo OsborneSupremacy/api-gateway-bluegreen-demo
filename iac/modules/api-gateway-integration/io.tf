@@ -56,6 +56,11 @@ variable "lambda_function_arn" {
   type        = string
 }
 
+variable "blue_green_stage_variable_invoke_arn" {
+  description = "The invoke ARN of the Lambda function with stage variable substitution for blue-green deployment."
+  type        = string
+}
+
 variable "include_204_response" {
   type    = bool
   default = false

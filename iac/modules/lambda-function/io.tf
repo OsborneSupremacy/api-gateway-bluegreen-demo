@@ -24,6 +24,11 @@ variable "lambda_package_path" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "The AWS region where the Lambda function is deployed. Used for constructing ARNs."
+  type        = string
+}
+
 variable "environment_variables" {
   description = "A map of environment variables for the Lambda function."
   type        = map(string)
@@ -105,4 +110,9 @@ output "previous_alias_arn" {
 output "previous_alias_invoke_arn" {
   description = "The invoke ARN of the previous alias. Available only with blue_green versioning strategy."
   value       = local.use_blue_green ? one(aws_lambda_alias.previous_alias).invoke_arn : null
+}
+
+output "blue_green_stage_variable_invoke_arn" {
+  description = "The invoke ARN of the Lambda function with stage variable substitution for blue-green deployment. Available only with blue_green versioning strategy."
+  value       = local.use_blue_green ? "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${aws_lambda_function.lambda_function.arn}:$${stageVariables.alias}/invocations" : null
 }

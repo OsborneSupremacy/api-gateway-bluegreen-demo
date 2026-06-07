@@ -4,6 +4,7 @@ module "update_order_lambda" {
   description         = "Lambda function for updating an order in the ecommerce application."
   lambda_handler      = "Ecommerce.Order.Update::Ecommerce.Order.Update.Function::FunctionHandler"
   lambda_package_path = "../src/Ecommerce/Ecommerce.Order.Update/bin/UpdateOrder.zip"
+  aws_region          = data.aws_region.current.region
   versioning_strategy = "blue_green"
   orders_table_arn    = aws_dynamodb_table.orders_table.arn
   environment_variables = {
@@ -25,6 +26,7 @@ module "update_order_api_gateway_integration" {
   gateway_method_request_model_description          = "Model schema for the Update Order API request body"
   lambda_invoke_arn                                 = module.update_order_lambda.latest_invoke_arn
   lambda_function_arn                               = module.update_order_lambda.latest_arn
+  blue_green_stage_variable_invoke_arn              = module.update_order_lambda.blue_green_stage_variable_invoke_arn
   include_404_response                              = true
   include_409_response                              = false
   good_response_model_name                          = ""
