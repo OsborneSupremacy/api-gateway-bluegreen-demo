@@ -10,18 +10,6 @@ Blue/green deployment is a release strategy that reduces risk by running two ide
 
 This project demonstrates how to implement that pattern on AWS using API Gateway and Lambda.
 
-## How It Works
-
-**Lambda versioning and aliases** are the core mechanism. Each Lambda function has three aliases:
-
-| Alias      | Role                                                               |
-|------------|--------------------------------------------------------------------|
-| `green`    | The latest deployed version — used for validation before promotion |
-| `blue`     | The current production version — live traffic is served from here  |
-| `previous` | The last production version — used for quick rollback              |
-
-**API Gateway stages** map directly to these aliases. The `green` stage invokes the `green` alias; the `blue` stage invokes the `blue` alias. Promotion is a control-plane operation: updating which Lambda version an alias points to, with no redeployment required.
-
 ## Key Components
 
 If you attended the talk, these are the steps that I walked through. If you didn't attend, these are the key components to understand how the blue/green deployment strategy is implemented in this project.
@@ -53,6 +41,8 @@ Three Lambda function aliases are needed with this approach: `blue`, `green`, an
 
 [lambda-function/alias.tf](iac/modules/lambda-function/alias.tf) contains the Lambda alias configuration, including the `blue`, `green`, and `previous` aliases.
 
+![Green, Blue, and Previous](/doc/assets/green-blue-previous.png)
+
 ### API Gateway Integration
 
 The API Gateway integration for each Lambda function should reference the `alias` stage variable in the Lambda function ARN, so that it dynamically invokes the correct version based on the stage.
@@ -73,6 +63,8 @@ Keep a permission for the `$LATEST` version. It doesn't do any harm, and prevent
 
 The CI/CD pipeline should deploy the new version to the `green` environment first, and then run tests against it. If the tests fail, the pipeline should stop.
 
+![Testing Green In Production](/doc/assets/testing-green-in-production.png)
+
 > [!NOTE]
 > If you only have manual tests, add a manual approval step in the pipeline after deploying to `green`, and only proceed to testing and promotion after approval.
 
@@ -82,9 +74,11 @@ The CI/CD pipeline should deploy the new version to the `green` environment firs
 
 If the tests against `green` pass, the pipeline should deploy the new version to the `blue` environment, and then update the `blue` Lambda aliases to reference the versions referenced by `green`, and update the `previous` aliases to reference the versions that `blue` referenced before the update.
 
+![Promoting Green to Blue](/doc/assets/promoting-green-to-blue.png)
+
 #### Cleaning Up Old Versions
 
-After promotion, the pipeline should clean up any old Lambda versions that are no longer referenced by any aliases
+After promotion, the pipeline should clean up any old Lambda versions that are no longer referenced by any aliases.
 
 ## Project Structure
 
