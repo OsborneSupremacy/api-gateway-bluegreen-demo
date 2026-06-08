@@ -129,6 +129,12 @@ This project has two public-facing GitHub Actions workflows. In a real-world app
 6. Runs the integration test suite against `blue` to validate the promotion.
 7. Cleans up unused Lambda versions.
 
+### [rollback-lambda-alias.yml](.github/workflows/rollback-lambda-alias.yml) — Rollback
+
+Updates the `blue` alias to point back to the version that `previous` points to, effectively rolling back to the last known good version. (This workflow can also be used to rollback the `green` alias, in scenarios where we want to verify that the previous version of the API is still working as expected, before promoting it back to `blue`.)
+
+![Rolling Back](/doc/assets/rolling-back.png)
+
 #### Branches that Demonstrate Different Scenarios
 
 #### [`main`](https://github.com/OsborneSupremacy/api-gateway-bluegreen-demo/tree/main)
