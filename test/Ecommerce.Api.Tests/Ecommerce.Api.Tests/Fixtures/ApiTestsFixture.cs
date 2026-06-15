@@ -11,17 +11,17 @@ public sealed class ApiTestsFixture : IDisposable
 
     private readonly Randomizer _randomizer = new();
 
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
     private HttpClient? _httpClient;
-#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 
     private readonly Lock _httpClientLock = new();
 
     public HttpClient GetHttpClient()
     {
-        if(_httpClient is not null)
-            return _httpClient;
+        if(_httpClient is not null) return _httpClient;
+
         using var lockScope = _httpClientLock.EnterScope();
+
+        if (_httpClient is not null) return _httpClient;
 
 #if DEBUG
         DotEnv.Load();
