@@ -1,15 +1,24 @@
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.Lambda.RuntimeSupport;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using JetBrains.Annotations;
-
-[assembly: LambdaSerializer(typeof(SourceGeneratorLambdaJsonSerializer<Ecommerce.Authorizer.AuthorizerJsonSerializerContext>))]
 
 namespace Ecommerce.Authorizer;
 
 public class Function
 {
     private const string TokenEnvironmentVariable = "API_TOKEN";
+
+    public static async Task Main()
+    {
+        Func<APIGatewayCustomAuthorizerRequest, ILambdaContext, APIGatewayCustomAuthorizerResponse> handler = FunctionHandler;
+
+        await LambdaBootstrapBuilder
+            .Create(handler, new SourceGeneratorLambdaJsonSerializer<AuthorizerJsonSerializerContext>())
+            .Build()
+            .RunAsync();
+    }
 
     [UsedImplicitly]
     public static APIGatewayCustomAuthorizerResponse FunctionHandler(

@@ -12,8 +12,11 @@ public class JsonService
     }
 
     public string SerializeDefault<T>(T value) =>
-        JsonSerializer.Serialize(value, _jsonSerializerOptions);
+        JsonSerializer.Serialize(value, GetTypeInfo<T>());
 
     public T? DeserializeDefault<T>(string value) =>
-        JsonSerializer.Deserialize<T>(value, _jsonSerializerOptions);
+        JsonSerializer.Deserialize(value, GetTypeInfo<T>());
+
+    private JsonTypeInfo<T> GetTypeInfo<T>() =>
+        (JsonTypeInfo<T>)_jsonSerializerOptions.GetTypeInfo(typeof(T));
 }

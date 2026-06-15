@@ -5,6 +5,7 @@ module "create_order_lambda" {
   lambda_handler      = "Ecommerce.Order.Create::Ecommerce.Order.Create.Function::FunctionHandler"
   lambda_package_path = "../src/Ecommerce/Ecommerce.Order.Create/bin/CreateOrder.zip"
   aws_region          = data.aws_region.current.region
+  native_aot          = true
   versioning_strategy = "blue_green"
   orders_table_arn    = aws_dynamodb_table.orders_table.arn
   environment_variables = {

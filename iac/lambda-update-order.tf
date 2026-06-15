@@ -5,6 +5,7 @@ module "update_order_lambda" {
   lambda_handler      = "Ecommerce.Order.Update::Ecommerce.Order.Update.Function::FunctionHandler"
   lambda_package_path = "../src/Ecommerce/Ecommerce.Order.Update/bin/UpdateOrder.zip"
   aws_region          = data.aws_region.current.region
+  native_aot          = true
   versioning_strategy = "blue_green"
   orders_table_arn    = aws_dynamodb_table.orders_table.arn
   environment_variables = {

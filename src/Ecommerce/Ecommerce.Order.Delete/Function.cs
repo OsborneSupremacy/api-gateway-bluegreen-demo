@@ -1,9 +1,8 @@
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.Lambda.RuntimeSupport;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
-
-[assembly: LambdaSerializer(typeof(SourceGeneratorLambdaJsonSerializer<OrderDeleteJsonSerializerContext>))]
 
 namespace Ecommerce.Order.Delete;
 
@@ -11,6 +10,17 @@ public class Function
 {
     private IServiceProvider? _serviceProvider;
     private readonly Lock _serviceProviderLock = new();
+
+    public static async Task Main()
+    {
+        var function = new Function();
+        Func<APIGatewayProxyRequest, ILambdaContext, Task<APIGatewayProxyResponse>> handler = function.FunctionHandler;
+
+        await LambdaBootstrapBuilder
+            .Create(handler, new SourceGeneratorLambdaJsonSerializer<OrderDeleteJsonSerializerContext>())
+            .Build()
+            .RunAsync();
+    }
 
     private IServiceProvider GetServiceProvider()
     {

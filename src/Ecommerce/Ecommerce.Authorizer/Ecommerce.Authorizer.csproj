@@ -6,13 +6,17 @@
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
         <AWSProjectType>Lambda</AWSProjectType>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <PublishReadyToRun>true</PublishReadyToRun>
         <LangVersion>14</LangVersion>
+        <!-- Native AOT: build a self-contained executable that runs on the provided.al2023 custom runtime. -->
+        <OutputType>Exe</OutputType>
+        <PublishAot>true</PublishAot>
+        <StripSymbols>true</StripSymbols>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.3" />
         <PackageReference Include="Amazon.Lambda.Core" Version="2.8.1" />
+        <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.13.1" />
         <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.5" />
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
     </ItemGroup>
