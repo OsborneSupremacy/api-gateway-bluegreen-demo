@@ -34,7 +34,7 @@ variable "blue_stage_name" {
 }
 
 variable "green_stage_name" {
-  description = "The name of the API Gateway stage for the green environment (incomding / candidate)."
+  description = "The name of the API Gateway stage for the green environment (incoming / candidate)."
   type        = string
 }
 
