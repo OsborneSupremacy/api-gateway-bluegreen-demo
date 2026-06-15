@@ -11,18 +11,15 @@ public sealed class ApiTestsFixture : IDisposable
 
     private readonly Randomizer _randomizer = new();
 
-    private HttpClient? _httpClient;
+    private readonly Lazy<HttpClient> _httpClient;
 
-    private readonly Lock _httpClientLock = new();
+    public ApiTestsFixture() =>
+        _httpClient = new Lazy<HttpClient>(CreateHttpClient, LazyThreadSafetyMode.ExecutionAndPublication);
 
-    public HttpClient GetHttpClient()
+    public HttpClient GetHttpClient() => _httpClient.Value;
+
+    private HttpClient CreateHttpClient()
     {
-        if(_httpClient is not null) return _httpClient;
-
-        using var lockScope = _httpClientLock.EnterScope();
-
-        if (_httpClient is not null) return _httpClient;
-
 #if DEBUG
         DotEnv.Load();
 #endif
@@ -32,7 +29,7 @@ public sealed class ApiTestsFixture : IDisposable
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; ApiTests/1.0)");
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {GetApiToken()}");
         client.BaseAddress = baseAddress;
-        return _httpClient ??= client;
+        return client;
     }
 
     private string GetApiToken()
@@ -100,6 +97,7 @@ public sealed class ApiTestsFixture : IDisposable
 
     public void Dispose()
     {
-        _httpClient?.Dispose();
+        if (_httpClient.IsValueCreated)
+            _httpClient.Value.Dispose();
     }
 }
