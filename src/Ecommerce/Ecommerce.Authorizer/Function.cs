@@ -12,7 +12,7 @@ public class Function
 
     public static async Task Main()
     {
-        Func<APIGatewayCustomAuthorizerRequest, ILambdaContext, APIGatewayCustomAuthorizerResponse> handler = FunctionHandler;
+        var handler = FunctionHandler;
 
         await LambdaBootstrapBuilder
             .Create(handler, new SourceGeneratorLambdaJsonSerializer<AuthorizerJsonSerializerContext>())

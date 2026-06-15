@@ -14,7 +14,7 @@ public class Function
     public static async Task Main()
     {
         var function = new Function();
-        Func<APIGatewayProxyRequest, ILambdaContext, Task<APIGatewayProxyResponse>> handler = function.FunctionHandler;
+        var handler = function.FunctionHandler;
 
         await LambdaBootstrapBuilder
             .Create(handler, new SourceGeneratorLambdaJsonSerializer<OrderDeleteJsonSerializerContext>())
