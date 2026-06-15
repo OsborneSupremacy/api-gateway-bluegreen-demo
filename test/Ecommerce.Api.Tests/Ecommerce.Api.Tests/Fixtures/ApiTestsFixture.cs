@@ -12,7 +12,7 @@ public sealed class ApiTestsFixture : IDisposable
     private readonly Randomizer _randomizer = new();
 
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
-    private readonly HttpClient? _httpClient;
+    private HttpClient? _httpClient;
 #pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 
     private readonly Lock _httpClientLock = new();
@@ -29,11 +29,10 @@ public sealed class ApiTestsFixture : IDisposable
         var baseAddress = new Uri(EnvReader.GetStringValue("BASE_ADDRESS"));
 
         var client = new HttpClient();
-        //client.DefaultRequestHeaders.Add("Content-Type", MediaTypeNames.Application.Json);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; ApiTests/1.0)");
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {GetApiToken()}");
         client.BaseAddress = baseAddress;
-        return _httpClient ?? client;
+        return _httpClient ??= client;
     }
 
     private string GetApiToken()
