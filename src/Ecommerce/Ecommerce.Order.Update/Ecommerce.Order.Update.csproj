@@ -11,6 +11,8 @@
         <OutputType>Exe</OutputType>
         <PublishAot>true</PublishAot>
         <StripSymbols>true</StripSymbols>
+        <!-- provided.al2023 has no libicu; run without globalization support. -->
+        <InvariantGlobalization>true</InvariantGlobalization>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.13.1" />
