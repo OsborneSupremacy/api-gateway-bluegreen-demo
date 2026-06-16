@@ -29,23 +29,26 @@ build_lambda_aot() {
 
   rm -f "${project_dir}/bin/${zip_name}"
 
+  # Publish and rename to `bootstrap` inside the container (which runs as root), then
+  # chown the output back to the host user so the subsequent zip/cleanup on the host
+  # is not blocked by root-owned files.
   docker run --rm \
     --platform linux/arm64 \
     --entrypoint /bin/bash \
     -v "${REPO_ROOT}":/workspace \
     -w "/workspace/${rel_project_dir}" \
     "${AOT_BUILD_IMAGE}" \
-    -c "dotnet publish ${project_file} -o bin/publish -c ${CONFIGURATION} --runtime ${RUNTIME} --self-contained true"
+    -c "set -euo pipefail; \
+        dotnet publish ${project_file} -o bin/publish -c ${CONFIGURATION} --runtime ${RUNTIME} --self-contained true; \
+        if [[ ! -f bin/publish/bootstrap ]]; then mv bin/publish/${assembly_name} bin/publish/bootstrap; fi; \
+        chown -R $(id -u):$(id -g) bin/publish"
+
+  if [[ ! -f "${project_dir}/bin/publish/bootstrap" ]]; then
+    echo "error: Native AOT publish did not produce a 'bootstrap' executable in ${project_dir}/bin/publish" >&2
+    exit 1
+  fi
 
   pushd "${project_dir}/bin/publish" >/dev/null
-  if [[ ! -f bootstrap ]]; then
-    if [[ -f "${assembly_name}" ]]; then
-      mv "${assembly_name}" bootstrap
-    else
-      echo "error: Native AOT publish did not produce an executable in ${project_dir}/bin/publish" >&2
-      exit 1
-    fi
-  fi
   rm -f "../${zip_name}"
   zip -q "../${zip_name}" bootstrap
   popd >/dev/null
