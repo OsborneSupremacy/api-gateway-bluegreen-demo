@@ -22,7 +22,10 @@ permissions:
 jobs:
   apply:
     name: Build & Deploy
-    runs-on: ubuntu-latest
+    # arm64 runner so the linux/arm64 Native AOT build container runs natively
+    # (the build targets linux-arm64 / Graviton). An x64 runner would require
+    # QEMU emulation, which makes AOT compilation prohibitively slow.
+    runs-on: ubuntu-24.04-arm
 
     steps:
       - name: Checkout

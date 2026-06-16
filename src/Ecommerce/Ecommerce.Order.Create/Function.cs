@@ -1,32 +1,34 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.RuntimeSupport;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
-
-// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
-[assembly: LambdaSerializer(typeof(SourceGeneratorLambdaJsonSerializer<OrderCreateJsonSerializerContext>))]
 
 namespace Ecommerce.Order.Create;
 
 public class Function
 {
-    private IServiceProvider? _serviceProvider;
-    private readonly Lock _serviceProviderLock = new();
+    private readonly OrderService _orderService;
 
-    private IServiceProvider GetServiceProvider()
+    internal Function(OrderService orderService) =>
+        _orderService = orderService;
+
+    public static async Task Main()
     {
-        if(_serviceProvider is not null)
-            return _serviceProvider;
-        using var lockScope = _serviceProviderLock.EnterScope();
-        return _serviceProvider ??= ServiceProviderBuilder.Build();
+        var provider = ServiceProviderBuilder.Build();
+        var function = new Function(provider.GetRequiredService<OrderService>());
+        var handler = function.FunctionHandler;
+
+        await LambdaBootstrapBuilder
+            .Create(handler, new SourceGeneratorLambdaJsonSerializer<OrderCreateJsonSerializerContext>())
+            .Build()
+            .RunAsync();
     }
 
     [UsedImplicitly]
-    public async Task<APIGatewayProxyResponse> FunctionHandler(
+    public Task<APIGatewayProxyResponse> FunctionHandler(
         APIGatewayProxyRequest request,
         ILambdaContext _
         ) =>
-        await GetServiceProvider()
-            .GetRequiredService<OrderService>()
-            .FunctionHandler(request);
+        _orderService.FunctionHandler(request);
 }

@@ -50,6 +50,12 @@ variable "versioning_strategy" {
   }
 }
 
+variable "native_aot" {
+  description = "When true, the Lambda is published as a Native AOT executable and runs on the `provided.al2023` custom runtime with the `bootstrap` handler. When false, it runs on the managed `dotnet10` runtime using `lambda_handler`."
+  type        = bool
+  default     = false
+}
+
 # Outputs
 
 output "function_name" {

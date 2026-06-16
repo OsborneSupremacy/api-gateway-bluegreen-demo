@@ -6,10 +6,16 @@
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
         <AWSProjectType>Lambda</AWSProjectType>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <PublishReadyToRun>true</PublishReadyToRun>
         <LangVersion>14</LangVersion>
+        <!-- Native AOT: build a self-contained executable that runs on the provided.al2023 custom runtime. -->
+        <OutputType>Exe</OutputType>
+        <PublishAot>true</PublishAot>
+        <StripSymbols>true</StripSymbols>
+        <!-- provided.al2023 has no libicu; run without globalization support. -->
+        <InvariantGlobalization>true</InvariantGlobalization>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.13.1" />
         <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.5" />
         <PackageReference Include="FluentValidation" Version="12.1.1" />
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />

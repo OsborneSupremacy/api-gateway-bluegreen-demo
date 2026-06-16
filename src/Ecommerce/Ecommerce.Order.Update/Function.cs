@@ -1,32 +1,34 @@
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.Lambda.RuntimeSupport;
 using Amazon.Lambda.Serialization.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
-
-[assembly: LambdaSerializer(typeof(SourceGeneratorLambdaJsonSerializer<OrderUpdateJsonSerializerContext>))]
 
 namespace Ecommerce.Order.Update;
 
 public class Function
 {
-    private IServiceProvider? _serviceProvider;
-    private readonly Lock _serviceProviderLock = new();
+    private readonly OrderService _orderService;
 
-    private IServiceProvider GetServiceProvider()
+    internal Function(OrderService orderService) =>
+        _orderService = orderService;
+
+    public static async Task Main()
     {
-        if (_serviceProvider is not null)
-            return _serviceProvider;
+        var provider = ServiceProviderBuilder.Build();
+        var function = new Function(provider.GetRequiredService<OrderService>());
+        var handler = function.FunctionHandler;
 
-        using var lockScope = _serviceProviderLock.EnterScope();
-        return _serviceProvider ??= ServiceProviderBuilder.Build();
+        await LambdaBootstrapBuilder
+            .Create(handler, new SourceGeneratorLambdaJsonSerializer<OrderUpdateJsonSerializerContext>())
+            .Build()
+            .RunAsync();
     }
 
     [UsedImplicitly]
-    public async Task<APIGatewayProxyResponse> FunctionHandler(
+    public Task<APIGatewayProxyResponse> FunctionHandler(
         APIGatewayProxyRequest request,
         ILambdaContext _)
         =>
-            await GetServiceProvider()
-                .GetRequiredService<OrderService>()
-                .FunctionHandler(request);
+            _orderService.FunctionHandler(request);
 }
