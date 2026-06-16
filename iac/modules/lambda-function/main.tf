@@ -1,8 +1,8 @@
 resource "aws_lambda_function" "lambda_function" {
   function_name    = var.function_name
   description      = var.description
-  handler          = var.native_aot ? "bootstrap" : var.lambda_handler
-  runtime          = var.native_aot ? "provided.al2023" : "dotnet10"
+  handler          = "bootstrap"
+  runtime          = "provided.al2023"
   architectures    = ["arm64"]
   memory_size      = 128
   timeout          = 30

@@ -14,11 +14,6 @@ variable "description" {
   default     = "A Lambda function for processing orders in the ecommerce application."
 }
 
-variable "lambda_handler" {
-  description = "The handler for the Lambda function."
-  type        = string
-}
-
 variable "lambda_package_path" {
   description = "The path to the Lambda function deployment package."
   type        = string
@@ -48,12 +43,6 @@ variable "versioning_strategy" {
     condition     = var.versioning_strategy == "" || var.versioning_strategy == "blue_green"
     error_message = "versioning_strategy must be an empty string or 'blue_green'."
   }
-}
-
-variable "native_aot" {
-  description = "When true, the Lambda is published as a Native AOT executable and runs on the `provided.al2023` custom runtime with the `bootstrap` handler. When false, it runs on the managed `dotnet10` runtime using `lambda_handler`."
-  type        = bool
-  default     = false
 }
 
 # Outputs
