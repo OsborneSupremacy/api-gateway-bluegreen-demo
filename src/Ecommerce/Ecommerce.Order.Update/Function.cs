@@ -8,12 +8,15 @@ namespace Ecommerce.Order.Update;
 
 public class Function
 {
-    private IServiceProvider? _serviceProvider;
-    private readonly Lock _serviceProviderLock = new();
+    private readonly OrderService _orderService;
+
+    internal Function(OrderService orderService) =>
+        _orderService = orderService;
 
     public static async Task Main()
     {
-        var function = new Function();
+        var provider = ServiceProviderBuilder.Build();
+        var function = new Function(provider.GetRequiredService<OrderService>());
         var handler = function.FunctionHandler;
 
         await LambdaBootstrapBuilder
@@ -22,21 +25,10 @@ public class Function
             .RunAsync();
     }
 
-    private IServiceProvider GetServiceProvider()
-    {
-        if (_serviceProvider is not null)
-            return _serviceProvider;
-
-        using var lockScope = _serviceProviderLock.EnterScope();
-        return _serviceProvider ??= ServiceProviderBuilder.Build();
-    }
-
     [UsedImplicitly]
-    public async Task<APIGatewayProxyResponse> FunctionHandler(
+    public Task<APIGatewayProxyResponse> FunctionHandler(
         APIGatewayProxyRequest request,
         ILambdaContext _)
         =>
-            await GetServiceProvider()
-                .GetRequiredService<OrderService>()
-                .FunctionHandler(request);
+            _orderService.FunctionHandler(request);
 }
