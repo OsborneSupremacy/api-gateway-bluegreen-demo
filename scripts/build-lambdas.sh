@@ -31,7 +31,8 @@ build_lambda_aot() {
 
   # Publish and rename to `bootstrap` inside the container (which runs as root), then
   # chown the output back to the host user so the subsequent zip/cleanup on the host
-  # is not blocked by root-owned files.
+  # is not blocked by root-owned files. `bin` (not just `bin/publish`) is chowned so the
+  # host can write the zip into it.
   docker run --rm \
     --platform linux/arm64 \
     --entrypoint /bin/bash \
@@ -41,7 +42,7 @@ build_lambda_aot() {
     -c "set -euo pipefail; \
         dotnet publish ${project_file} -o bin/publish -c ${CONFIGURATION} --runtime ${RUNTIME} --self-contained true; \
         if [[ ! -f bin/publish/bootstrap ]]; then mv bin/publish/${assembly_name} bin/publish/bootstrap; fi; \
-        chown -R $(id -u):$(id -g) bin/publish"
+        chown -R $(id -u):$(id -g) bin"
 
   if [[ ! -f "${project_dir}/bin/publish/bootstrap" ]]; then
     echo "error: Native AOT publish did not produce a 'bootstrap' executable in ${project_dir}/bin/publish" >&2
