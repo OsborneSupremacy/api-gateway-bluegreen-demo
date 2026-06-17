@@ -53,7 +53,8 @@ For this demo, that invoke ARN has been added to the output of the Lambda functi
 
 The API Gateway needs permission to invoke the Lambda functions using the aliases. This is done by adding a permission resource for each alias.
 
-Keep a permission for the `$LATEST` version. It doesn't do any harm, and prevents your API from temporarily breaking when first implementing this strategy.
+> [!NOTE]
+> Keep a permission for the `$LATEST` version. It doesn't do any harm, and prevents your API from temporarily breaking when first implementing this strategy.
 
 [api-gateway-integration/gateway-integration.tf](iac/modules/api-gateway-integration/gateway-integration.tf) contains the API Gateway integration configuration, including the Lambda permissions for the aliases.
 
@@ -72,7 +73,11 @@ The CI/CD pipeline should deploy the new version to the `green` environment firs
 
 #### Promoting to Blue
 
-If the tests against `green` pass, the pipeline should deploy the new version to the `blue` environment, and then update the `blue` Lambda aliases to reference the versions referenced by `green`, and update the `previous` aliases to reference the versions that `blue` referenced before the update.
+If the tests against `green` pass, the pipeline then:
+
+1. Deploys the API gateway to the `blue` stage.
+2. Updates the `blue` Lambda aliases to reference the versions referenced by `green`.
+3. Updates the `previous` aliases to reference the versions that `blue` referenced before the update.
 
 ![Promoting Green to Blue](/doc/assets/promoting-green-to-blue.png)
 
@@ -107,7 +112,7 @@ All endpoints are protected by a custom Lambda authorizer.
 
 ## CI/CD Pipelines
 
-This project has two public-facing GitHub Actions workflows. In a real-world application, you would likely want to break these into additional workflows for better separation of concerns.
+This project has two public-facing GitHub Actions workflows. In a real-world application, you would want to break these into additional workflows for better separation of concerns.
 
 > [!WARNING]
 > The Build & Deploy GitHub action automatically deploys Terraform without any manual approval step. This is intentional for demonstration purposes, but in a production environment you should implement an approval step before deploying infrastructure changes.
