@@ -21,9 +21,6 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "bro-tfstate"
     use_lockfile = true
-    key          = "ecommerce-authorizer"
-    region       = "us-east-1"
   }
 }
