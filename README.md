@@ -64,13 +64,6 @@ The custom Lambda authorizer is **deliberately excluded from the blue/green stra
 
 An API Gateway authorizer is scoped to the REST API, not to a stage, so it has no stage context and cannot use the `${stageVariables.alias}` mechanism that the order Lambda integrations rely on. There are ways to achieve blue/green for authorizers, but they are out of scope for this demo.
 
-Because of this, the authorizer is split across two places:
-
-- The authorizer **Lambda function** (and its API token) lives in a separate Terraform project, [iac/authorizer/](iac/authorizer), with its own state (S3 key `ecommerce-authorizer`). It is deployed on `$LATEST` (no versions or aliases) and exposes the function's name and ARNs as Terraform outputs.
-- The `aws_api_gateway_authorizer` resource and its Lambda invoke permission remain in the main project ([api-gateway-authorizer.tf](iac/api-gateway-authorizer.tf)), which reads the function's outputs from the authorizer project via `terraform_remote_state`.
-
-This makes the dependency one-directional: the authorizer project is applied first, and the main project consumes its outputs.
-
 > [!IMPORTANT]
 > On a fresh environment, deploy the authorizer first (the [Deploy Authorizer](.github/workflows/deploy-authorizer.yml) workflow), then deploy the main infrastructure. The main project's `terraform_remote_state` lookup requires the authorizer state to already exist.
 
