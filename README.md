@@ -58,6 +58,22 @@ The API Gateway needs permission to invoke the Lambda functions using the aliase
 
 [api-gateway-integration/gateway-integration.tf](iac/modules/api-gateway-integration/gateway-integration.tf) contains the API Gateway integration configuration, including the Lambda permissions for the aliases.
 
+### The Custom Authorizer (Excluded from Blue/Green)
+
+The custom Lambda authorizer is **deliberately excluded from the blue/green strategy** and is deployed by its own independent pipeline.
+
+An API Gateway authorizer is scoped to the REST API, not to a stage, so it has no stage context and cannot use the `${stageVariables.alias}` mechanism that the order Lambda integrations rely on. There are ways to achieve blue/green for authorizers, but they are out of scope for this demo.
+
+Because of this, the authorizer is split across two places:
+
+- The authorizer **Lambda function** (and its API token) lives in a separate Terraform project, [iac/authorizer/](iac/authorizer), with its own state (S3 key `ecommerce-authorizer`). It is deployed on `$LATEST` (no versions or aliases) and exposes the function's name and ARNs as Terraform outputs.
+- The `aws_api_gateway_authorizer` resource and its Lambda invoke permission remain in the main project ([api-gateway-authorizer.tf](iac/api-gateway-authorizer.tf)), which reads the function's outputs from the authorizer project via `terraform_remote_state`.
+
+This makes the dependency one-directional: the authorizer project is applied first, and the main project consumes its outputs.
+
+> [!IMPORTANT]
+> On a fresh environment, deploy the authorizer first (the [Deploy Authorizer](.github/workflows/deploy-authorizer.yml) workflow), then deploy the main infrastructure. The main project's `terraform_remote_state` lookup requires the authorizer state to already exist.
+
 ### CI/CD Pipeline
 
 #### Deploying the Green Environment
@@ -92,6 +108,7 @@ After promotion, the pipeline should clean up any old Lambda versions that are n
 | `src/Ecommerce/`                     | .NET Lambda functions implementing a simple e-commerce orders API                |
 | `test/Ecommerce.Api.Tests/`          | Integration test suite that validates the API end-to-end                         |
 | `iac/`                               | Terraform infrastructure — API Gateway, Lambda functions, DynamoDB, ACM, Route53 |
+| `iac/authorizer/`                    | Separate Terraform project for the custom authorizer Lambda (own state/pipeline) |
 | `schemas/`                           | JSON schemas for API Gateway request/response validation                         |
 | `postman/`                           | Postman collection and environments for manual testing                           |
 | `.github/workflows/`                 | GitHub Actions CI/CD pipelines                                                   |
@@ -108,11 +125,11 @@ The API is a simple CRUD orders service with four Lambda functions:
 - `PUT /v1/order` — Update order
 - `DELETE /v1/order` — Delete order
 
-All endpoints are protected by a custom Lambda authorizer.
+All endpoints are protected by a custom Lambda authorizer. The authorizer is deployed independently of the blue/green pipeline — see [The Custom Authorizer](#the-custom-authorizer-excluded-from-bluegreen).
 
 ## CI/CD Pipelines
 
-This project has two public-facing GitHub Actions workflows. In a real-world application, you would want to break these into additional workflows for better separation of concerns.
+This project has three public-facing GitHub Actions workflows. In a real-world application, you would want to break these into additional workflows for better separation of concerns.
 
 > [!WARNING]
 > The Build & Deploy GitHub action automatically deploys Terraform without any manual approval step. This is intentional for demonstration purposes, but in a production environment you should implement an approval step before deploying infrastructure changes.
@@ -140,6 +157,12 @@ Updates the `blue` alias to point back to the version that `previous` points to,
 
 ![Rolling Back](/doc/assets/rolling-back.png)
 
+### [deploy-authorizer.yml](.github/workflows/deploy-authorizer.yml) — Deploy Authorizer
+
+Deploys **only** the custom Lambda authorizer from its separate Terraform project ([iac/authorizer/](iac/authorizer)). This pipeline is intentionally simple — build the authorizer Lambda, then `terraform apply` — with **no** blue/green steps (no green/blue stage deploys, alias promotion, or version cleanup), because the authorizer cannot use stage variables.
+
+Run this workflow before the main pipeline on a fresh environment, and whenever the authorizer Lambda changes. It uses its own Terraform state (S3 key `ecommerce-authorizer`), independent of the main infrastructure.
+
 #### Branches that Demonstrate Different Scenarios
 
 #### [`main`](https://github.com/OsborneSupremacy/api-gateway-bluegreen-demo/tree/main)
@@ -165,6 +188,7 @@ Simulates a breaking change in the API Gateway configuration, causing the integr
 - [The custom authorizer Lambda function](src/Ecommerce/Ecommerce.Authorizer) is a naive implementation of an API Gateway custom authorizer.
     - It is not intended for production use.
     - It is included because this API Gateway is exposed to the public internet, and the authorizer offers some protection against unauthorized access.
+    - It is deployed by its own pipeline and lives in a separate Terraform project ([iac/authorizer/](iac/authorizer)), because an API Gateway authorizer is REST-API-scoped (not stage-scoped) and therefore cannot participate in the stage-variable-based blue/green strategy used by the order Lambdas.
 
 ## Q&A
 

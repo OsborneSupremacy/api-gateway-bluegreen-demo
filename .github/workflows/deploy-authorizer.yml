@@ -1,0 +1,32 @@
+name: Deploy Authorizer
+
+# Deploys ONLY the custom Lambda authorizer. The authorizer is intentionally
+# excluded from the blue-green pipeline: an API Gateway authorizer is scoped to
+# the REST API rather than a stage, so it cannot use the ${stageVariables.alias}
+# mechanism the order Lambdas rely on. It therefore has its own Terraform state
+# (key: ecommerce-authorizer) and this independent, single-environment pipeline.
+#
+# On a fresh environment, run this workflow BEFORE the main
+# "Build, Deploy and Promote" workflow: the main project reads this project's
+# outputs (the authorizer function ARNs) via terraform_remote_state.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-authorizer:
+    name: Deploy Authorizer
+    uses: ./.github/workflows/.reusable-deploy-authorizer.yml
+    with:
+      tfstate_bucket: bro-tfstate
+      tfstate_key: ecommerce-authorizer
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}

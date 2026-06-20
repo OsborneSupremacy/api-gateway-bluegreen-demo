@@ -21,13 +21,6 @@ variable "root_domain_name" {
   type        = string
 }
 
-variable "api_token" {
-  description = "Static bearer token accepted by the API authorizer. Omit to have a random token generated. This is only used for demonstration purposes - in a real application, you'd want a more robust authentication and authorization solution."
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
 variable "blue_stage_name" {
   description = "The name of the API Gateway stage for the blue environment (production-serving)."
   type        = string
