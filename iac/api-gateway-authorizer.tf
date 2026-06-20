@@ -5,12 +5,8 @@
 # authorizer project's remote state. The authorizer project must be applied
 # before this project (see README).
 data "terraform_remote_state" "authorizer" {
-  backend = "s3"
-  config = {
-    bucket = "bro-tfstate"
-    key    = "ecommerce-authorizer"
-    region = "us-east-1"
-  }
+  backend = var.authorizer_remote_state_backend
+  config  = var.authorizer_remote_state_config
 }
 
 resource "aws_api_gateway_authorizer" "ecommerce_authorizer" {

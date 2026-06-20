@@ -58,6 +58,17 @@ variable "cloudfront_price_class" {
   }
 }
 
+variable "authorizer_remote_state_backend" {
+  description = "Terraform backend type used by the authorizer project's remote state data source."
+  type        = string
+  default     = "s3"
+}
+
+variable "authorizer_remote_state_config" {
+  description = "Backend configuration map for the authorizer project's remote state (for example: bucket, key, region)."
+  type        = map(string)
+}
+
 output "ecommerce_domain_name" {
   description = "The delegated ecommerce subdomain used for API DNS records."
   value       = aws_route53_zone.ecommerce_subdomain.name
