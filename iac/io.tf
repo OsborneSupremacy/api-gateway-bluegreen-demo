@@ -21,13 +21,6 @@ variable "root_domain_name" {
   type        = string
 }
 
-variable "api_token" {
-  description = "Static bearer token accepted by the API authorizer. Omit to have a random token generated. This is only used for demonstration purposes - in a real application, you'd want a more robust authentication and authorization solution."
-  type        = string
-  sensitive   = true
-  default     = ""
-}
-
 variable "blue_stage_name" {
   description = "The name of the API Gateway stage for the blue environment (production-serving)."
   type        = string
@@ -63,6 +56,17 @@ variable "cloudfront_price_class" {
     condition     = contains(["PriceClass_All", "PriceClass_200", "PriceClass_100"], var.cloudfront_price_class)
     error_message = "cloudfront_price_class must be one of: PriceClass_All, PriceClass_200, PriceClass_100."
   }
+}
+
+variable "authorizer_remote_state_backend" {
+  description = "Terraform backend type used by the authorizer project's remote state data source."
+  type        = string
+  default     = "s3"
+}
+
+variable "authorizer_remote_state_config" {
+  description = "Backend configuration map for the authorizer project's remote state (for example: bucket, key, region)."
+  type        = map(string)
 }
 
 output "ecommerce_domain_name" {

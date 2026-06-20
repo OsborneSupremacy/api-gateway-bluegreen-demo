@@ -12,3 +12,10 @@ green_cloudfront_web_acl_name = "CreatedByCloudFront-ff8ff432"
 # to reduce noise from any potential malicious actors in other countries scanning for open API endpoints.
 cloudfront_geo_whitelist = ["US"]
 cloudfront_price_class   = "PriceClass_All" # Required for Distributions with the Free pricing plan
+
+authorizer_remote_state_backend = "s3"
+authorizer_remote_state_config = {
+  bucket = "bro-tfstate"
+  key    = "ecommerce-authorizer"
+  region = "us-east-1"
+}

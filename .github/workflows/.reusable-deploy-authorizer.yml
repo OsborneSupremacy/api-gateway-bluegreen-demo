@@ -1,4 +1,4 @@
-name: _ build lambda functions and apply terraform
+name: _ build authorizer lambda and apply terraform
 
 on:
   workflow_call:
@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       tfstate_key:
-        description: "Key prefix for Terraform state files in the S3 bucket"
+        description: "Key for the authorizer Terraform state in the S3 bucket"
         required: true
         type: string
     secrets:
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   apply:
-    name: Build & Deploy
+    name: Build & Deploy Authorizer
     # arm64 runner so the linux/arm64 Native AOT build container runs natively
     # (the build targets linux-arm64 / Graviton). An x64 runner would require
     # QEMU emulation, which makes AOT compilation prohibitively slow.
@@ -36,10 +36,8 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Build & package Lambdas
-        # The authorizer Lambda is built and deployed by its own pipeline
-        # (deploy-authorizer.yml); this pipeline only needs the order Lambdas.
-        run: bash scripts/build-lambdas.sh orders
+      - name: Build & package authorizer Lambda
+        run: bash scripts/build-lambdas.sh authorizer
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -51,7 +49,7 @@ jobs:
         uses: hashicorp/setup-terraform@v4
 
       - name: Terraform Init
-        working-directory: iac
+        working-directory: iac/authorizer
         run: |
           terraform init \
             -backend-config="bucket=${{ inputs.tfstate_bucket }}" \
@@ -59,13 +57,13 @@ jobs:
             -backend-config="region=us-east-1"
 
       - name: Terraform Validate
-        working-directory: iac
+        working-directory: iac/authorizer
         run: terraform validate
 
       - name: Terraform Plan
-        working-directory: iac
+        working-directory: iac/authorizer
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
-        working-directory: iac
+        working-directory: iac/authorizer
         run: terraform apply -auto-approve tfplan

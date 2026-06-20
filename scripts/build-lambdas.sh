@@ -55,15 +55,47 @@ build_lambda_aot() {
   popd >/dev/null
 }
 
-build_lambda_aot "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Create" "CreateOrder.zip" "Ecommerce.Order.Create.csproj"
-build_lambda_aot "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Get" "GetOrder.zip" "Ecommerce.Order.Get.csproj"
-build_lambda_aot "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Update" "UpdateOrder.zip" "Ecommerce.Order.Update.csproj"
-build_lambda_aot "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Delete" "DeleteOrder.zip" "Ecommerce.Order.Delete.csproj"
-build_lambda_aot "${REPO_ROOT}/src/Ecommerce/Ecommerce.Authorizer" "Authorizer.zip" "Ecommerce.Authorizer.csproj"
+# Build the order Lambdas (deployed by the main blue-green pipeline).
+build_orders() {
+  build_lambda_aot "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Create" "CreateOrder.zip" "Ecommerce.Order.Create.csproj"
+  build_lambda_aot "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Get" "GetOrder.zip" "Ecommerce.Order.Get.csproj"
+  build_lambda_aot "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Update" "UpdateOrder.zip" "Ecommerce.Order.Update.csproj"
+  build_lambda_aot "${REPO_ROOT}/src/Ecommerce/Ecommerce.Order.Delete" "DeleteOrder.zip" "Ecommerce.Order.Delete.csproj"
+}
+
+# Build the authorizer Lambda (deployed by its own independent pipeline).
+build_authorizer() {
+  build_lambda_aot "${REPO_ROOT}/src/Ecommerce/Ecommerce.Authorizer" "Authorizer.zip" "Ecommerce.Authorizer.csproj"
+}
+
+# Select which Lambdas to build. With no arguments, build everything.
+# Accepted targets: `orders`, `authorizer`, `all`.
+TARGET="${1:-all}"
+
+case "${TARGET}" in
+  orders)
+    build_orders
+    ;;
+  authorizer)
+    build_authorizer
+    ;;
+  all)
+    build_orders
+    build_authorizer
+    ;;
+  *)
+    echo "error: unknown build target '${TARGET}'. Expected one of: orders, authorizer, all." >&2
+    exit 1
+    ;;
+esac
 
 echo "Done. Lambda packages created:"
-echo "- src/Ecommerce/Ecommerce.Order.Create/bin/CreateOrder.zip"
-echo "- src/Ecommerce/Ecommerce.Order.Get/bin/GetOrder.zip"
-echo "- src/Ecommerce/Ecommerce.Order.Update/bin/UpdateOrder.zip"
-echo "- src/Ecommerce/Ecommerce.Order.Delete/bin/DeleteOrder.zip"
-echo "- src/Ecommerce/Ecommerce.Authorizer/bin/Authorizer.zip"
+if [[ "${TARGET}" == "orders" || "${TARGET}" == "all" ]]; then
+  echo "- src/Ecommerce/Ecommerce.Order.Create/bin/CreateOrder.zip"
+  echo "- src/Ecommerce/Ecommerce.Order.Get/bin/GetOrder.zip"
+  echo "- src/Ecommerce/Ecommerce.Order.Update/bin/UpdateOrder.zip"
+  echo "- src/Ecommerce/Ecommerce.Order.Delete/bin/DeleteOrder.zip"
+fi
+if [[ "${TARGET}" == "authorizer" || "${TARGET}" == "all" ]]; then
+  echo "- src/Ecommerce/Ecommerce.Authorizer/bin/Authorizer.zip"
+fi

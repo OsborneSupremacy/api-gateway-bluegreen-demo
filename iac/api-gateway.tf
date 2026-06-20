@@ -14,7 +14,6 @@ resource "aws_api_gateway_deployment" "ecommerce_deployment" {
     create_before_destroy = true
   }
   depends_on = [
-    module.authorizer_lambda,
     aws_api_gateway_authorizer.ecommerce_authorizer,
     module.create_order_api_gateway_integration,
     module.get_order_api_gateway_integration,
