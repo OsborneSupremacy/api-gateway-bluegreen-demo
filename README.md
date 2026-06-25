@@ -214,3 +214,11 @@ If a team is not doing any kind of blue/green deployment strategy today, this re
 No, the aliases and stages can be named anything. I would recommend using names that are also names of environments, to avoid overloading those names. e.g. if you have a `uat` and `prod` environment, do not name your API Gateway stages `uat` and `prod`.
 
 I like `blue` and `green` because they rarely conflict with environment names, and within the AWS ecosystem, AWS services that support native blue/green deployment strategies use those names (e.g. [ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-blue-green.html), [Aurora](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/blue-green-deployments-creating.html), [Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.CNAMESwap.html)).
+
+### Testing in Production Involves Executing Unsafe, Destructive, Expensive and/or Irreversible Operations
+
+Testing in production becomes difficult when requests can trigger destructive, expensive, or irreversible side effects. There is no perfect solution, but the general rule is to avoid executing those operations for test traffic.
+
+To do that, the application needs a reliable way to identify test requests. That signal can be passed in request context, or inferred from consumer identity if dedicated test consumers are used. When a request is identified as test traffic, the application should skip the unsafe operation or replace it with a safe alternative, such as recording that the action would have been performed.
+
+Relying on the test harness to clean up real side effects after the fact is usually not recommended, because it is hard to predict every downstream consequence. In some applications that tradeoff may be acceptable, but it should be an explicit decision rather than the default.
