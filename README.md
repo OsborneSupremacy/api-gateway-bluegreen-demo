@@ -215,9 +215,13 @@ No, the aliases and stages can be named anything. I would recommend using names 
 
 I like `blue` and `green` because they rarely conflict with environment names, and within the AWS ecosystem, AWS services that support native blue/green deployment strategies use those names (e.g. [ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-type-blue-green.html), [Aurora](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/blue-green-deployments-creating.html), [Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.CNAMESwap.html)).
 
-### Testing in Production Involves Executing Unsafe, Destructive, Expensive and/or Irreversible Operations
+### Isn't testing in production impractical when it involves executing unsafe, destructive, expensive and/or irreversible operations?
 
-Testing in production becomes difficult when requests can trigger destructive, expensive, or irreversible side effects. There is no perfect solution, but the general rule is to avoid executing those operations for test traffic.
+Testing in production becomes difficult when requests can trigger destructive, expensive, or irreversible side effects.
+
+To illustrate, consider an API that starts a dangerous industrial machine. Obviously, test requests cannot be allowed to do that, so test requests must be handled differently from real requests.
+
+Following blast radius and safe-by-default principles, test requests should not execute destructive or irreversible operations.
 
 To do that, the application needs a reliable way to identify test requests. That signal can be passed in request context, or inferred from consumer identity if dedicated test consumers are used. When a request is identified as test traffic, the application should skip the unsafe operation or replace it with a safe alternative, such as recording that the action would have been performed.
 
