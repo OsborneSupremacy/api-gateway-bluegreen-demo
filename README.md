@@ -217,12 +217,15 @@ I like `blue` and `green` because they rarely conflict with environment names, a
 
 ### Isn't testing in production impractical when it involves executing unsafe, destructive, expensive and/or irreversible operations?
 
-Testing in production becomes difficult when requests can trigger destructive, expensive, or irreversible side effects.
+This is an issue for any testing in production scenario, not just this blue/green deployment strategy. In order to be able to test in production _at all_, you need a solution for this.
 
-To illustrate, consider an API that starts a dangerous industrial machine. Obviously, test requests cannot be allowed to do that, so test requests must be handled differently from real requests.
+How you deal with it depends on what your API does, and whether it is safe to execute those operations in a test context.
 
-Following blast radius and safe-by-default principles, test requests should not execute destructive or irreversible operations.
+There are many factors that affect whether an organization can safely test in production.
 
-To do that, the application needs a reliable way to identify test requests. That signal can be passed in request context, or inferred from consumer identity if dedicated test consumers are used. When a request is identified as test traffic, the application should skip the unsafe operation or replace it with a safe alternative, such as recording that the action would have been performed.
+Some APIs may not have to do anything special for test requests, allowing them to be run exactly as non-test requests. Maybe there's a downstream system that needs to exclude test consumers from billing, and that's the only special handling that needs to be done. In that case, the test requests can be treated the same as non-test requests.
 
-Relying on the test harness to clean up real side effects after the fact is usually not recommended, because it is hard to predict every downstream consequence. In some applications that tradeoff may be acceptable, but it should be an explicit decision rather than the default.
+Other APIs -- such as those that initiate building demolition sequences -- obviously cannot treat test requests the same as non-test requests. For these APIs, you need to implement a mechanism to safely test in production, such as a dry run mode, a test flag that is passed in the request, or a configuration setting of API consumers that identifies that as test consumer.
+
+Testing in production is a complex topic, and I cannot cover all the scenarios here. The important thing is to recognize that testing in production is a risk, and to implement a strategy for mitigating that risk.
+
