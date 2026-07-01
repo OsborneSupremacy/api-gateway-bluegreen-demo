@@ -229,3 +229,5 @@ Other APIs -- such as those that initiate building demolition sequences -- obvio
 
 Testing in production is a complex topic, and I cannot cover all the scenarios here. The important thing is to recognize that testing in production is a risk, and to implement a strategy for mitigating that risk.
 
+> [!NOTE]
+> If you currently don't have a safe way to test in production, take the time to figure out a solution before implementing this blue/green deployment strategy.
