@@ -187,7 +187,9 @@ Simulates a breaking change in the API Gateway configuration, causing the integr
 
 ### There's nothing novel about this approach. Why is a reference implementation useful?
 
-Teams probably know that a blue/green deployment strategy is possible with API Gateway and Lambda. But like most new patterns, someone has to be the first to implement it and share the details. Without someone doing that, a theoretical good idea may not be adopted for a long time, if ever.
+Teams probably know that a blue/green deployment strategy is possible with API Gateway and Lambda. But like most new patterns, someone (not in the absolute sense -- someone on a team or within an organization) has to be the first to implement it and share the details. Without someone doing that, a theoretical good idea may not be adopted for a long time, if ever.
+
+In addition, in-place upgrades generally work well with API Gateway and Lambda. They are simple, and it's most likely rare that a change that passes testing in lower environments will fail in production. That can contribute to inertia and a lack of adoption of this approach.
 
 ### Is this strategy needed if I have one or more lower environments before production?
 
