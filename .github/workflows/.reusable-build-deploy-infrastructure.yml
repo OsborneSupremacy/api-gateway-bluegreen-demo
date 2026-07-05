@@ -67,6 +67,7 @@ jobs:
           chmod +x "${SCRIPT_FILE}"
 
           bash "${SCRIPT_FILE}" \
+            --repo-root "${GITHUB_WORKSPACE}" \
             --target orders \
             --lambda "orders|src/Ecommerce/Ecommerce.Order.Create|CreateOrder.zip|Ecommerce.Order.Create.csproj" \
             --lambda "orders|src/Ecommerce/Ecommerce.Order.Get|GetOrder.zip|Ecommerce.Order.Get.csproj" \

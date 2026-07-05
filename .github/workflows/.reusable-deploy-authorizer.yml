@@ -65,6 +65,7 @@ jobs:
           chmod +x "${SCRIPT_FILE}"
 
           bash "${SCRIPT_FILE}" \
+            --repo-root "${GITHUB_WORKSPACE}" \
             --target authorizer \
             --lambda "authorizer|src/Ecommerce/Ecommerce.Authorizer|Authorizer.zip|Ecommerce.Authorizer.csproj"
 
