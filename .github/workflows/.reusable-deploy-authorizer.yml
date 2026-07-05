@@ -22,9 +22,6 @@ permissions:
 jobs:
   apply:
     name: Build & Deploy Authorizer
-    env:
-      REUSABLE_SCRIPT_SHA: 5a9b6b0213dfc38272d342fd24b4fdf72567e142
-      REUSABLE_SCRIPT_PATH: scripts/build-net-aot-lambda-function.sh
     # arm64 runner so the linux/arm64 Native AOT build container runs natively
     # (the build targets linux-arm64 / Graviton). An x64 runner would require
     # QEMU emulation, which makes AOT compilation prohibitively slow.
@@ -34,40 +31,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: "10.0.x"
-
       - name: Build & package authorizer Lambda
-        run: |
-          set -euo pipefail
-
-          SCRIPT_URL="https://raw.githubusercontent.com/OsborneSupremacy/ahzborn-reusable/${REUSABLE_SCRIPT_SHA}/${REUSABLE_SCRIPT_PATH}"
-          SCRIPT_FILE="./build-net-aot-lambda-function.sh"
-
-          echo "Using reusable build script commit: ${REUSABLE_SCRIPT_SHA}"
-
-          if command -v curl >/dev/null 2>&1; then
-            curl -fsSL "${SCRIPT_URL}" -o "${SCRIPT_FILE}"
-          elif command -v wget >/dev/null 2>&1; then
-            wget -qO "${SCRIPT_FILE}" "${SCRIPT_URL}"
-          else
-            echo "error: neither curl nor wget is available on this runner" >&2
-            exit 1
-          fi
-
-          if [[ ! -s "${SCRIPT_FILE}" ]]; then
-            echo "error: failed to download reusable build script from ${SCRIPT_URL}" >&2
-            exit 1
-          fi
-
-          chmod +x "${SCRIPT_FILE}"
-
-          bash "${SCRIPT_FILE}" \
-            --repo-root "${GITHUB_WORKSPACE}" \
-            --target authorizer \
-            --lambda "authorizer|src/Ecommerce/Ecommerce.Authorizer|Authorizer.zip|Ecommerce.Authorizer.csproj"
+        uses: OsborneSupremacy/ahzborn-reusable/.github/actions/build-net-aot-lambda@v1.0.1
+        with:
+          repo-root: ${{ github.workspace }}
+          target: authorizer
+          lambda-specs: |
+            authorizer|src/Ecommerce/Ecommerce.Authorizer|Authorizer.zip|Ecommerce.Authorizer.csproj
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
