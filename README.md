@@ -2,6 +2,8 @@
 
 A reference implementation of a blue/green deployment strategy using **AWS API Gateway stages** and **Lambda function aliases**, built as a companion to a conference talk for [AWS Midwest Community Day 2026](https://www.midwestcommunityday.com).
 
+See the recording at the [AWS Community Day Midwest YouTube channel](https://www.youtube.com/watch?v=GegInqiuccY&t=359s).
+
 ![Blue/Green deployment with Lambda aliases](doc/assets/aliases-new-deploy-5-with-previous.gif)
 
 ## Overview
