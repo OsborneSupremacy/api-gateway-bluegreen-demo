@@ -6,6 +6,9 @@ See the recording at the [AWS Community Day Midwest YouTube channel](https://www
 
 ![Blue/Green deployment with Lambda aliases](doc/assets/aliases-new-deploy-5-with-previous.gif)
 
+> [!IMPORTANT]
+> **Update since the talk: the custom authorizer now uses blue/green too.** When I gave the talk, I believed that API Gateway Lambda authorizers couldn't use stage variables, and the documentation didn't make it clear either way. It turns out they can: an authorizer's URI can reference `${stageVariables.alias}` exactly like a Lambda integration's URI. The reference code, the authorizer pipeline, and this README have been updated so the authorizer follows the same blue/green strategy as the order Lambdas. See [The Custom Authorizer](#the-custom-authorizer) for the details and the gotchas.
+
 ## Overview
 
 Blue/green deployment is a release strategy that reduces risk by running two identical production environments — **blue** (current) and **green** (new) — and shifting traffic between them only after the new version has been validated.
@@ -60,14 +63,40 @@ The API Gateway needs permission to invoke the Lambda functions using the aliase
 
 [api-gateway-integration/gateway-integration.tf](iac/modules/api-gateway-integration/gateway-integration.tf) contains the API Gateway integration configuration, including the Lambda permissions for the aliases.
 
-### The Custom Authorizer (Excluded from Blue/Green)
+### The Custom Authorizer
 
-The custom Lambda authorizer is **deliberately excluded from the blue/green strategy** and is deployed by its own independent pipeline.
+The custom Lambda authorizer uses the same blue/green strategy as the order Lambdas, but it is deployed by its own independent pipeline and lives in its own Terraform project ([iac/authorizer/](iac/authorizer)).
 
-An API Gateway authorizer is scoped to the REST API, not to a stage, so it has no stage context and cannot use the `${stageVariables.alias}` mechanism that the order Lambda integrations rely on. There are ways to achieve blue/green for authorizers, but they are out of scope for this demo.
+An API Gateway authorizer is a REST API–level resource, not a stage-level one, which is why I originally assumed it couldn't take part in a stage-variable-based strategy. But the authorizer URI is resolved per stage at request time, so it can reference `${stageVariables.alias}` just like an integration URI does. The pieces are the same as for the order Lambdas:
+
+- The authorizer Lambda function is versioned and has `blue`, `green`, and `previous` aliases ([iac/authorizer/authorizer-lambda.tf](iac/authorizer/authorizer-lambda.tf)).
+- The `aws_api_gateway_authorizer` URI references the `alias` stage variable, so the `blue` stage invokes the authorizer's `blue` alias and the `green` stage invokes its `green` alias.
+- API Gateway is granted permission to invoke the `blue` and `green` aliases (plus the unqualified function, for the same no-downtime reason as the integrations).
+
+[api-gateway-authorizer.tf](iac/api-gateway-authorizer.tf) contains the authorizer configuration and its Lambda permissions.
+
+Because the authorizer URI never changes between authorizer deploys, the authorizer pipeline doesn't need to deploy any API Gateway stages. Moving the authorizer's aliases is enough.
 
 > [!IMPORTANT]
-> On a fresh environment, deploy the authorizer first (the [Deploy Authorizer](.github/workflows/deploy-authorizer.yml) workflow), then deploy the main infrastructure. The main project's `terraform_remote_state` lookup requires the authorizer state to already exist.
+> On a fresh environment, run the [Deploy and Promote Authorizer](.github/workflows/deploy-authorizer.yml) workflow first with **initial-deploy** checked, then run the main pipeline. The main project's `terraform_remote_state` lookup requires the authorizer state to already exist, and its Lambda permissions require the authorizer's aliases to exist.
+
+#### Gotchas When Using Blue/Green With Authorizers
+
+**Deploy and promote the authorizer first.** If a change touches both the authorizer and the API Gateway integration functions, deploy and promote the authorizer before deploying the integration functions. The main pipeline only promotes the integration functions, so if they go first, the new integration code reaches `blue` while `blue` is still running the old authorizer. That means the new authorizer has to be backward compatible with the integration functions that are live on `blue` when it is promoted (an expand/contract approach: add what the new code needs, promote the authorizer, then ship the code that depends on it).
+
+**A separately deployed authorizer can pass its tests and still break `blue`.** When the authorizer has its own pipeline (as it does in this repo), its tests on `green` exercise the new authorizer together with whatever the integration functions' `green` aliases and the `green` stage's API configuration point to, and that is not necessarily what is live on `blue`. For example, `green` might be missing an endpoint that `blue` still serves, or it might hold an un-promoted change from a failed main pipeline run. If the new authorizer removes or changes permissions that `blue` relies on, it can pass every test on `green`, get promoted, and break the live `blue` stage. The pipeline runs the test suite against `blue` after promotion, but by then live traffic is already affected, so make sure the test suite covers everything `blue` serves, and use the [rollback workflow](#rollback-lambda-aliasyml--rollback) (it supports the authorizer) if needed.
+
+**Don't let the two pipelines overlap.** Both pipelines test against the `green` stage and promote to `blue`. If they run at the same time, one pipeline's tests can run against the other's in-flight changes. In this repo, both workflows share a GitHub Actions concurrency group (`ecommerce-blue-green`) so that only one runs at a time.
+
+**Authorizer result caching delays promotion and rollback.** If `authorizer_result_ttl_in_seconds` is greater than zero, API Gateway caches the authorizer's policy per stage and identity source. After a promotion or a rollback, callers can keep getting the policy produced by the previous authorizer version until the cached entry expires. This repo uses a TTL of `0`, so it isn't affected, but if you enable caching, account for the TTL when testing after promotion and when rolling back.
+
+**Each alias needs its own invoke permission.** API Gateway needs a Lambda permission for every alias it may invoke, with a `source_arn` that matches the authorizer (`.../authorizers/{authorizer_id}`), not the methods. A missing permission doesn't fail the deploy: requests through that stage fail with a 500 error (an authorizer configuration error) instead of a 401 or 403.
+
+**Authorizer configuration changes go through the main pipeline.** Only the authorizer's Lambda code and configuration are promoted by moving aliases. Changes to the API Gateway authorizer resource itself, such as its identity source, type, or cache TTL, are API Gateway configuration, so they take effect on a stage only when that stage is deployed by the main pipeline (`green` first, then `blue`).
+
+**Changes outside the Lambda version bypass blue/green.** A Lambda version captures the code and configuration, including environment variables, but not the execution role, or secrets and settings the authorizer reads at runtime (from Secrets Manager or Parameter Store, for example). Changing any of those affects `blue` and `green` immediately. In this repo, the API token is an environment variable, so a new token is versioned along with the code: `green` accepts the new token while `blue` keeps accepting the old one until promotion, and clients have to switch tokens at the moment of promotion.
+
+**Don't hard-code the stage in the returned policy.** If the authorizer builds the `Resource` of its policy itself instead of using the incoming `methodArn`, make sure it doesn't assume a particular stage. A policy that only allows `.../blue/*` passes in one stage and fails in the other.
 
 ### CI/CD Pipeline
 
@@ -120,11 +149,11 @@ The API is a simple CRUD orders service with four Lambda functions:
 - `PUT /v1/order` — Update order
 - `DELETE /v1/order` — Delete order
 
-All endpoints are protected by a custom Lambda authorizer. The authorizer is deployed independently of the blue/green pipeline — see [The Custom Authorizer](#the-custom-authorizer-excluded-from-bluegreen).
+All endpoints are protected by a custom Lambda authorizer. The authorizer uses blue/green too, but is deployed by its own pipeline. See [The Custom Authorizer](#the-custom-authorizer).
 
 ## CI/CD Pipelines
 
-This project has three public-facing GitHub Actions workflows. In a real-world application, you would want to break these into additional workflows for better separation of concerns.
+This project has three public-facing GitHub Actions workflows. The main pipeline and the authorizer pipeline share a concurrency group, so only one of them runs at a time. In a real-world application, you would want to break these into additional workflows for better separation of concerns.
 
 > [!WARNING]
 > The Build & Deploy GitHub action automatically deploys Terraform without any manual approval step. This is intentional for demonstration purposes, but in a production environment you should implement an approval step before deploying infrastructure changes.
@@ -148,15 +177,23 @@ This project has three public-facing GitHub Actions workflows. In a real-world a
 
 ### [rollback-lambda-alias.yml](.github/workflows/rollback-lambda-alias.yml) — Rollback
 
-Updates the `blue` alias to point back to the version that `previous` points to, effectively rolling back to the last known good version. (This workflow can also be used to rollback the `green` alias, in scenarios where we want to verify that the previous version of the API is still working as expected, before promoting it back to `blue`.)
+Updates the `blue` alias to point back to the version that `previous` points to, effectively rolling back to the last known good version. It works for the order Lambdas and the authorizer. (This workflow can also be used to rollback the `green` alias, in scenarios where we want to verify that the previous version of the API is still working as expected, before promoting it back to `blue`.)
 
 ![Rolling Back](/doc/assets/rolling-back.png)
 
-### [deploy-authorizer.yml](.github/workflows/deploy-authorizer.yml) — Deploy Authorizer
+### [deploy-authorizer.yml](.github/workflows/deploy-authorizer.yml) — Deploy and Promote Authorizer
 
-Deploys **only** the custom Lambda authorizer from its separate Terraform project ([iac/authorizer/](iac/authorizer)). This pipeline is intentionally simple — build the authorizer Lambda, then `terraform apply` — with **no** blue/green steps (no green/blue stage deploys, alias promotion, or version cleanup), because the authorizer cannot use stage variables.
+Deploys and promotes **only** the custom Lambda authorizer from its separate Terraform project ([iac/authorizer/](iac/authorizer)). It uses its own Terraform state (S3 key `ecommerce-authorizer`), independent of the main infrastructure.
 
-Run this workflow before the main pipeline on a fresh environment, and whenever the authorizer Lambda changes. It uses its own Terraform state (S3 key `ecommerce-authorizer`), independent of the main infrastructure.
+1. Builds the authorizer Lambda and applies Terraform, which publishes a new version referenced by the authorizer's `green` alias. The `green` stage starts using it right away.
+2. Runs the integration test suite against `green`. If any test fails, the pipeline stops here.
+3. Promotes the authorizer's aliases: `blue` → the version `green` points to, `previous` → the version `blue` pointed to.
+4. Runs the integration test suite against `blue` to validate the promotion.
+5. Cleans up unused authorizer versions.
+
+No API Gateway stages are deployed, because the authorizer URI doesn't change between authorizer deploys.
+
+Run this workflow with **initial-deploy** checked on a fresh environment, before the main pipeline. In that mode it only applies Terraform, since there is no API to test yet. Run it normally whenever the authorizer Lambda changes, and before the main pipeline when a change touches both (see [Gotchas When Using Blue/Green With Authorizers](#gotchas-when-using-bluegreen-with-authorizers)).
 
 #### Branches that Demonstrate Different Scenarios
 
@@ -183,7 +220,7 @@ Simulates a breaking change in the API Gateway configuration, causing the integr
 - [The custom authorizer Lambda function](src/Ecommerce/Ecommerce.Authorizer) is a naive implementation of an API Gateway custom authorizer.
     - It is not intended for production use.
     - It is included because this API Gateway is exposed to the public internet, and the authorizer offers some protection against unauthorized access.
-    - It is deployed by its own pipeline and lives in a separate Terraform project ([iac/authorizer/](iac/authorizer)), because an API Gateway authorizer is REST-API-scoped (not stage-scoped) and therefore cannot participate in the stage-variable-based blue/green strategy used by the order Lambdas.
+    - It is deployed by its own pipeline and lives in a separate Terraform project ([iac/authorizer/](iac/authorizer)), but uses the same stage-variable-based blue/green strategy as the order Lambdas.
 
 ## Q&A
 

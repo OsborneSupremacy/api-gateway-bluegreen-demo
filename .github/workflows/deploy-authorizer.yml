@@ -1,20 +1,35 @@
-name: Deploy Authorizer
+name: Deploy and Promote Authorizer
 
-# Deploys ONLY the custom Lambda authorizer. The authorizer is intentionally
-# excluded from the blue-green pipeline: an API Gateway authorizer is scoped to
-# the REST API rather than a stage, so it cannot use the ${stageVariables.alias}
-# mechanism the order Lambdas rely on. It therefore has its own Terraform state
-# (key: ecommerce-authorizer) and this independent, single-environment pipeline.
+# Deploys and promotes ONLY the custom Lambda authorizer, which has its own
+# Terraform project (iac/authorizer) and state (key: ecommerce-authorizer).
+#
+# The authorizer follows the same blue-green strategy as the order Lambdas: the
+# API Gateway authorizer URI references ${stageVariables.alias}, so the green
+# stage invokes the authorizer's green alias and the blue stage invokes its blue
+# alias. Because the authorizer URI does not change between deploys, no API
+# Gateway stage deployment is needed here: moving an alias is enough.
 #
 # On a fresh environment, run this workflow BEFORE the main
-# "Build, Deploy and Promote" workflow: the main project reads this project's
-# outputs (the authorizer function ARNs) via terraform_remote_state.
+# "Build, Deploy and Promote" workflow, with initial-deploy checked: the main
+# project reads this project's outputs via terraform_remote_state, and grants
+# API Gateway permission to invoke the authorizer's blue and green aliases.
+#
+# If a change touches both the authorizer and the order Lambdas / API Gateway
+# configuration, deploy and promote the authorizer first (see README).
 
 on:
   workflow_dispatch:
+    inputs:
+      initial-deploy:
+        description: Initial deploy to a fresh environment (apply Terraform only; skip tests, promotion and cleanup, since the API Gateway doesn't exist yet)
+        required: false
+        type: boolean
+        default: false
 
+# Shared with the main pipeline: both pipelines test against the green stage and
+# promote to blue, so they must not run at the same time.
 concurrency:
-  group: ${{ github.workflow }}
+  group: ecommerce-blue-green
   cancel-in-progress: false
 
 permissions:
@@ -28,5 +43,69 @@ jobs:
     with:
       tfstate_bucket: bro-tfstate
       tfstate_key: ecommerce-authorizer
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+
+  # Terraform has pointed the authorizer's green alias at the new version, so the
+  # green stage is now using it. Note that the green stage also uses whatever the
+  # order Lambdas' green aliases point to, which may be un-promoted changes from a
+  # failed main pipeline run.
+  test-green:
+    name: Test Green
+    needs: deploy-authorizer
+    if: ${{ !inputs.initial-deploy }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+
+      - name: Run API tests on green stage
+        working-directory: test/Ecommerce.Api.Tests
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+          BASE_ADDRESS: ${{ vars.GREEN_STAGE_BASE_ADDRESS }}
+        run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release
+
+  promote-authorizer:
+    name: Promote Authorizer
+    needs: test-green
+    uses: ./.github/workflows/.reusable-promote-lambda-alias.yml
+    with:
+      function-name: ecommerce-authorizer
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+
+  # Unlike the order Lambdas, this is the first time the new authorizer version
+  # is exercised alongside what is live on blue. If this fails, blue is already
+  # affected: run the Rollback Lambda Alias workflow for ecommerce-authorizer.
+  test-blue:
+    name: Test Blue
+    needs: promote-authorizer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+
+      - name: Run API tests on blue stage
+        working-directory: test/Ecommerce.Api.Tests
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+          BASE_ADDRESS: ${{ vars.BLUE_STAGE_BASE_ADDRESS }}
+        run: dotnet test Ecommerce.Api.Tests/Ecommerce.Api.Tests.csproj --configuration Release
+
+  cleanup-authorizer-versions:
+    name: Cleanup Authorizer Versions
+    needs: test-blue
+    uses: ./.github/workflows/.reusable-cleanup-unused-lambda-versions.yml
+    with:
+      function-name: ecommerce-authorizer
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}

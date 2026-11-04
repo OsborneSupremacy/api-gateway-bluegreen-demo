@@ -25,6 +25,11 @@ output "function_arn" {
 }
 
 output "invoke_arn" {
-  description = "The invoke ARN of the authorizer Lambda function ($LATEST). Consumed by the main project's aws_api_gateway_authorizer."
+  description = "The invoke ARN of the authorizer Lambda function ($LATEST)."
   value       = module.authorizer_lambda.latest_invoke_arn
+}
+
+output "blue_green_stage_variable_invoke_arn" {
+  description = "The invoke ARN of the authorizer Lambda function, qualified with the alias stage variable. Consumed by the main project's aws_api_gateway_authorizer, so that each API Gateway stage invokes the authorizer alias with the same name as the stage."
+  value       = module.authorizer_lambda.blue_green_stage_variable_invoke_arn
 }

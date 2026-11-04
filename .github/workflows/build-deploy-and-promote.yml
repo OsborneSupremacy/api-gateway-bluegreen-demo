@@ -3,8 +3,10 @@ name: Build, Deploy and Promote API Gateway Stages and Lambda Functions
 on:
   workflow_dispatch:
 
+# Shared with the Deploy and Promote Authorizer pipeline: both pipelines test
+# against the green stage and promote to blue, so they must not run at the same time.
 concurrency:
-  group: ${{ github.workflow }}
+  group: ecommerce-blue-green
   cancel-in-progress: false
 
 permissions:

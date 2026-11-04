@@ -12,6 +12,7 @@ on:
           - ecommerce-get-order
           - ecommerce-update-order
           - ecommerce-delete-order
+          - ecommerce-authorizer
       stage:
         description: The alias/stage to rollback
         required: true
